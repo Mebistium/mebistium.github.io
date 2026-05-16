@@ -10369,8 +10369,9 @@ if (!show) return null;
 const handleUpdate = function() {
 if (reg && reg.waiting) {
 reg.waiting.postMessage({ type: "SKIP_WAITING" });
+} else {
+window.location.reload();
 }
-setShow(false);
 };
 return d.jsxs(Y.div, {
 initial: { y: -60, opacity: 0 },
@@ -10385,7 +10386,7 @@ display: "flex", alignItems: "center", justifyContent: "space-between",
 boxShadow: "0 8px 32px rgba(37,99,235,0.4)",
 },
 children: [
-d.jsx("p", { style: { color: "white", fontSize: 13, fontWeight: 600, margin: 0 }, children: "🚀 Nueva versión disponible" }),
+d.jsx("p", { style: { color: "white", fontSize: 13, fontWeight: 600, margin: 0 }, children: "Nueva versión disponible" }),
 d.jsx("button", {
 onClick: handleUpdate,
 style: {
@@ -11728,7 +11729,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v26.15",
+children: "v26.16",
 }),
 ],
 }),
@@ -11755,7 +11756,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v26.15",
+children: "v26.16",
 });
 }
 
