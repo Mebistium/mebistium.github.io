@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mebistium-v26-13';
+const CACHE_NAME = 'mebistium-v26-14';
 
 const urlsToCache = [
   './',
@@ -13,7 +13,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(urlsToCache);
-    }).then(() => self.skipWaiting())
+    })
+    // NO skipWaiting aquí — esperamos a que el usuario confirme
   );
 });
 
@@ -23,15 +24,15 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
       );
-    }).then(() => {
-      return self.clients.matchAll({ type: 'window' }).then((clients) => {
-        clients.forEach((client) => {
-          client.postMessage({ type: 'NEW_VERSION_AVAILABLE' });
-        });
-        return self.clients.claim();
-      });
-    })
+    }).then(() => self.clients.claim())
   );
+});
+
+// El frontend nos manda SKIP_WAITING cuando el usuario pulsa "Actualizar"
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (event) => {

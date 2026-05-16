@@ -10337,72 +10337,65 @@ children: MIcon({ path: '<polyline points="20 6 9 17 4 12"/>', size: 14, color: 
 }
 function UpdateBanner() {
 const [show, setShow] = b.useState(false);
+const [reg, setReg] = b.useState(null);
 b.useEffect(function() {
 if (!("serviceWorker" in navigator)) return;
-const handler = function(e) {
-if (e.data && e.data.type === "NEW_VERSION_AVAILABLE") {
+// Detectar SW en estado waiting (nueva versión descargada esperando)
+const checkWaiting = function(r) {
+if (!r) return;
+setReg(r);
+if (r.waiting) {
+setShow(true);
+return;
+}
+r.addEventListener("updatefound", function() {
+const newWorker = r.installing;
+if (!newWorker) return;
+newWorker.addEventListener("statechange", function() {
+if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+setReg(r);
 setShow(true);
 }
+});
+});
 };
-navigator.serviceWorker.addEventListener("message", handler);
-return function() {
-navigator.serviceWorker.removeEventListener("message", handler);
-};
+navigator.serviceWorker.getRegistration().then(checkWaiting);
+// También escuchar si el controller cambia (tras skipWaiting)
+navigator.serviceWorker.addEventListener("controllerchange", function() {
+window.location.reload();
+});
 }, []);
 if (!show) return null;
+const handleUpdate = function() {
+if (reg && reg.waiting) {
+reg.waiting.postMessage({ type: "SKIP_WAITING" });
+}
+setShow(false);
+};
 return d.jsxs(Y.div, {
 initial: { y: -60, opacity: 0 },
 animate: { y: 0, opacity: 1 },
-transition: { type: "spring", damping: 20, stiffness: 300 },
+exit: { y: -60, opacity: 0 },
+transition: { type: "spring", damping: 25, stiffness: 300 },
 style: {
-position: "fixed",
-top: "max(12px, env(safe-area-inset-top, 12px))",
-left: "50%",
-transform: "translateX(-50%)",
-zIndex: 9999,
-background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-color: "white",
-borderRadius: 14,
-padding: "10px 16px",
-display: "flex", alignItems: "center", gap: 10,
+position: "fixed", top: 12, left: 12, right: 12, zIndex: 9999,
+background: "linear-gradient(135deg, #1e3a8a, #2563eb)",
+borderRadius: 16, padding: "12px 16px",
+display: "flex", alignItems: "center", justifyContent: "space-between",
 boxShadow: "0 8px 32px rgba(37,99,235,0.4)",
-maxWidth: "calc(100vw - 32px)",
-whiteSpace: "nowrap",
 },
 children: [
-d.jsx("div", {
-style: {
-width: 28, height: 28, borderRadius: "50%",
-background: "rgba(255,255,255,0.15)",
-display: "flex", alignItems: "center", justifyContent: "center",
-flexShrink: 0,
-},
-children: MIcon({ path: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.63"/>', size: 14, color: "white" }),
-}),
-d.jsxs("div", {
-style: { flex: 1, minWidth: 0 },
-children: [
-d.jsx("p", {
-style: { fontSize: 13, fontWeight: 700, margin: 0 },
-children: "Nueva versión disponible",
-}),
-d.jsx("p", {
-style: { fontSize: 10, margin: 0, opacity: 0.8 },
-children: "Pulsa para actualizar Mebistium",
-}),
-],
-}),
+d.jsx("p", { style: { color: "white", fontSize: 13, fontWeight: 600, margin: 0 }, children: "🚀 Nueva versión disponible" }),
 d.jsx("button", {
-onClick: function() { window.location.reload(); },
+onClick: handleUpdate,
 style: {
-padding: "6px 14px", borderRadius: 8,
-background: "white", color: "#2563eb",
-border: "none", fontSize: 12, fontWeight: 700,
-cursor: "pointer", flexShrink: 0,
+background: "white", color: "#2563eb", border: "none",
+borderRadius: 10, padding: "6px 14px", fontSize: 12,
+fontWeight: 700, cursor: "pointer"
 },
-children: "Actualizar",
-}),
-],
+children: "Actualizar"
+})
+]
 });
 }
 async function getGeminiKey() {
@@ -11735,7 +11728,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v26.13",
+children: "v26.14",
 }),
 ],
 }),
@@ -11762,7 +11755,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v26.13",
+children: "v26.14",
 });
 }
 
