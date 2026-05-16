@@ -11729,7 +11729,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v26.16",
+children: "v27.0",
 }),
 ],
 }),
@@ -11756,7 +11756,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v26.16",
+children: "v27.0",
 });
 }
 
@@ -12232,6 +12232,15 @@ onAddStroke: addStroke, onReplaceStrokes: replaceStrokes,
 onAddStrokeToPage: addStrokeToPage, onReplaceStrokesOnPage: replaceStrokesOnPage,
 onUndo: doUndo, onRedo: doRedo, onJumpPage: setPageIdx,
 onToggleFinger: function () { setFingerWrites(function (v) { return !v; }); },
+onAddImagePage: function(data, type) {
+const newP = { id: genId(), template: "blank", bg: "#ffffff", strokes: [], imageData: data, imageType: type };
+updateNotebook(selectedNb.id, function(nb) {
+const np = nb.pages.slice();
+np.splice(pageIdx + 1, 0, newP);
+return Object.assign({}, nb, { pages: np });
+});
+setPageIdx(pageIdx + 1);
+},
 onToggleScroll: function () { setScrollMode(function (v) { return v === "paged" ? "scroll" : "paged"; }); },
 onToggleZoomLock: function () { setZoomLocked(function (v) { return !v; }); },
 _COLORS: _COLORS, _HL_COLORS: _HL_COLORS,
@@ -12242,65 +12251,109 @@ _ERASER_SIZES: _ERASER_SIZES, _BG_COLORS: _BG_COLORS, _TEMPLATES: _TEMPLATES,
 function NotebookEditor(props) {
 const notebook = props.notebook;
 const currentPage = props.currentPage;
+
+// Canvas refs
 const canvasRef = b.useRef(null);
+const overlayRef = b.useRef(null); // capa rápida para el trazo activo
 const containerRef = b.useRef(null);
-const dprRef = b.useRef(1);
-const canvasSizeRef = b.useRef({ w: 0, h: 0 });
-const activeStrokeRef = b.useRef(null);
-const activeStrokePageRef = b.useRef(null);
+const dprRef = b.useRef(window.devicePixelRatio || 1);
+
+// Dimensiones físicas de página (A4 ratio)
+const PAGE_W = 816;
+const PAGE_H = 1154;
+
+// Drawing state
 const isDrawingRef = b.useRef(false);
+const activeStrokeRef = b.useRef(null);
 const lastPointRef = b.useRef(null);
-const eraseAccumRef = b.useRef(null);
+const activeToolRef = b.useRef(props.tool);
+const prevToolRef = b.useRef(props.tool); // para barrel button
+const rafRef = b.useRef(null);
+const pointsBufferRef = b.useRef([]);
+
+// Zoom/pan (solo en modo paginado)
 const [zoom, setZoom] = b.useState(1);
-const [panOffset, setPanOffset] = b.useState({ x: 0, y: 0 });
-const activePointersRef = b.useRef(new Map());
-const pinchStartRef = b.useRef(null);
+const [pan, setPan] = b.useState({ x: 0, y: 0 });
+const pinchRef = b.useRef(null);
 const panStartRef = b.useRef(null);
-const [selection, setSelection] = b.useState(null);
-const selectionLassoRef = b.useRef(null);
-const clipboardRef = b.useRef(null);
-const dragSelRef = b.useRef(null);
+const activePointersRef = b.useRef(new Map());
+
+// Scroll mode
 const scrollContainerRef = b.useRef(null);
-const [visiblePages, setVisiblePages] = b.useState([0]);
+const scrollPagesRef = b.useRef([]); // posiciones Y de cada página en scroll
+
+// Import
+const importRef = b.useRef(null);
+
+// ─── Sincronizar tool ref ───────────────────────────────────────────────────
+b.useEffect(function () {
+activeToolRef.current = props.tool;
+}, [props.tool]);
+
+// ─── Canvas sizing ─────────────────────────────────────────────────────────
+const resizeCanvas = b.useCallback(function () {
+const container = containerRef.current;
+const canvas = canvasRef.current;
+const overlay = overlayRef.current;
+if (!container || !canvas) return;
+const dpr = dprRef.current;
+const rect = container.getBoundingClientRect();
+const W = Math.floor(rect.width);
+const H = Math.floor(rect.height);
+canvas.width = W * dpr;
+canvas.height = H * dpr;
+canvas.style.width = W + "px";
+canvas.style.height = H + "px";
+if (overlay) {
+overlay.width = W * dpr;
+overlay.height = H * dpr;
+overlay.style.width = W + "px";
+overlay.style.height = H + "px";
+}
+redrawFull();
+}, []);
+
+b.useEffect(function () {
+resizeCanvas();
+const ro = new ResizeObserver(resizeCanvas);
+if (containerRef.current) ro.observe(containerRef.current);
+return function () { ro.disconnect(); };
+}, [resizeCanvas]);
+
+// ─── Redibujado completo ────────────────────────────────────────────────────
 const drawBackground = function (ctx, W, H, page) {
-ctx.save();
 ctx.fillStyle = page.bg || "#fffef8";
 ctx.fillRect(0, 0, W, H);
 const isDark = page.bg === "#0f172a";
-const lineCol = isDark ? "rgba(148,163,184,0.2)" : "rgba(37,99,235,0.12)";
-const dotCol = isDark ? "rgba(148,163,184,0.35)" : "rgba(37,99,235,0.25)";
-const marginCol = isDark ? "rgba(248,113,113,0.3)" : "rgba(239,68,68,0.25)";
+const lineCol = isDark ? "rgba(148,163,184,0.18)" : "rgba(37,99,235,0.10)";
+const dotCol = isDark ? "rgba(148,163,184,0.3)" : "rgba(37,99,235,0.22)";
+const marginCol = isDark ? "rgba(248,113,113,0.25)" : "rgba(239,68,68,0.2)";
 if (page.template === "lined") {
-ctx.strokeStyle = lineCol;
-ctx.lineWidth = 0.8;
+ctx.strokeStyle = lineCol; ctx.lineWidth = 0.8;
 for (let y = 56; y < H; y += 32) {
 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
 }
 ctx.strokeStyle = marginCol; ctx.lineWidth = 1;
 ctx.beginPath(); ctx.moveTo(72, 0); ctx.lineTo(72, H); ctx.stroke();
 } else if (page.template === "grid") {
-ctx.strokeStyle = lineCol; ctx.lineWidth = 0.7;
+ctx.strokeStyle = lineCol; ctx.lineWidth = 0.6;
 for (let x = 0; x < W; x += 24) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
 for (let y = 0; y < H; y += 24) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 } else if (page.template === "dotted") {
 ctx.fillStyle = dotCol;
 for (let x = 24; x < W; x += 24)
-for (let y = 24; y < H; y += 24) { ctx.beginPath(); ctx.arc(x, y, 1.2, 0, Math.PI * 2); ctx.fill(); }
+for (let y = 24; y < H; y += 24) { ctx.beginPath(); ctx.arc(x, y, 1.1, 0, Math.PI * 2); ctx.fill(); }
 }
-ctx.restore();
 };
-const drawStroke = function (ctx, stroke, offsetX, offsetY) {
+
+const drawStroke = function (ctx, stroke, ox, oy) {
 if (!stroke || !stroke.points || stroke.points.length < 1) return;
-const ox = offsetX || 0, oy = offsetY || 0;
+ox = ox || 0; oy = oy || 0;
 ctx.save();
-ctx.lineCap = "round";
-ctx.lineJoin = "round";
+ctx.lineCap = "round"; ctx.lineJoin = "round";
 if (stroke.tool === "highlighter") {
-ctx.globalAlpha = 0.35;
+ctx.globalAlpha = 0.32;
 ctx.globalCompositeOperation = "multiply";
-} else if (stroke.tool === "marker") {
-ctx.globalAlpha = 0.92;
-ctx.globalCompositeOperation = "source-over";
 } else {
 ctx.globalAlpha = 1;
 ctx.globalCompositeOperation = "source-over";
@@ -12311,8 +12364,7 @@ const pts = stroke.points;
 ctx.beginPath();
 if (pts.length === 1) {
 ctx.arc(pts[0].x + ox, pts[0].y + oy, stroke.size / 2, 0, Math.PI * 2);
-ctx.fillStyle = ctx.strokeStyle;
-ctx.fill();
+ctx.fillStyle = stroke.color; ctx.fill();
 } else if (pts.length === 2) {
 ctx.moveTo(pts[0].x + ox, pts[0].y + oy);
 ctx.lineTo(pts[1].x + ox, pts[1].y + oy);
@@ -12329,915 +12381,634 @@ ctx.stroke();
 }
 ctx.restore();
 };
-const drawLasso = function (ctx, pts) {
-if (!pts || pts.length < 2) return;
-ctx.save();
-ctx.strokeStyle = "#2563eb";
-ctx.lineWidth = 1.5;
-ctx.setLineDash([6, 4]);
-ctx.beginPath();
-ctx.moveTo(pts[0].x, pts[0].y);
-for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-if (pts.length > 2) ctx.lineTo(pts[0].x, pts[0].y);
-ctx.stroke();
-ctx.setLineDash([]);
-ctx.fillStyle = "rgba(37,99,235,0.08)";
-ctx.fill();
-ctx.restore();
-};
-const PAGE_ASPECT = 1 / 1.414;
-const redrawPaged = b.useCallback(function () {
-const canvas = canvasRef.current;
-if (!canvas || !currentPage) return;
-const ctx = canvas.getContext("2d");
-const dpr = dprRef.current;
-ctx.save();
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-const cw = canvasSizeRef.current.w, ch = canvasSizeRef.current.h;
-ctx.clearRect(0, 0, cw, ch);
-const strokes = currentPage.strokes || [];
-const selectedSet = (selection && selection.pageIdx === props.pageIdx) ?
-new Set(selection.strokeIds) : null;
-drawBackground(ctx, cw, ch, currentPage);
-for (let i = 0; i < strokes.length; i++) {
-const s = strokes[i];
-if (selectedSet && selectedSet.has(s.id)) {
-const dx = (dragSelRef.current && dragSelRef.current.active) ? dragSelRef.current.dx : 0;
-const dy = (dragSelRef.current && dragSelRef.current.active) ? dragSelRef.current.dy : 0;
-drawStroke(ctx, s, dx, dy);
-} else {
-drawStroke(ctx, s, 0, 0);
-}
-}
-if (activeStrokeRef.current) drawStroke(ctx, activeStrokeRef.current, 0, 0);
-if (selectionLassoRef.current) drawLasso(ctx, selectionLassoRef.current);
-if (selectedSet && selection && selection.bounds) {
-const dx = (dragSelRef.current && dragSelRef.current.active) ? dragSelRef.current.dx : 0;
-const dy = (dragSelRef.current && dragSelRef.current.active) ? dragSelRef.current.dy : 0;
-ctx.save();
-ctx.strokeStyle = "#2563eb";
-ctx.setLineDash([5, 3]);
-ctx.lineWidth = 1.5;
-const bb = selection.bounds;
-ctx.strokeRect(bb.x + dx - 4, bb.y + dy - 4, bb.w + 8, bb.h + 8);
-ctx.setLineDash([]);
-ctx.restore();
-}
-ctx.restore();
-}, [currentPage, selection, props.pageIdx]);
-const redrawScroll = b.useCallback(function () {
+
+const redrawFull = b.useCallback(function () {
 const canvas = canvasRef.current;
 if (!canvas) return;
 const ctx = canvas.getContext("2d");
 const dpr = dprRef.current;
+ctx.setTransform(1, 0, 0, 1, 0, 0);
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+if (props.scrollMode === "scroll") {
+// ── Modo scroll: dibujar todas las páginas ──
+const cW = canvas.width / dpr;
+const cH = canvas.height / dpr;
 ctx.save();
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-const cw = canvasSizeRef.current.w, ch = canvasSizeRef.current.h;
-ctx.clearRect(0, 0, cw, ch);
-ctx.fillStyle = "#e2e8f0";
-ctx.fillRect(0, 0, cw, ch);
-const pageWidth = Math.min(cw - 32, 820);
-const pageHeight = pageWidth / PAGE_ASPECT;
-const gap = 16;
-const startX = (cw - pageWidth) / 2;
-let y = 16;
+ctx.scale(dpr, dpr);
+ctx.fillStyle = "#dde3ed";
+ctx.fillRect(0, 0, cW, cH);
+const GAP = 20;
+const pageW = Math.min(cW - 40, PAGE_W);
+const scale = pageW / PAGE_W;
+const pageH = PAGE_H * scale;
+const startX = (cW - pageW) / 2;
+const scrollTop = scrollContainerRef.current ? scrollContainerRef.current.scrollTop : 0;
+scrollPagesRef.current = [];
+let y = GAP - scrollTop;
 for (let i = 0; i < notebook.pages.length; i++) {
+scrollPagesRef.current.push(GAP + i * (pageH + GAP));
 const pg = notebook.pages[i];
+if (y + pageH < -50 || y > cH + 50) { y += pageH + GAP; continue; }
 ctx.save();
-ctx.shadowColor = "rgba(0,0,0,0.08)";
-ctx.shadowBlur = 12;
-ctx.shadowOffsetY = 2;
+ctx.shadowColor = "rgba(0,0,0,0.10)"; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3;
 ctx.fillStyle = pg.bg || "#fffef8";
-ctx.fillRect(startX, y, pageWidth, pageHeight);
+ctx.fillRect(startX, y, pageW, pageH);
 ctx.restore();
 ctx.save();
-ctx.beginPath();
-ctx.rect(startX, y, pageWidth, pageHeight);
-ctx.clip();
-ctx.translate(startX, y);
-drawBackground(ctx, pageWidth, pageHeight, pg);
+ctx.beginPath(); ctx.rect(startX, y, pageW, pageH); ctx.clip();
+ctx.translate(startX, y); ctx.scale(scale, scale);
+drawBackground(ctx, PAGE_W, PAGE_H, pg);
 const strokes = pg.strokes || [];
-const selectedSet = (selection && selection.pageIdx === i) ? new Set(selection.strokeIds) : null;
-for (let j = 0; j < strokes.length; j++) {
-const s = strokes[j];
-if (selectedSet && selectedSet.has(s.id)) {
-const dx = (dragSelRef.current && dragSelRef.current.active) ? dragSelRef.current.dx : 0;
-const dy = (dragSelRef.current && dragSelRef.current.active) ? dragSelRef.current.dy : 0;
-drawStroke(ctx, s, dx, dy);
-} else {
-drawStroke(ctx, s, 0, 0);
-}
-}
-if (activeStrokeRef.current && activeStrokePageRef.current === i) {
-drawStroke(ctx, activeStrokeRef.current, 0, 0);
-}
-if (selectionLassoRef.current && selectionLassoRef.current.pageIdx === i) {
-drawLasso(ctx, selectionLassoRef.current.points);
-}
-if (selectedSet && selection && selection.bounds) {
-const dx = (dragSelRef.current && dragSelRef.current.active) ? dragSelRef.current.dx : 0;
-const dy = (dragSelRef.current && dragSelRef.current.active) ? dragSelRef.current.dy : 0;
-ctx.save();
-ctx.strokeStyle = "#2563eb";
-ctx.setLineDash([5, 3]);
-ctx.lineWidth = 1.5;
-const bb = selection.bounds;
-ctx.strokeRect(bb.x + dx - 4, bb.y + dy - 4, bb.w + 8, bb.h + 8);
-ctx.setLineDash([]);
+for (let j = 0; j < strokes.length; j++) drawStroke(ctx, strokes[j], 0, 0);
 ctx.restore();
-}
-ctx.restore();
+// número de página
 ctx.save();
-ctx.fillStyle = "rgba(100,116,139,0.5)";
-ctx.font = "11px Inter, sans-serif";
+ctx.fillStyle = "rgba(100,116,139,0.55)";
+ctx.font = "11px Inter, system-ui, sans-serif";
 ctx.textAlign = "center";
-ctx.fillText((i + 1) + " / " + notebook.pages.length, cw / 2, y + pageHeight + 11);
+ctx.fillText((i + 1) + " / " + notebook.pages.length, cW / 2, y + pageH + 13);
 ctx.restore();
-y += pageHeight + gap + 12;
+y += pageH + GAP;
 }
 ctx.restore();
-}, [notebook, selection]);
-const redraw = b.useCallback(function () {
-if (props.scrollMode === "scroll") redrawScroll();
-else redrawPaged();
-}, [props.scrollMode, redrawPaged, redrawScroll]);
-const getScrollPageAt = function (clientX, clientY) {
-const container = containerRef.current;
-if (!container) return null;
-const rect = container.getBoundingClientRect();
-const cw = rect.width;
-const pageWidth = Math.min(cw - 32, 820);
-const pageHeight = pageWidth / PAGE_ASPECT;
-const gap = 28;
-const startX = (cw - pageWidth) / 2;
-const xInContainer = clientX - rect.left;
-const yInContainer = (clientY - rect.top) + (scrollContainerRef.current ? scrollContainerRef.current.scrollTop : 0);
-let y = 16;
-for (let i = 0; i < notebook.pages.length; i++) {
-if (yInContainer >= y && yInContainer < y + pageHeight &&
-xInContainer >= startX && xInContainer < startX + pageWidth) {
-return {
-pageIdx: i,
-localX: xInContainer - startX,
-localY: yInContainer - y,
-pageWidth: pageWidth,
-pageHeight: pageHeight,
-};
-}
-y += pageHeight + gap;
-}
-return null;
-};
-b.useEffect(function () {
-const canvas = canvasRef.current;
-const container = containerRef.current;
-if (!canvas || !container) return;
-const resize = function () {
-const rect = container.getBoundingClientRect();
-const dpr = window.devicePixelRatio || 1;
-dprRef.current = dpr;
-canvas.width = rect.width * dpr;
-canvas.height = rect.height * dpr;
-canvas.style.width = rect.width + "px";
-canvas.style.height = rect.height + "px";
-canvasSizeRef.current = { w: rect.width, h: rect.height };
-redraw();
-};
-resize();
-window.addEventListener("resize", resize);
-return function () { window.removeEventListener("resize", resize); };
-}, [redraw]);
-b.useEffect(function () { redraw(); }, [redraw]);
-b.useEffect(function () {
-if (props.scrollMode !== "scroll") return;
-const id = setInterval(function () { redrawScroll(); }, 80);
-return function () { clearInterval(id); };
-}, [props.scrollMode, redrawScroll]);
-const pointNearStroke = function (pt, stroke, tolerance) {
-const pts = stroke.points;
-if (!pts || pts.length === 0) return false;
-const tol = tolerance + stroke.size / 2;
-const tol2 = tol * tol;
-for (let i = 0; i < pts.length; i++) {
-const dx = pts[i].x - pt.x, dy = pts[i].y - pt.y;
-if (dx * dx + dy * dy < tol2) return true;
-}
-for (let i = 0; i < pts.length - 1; i++) {
-const a = pts[i], bp = pts[i + 1];
-const dx = bp.x - a.x, dy = bp.y - a.y;
-const len2 = dx * dx + dy * dy;
-if (len2 < 0.01) continue;
-let t = ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / len2;
-t = Math.max(0, Math.min(1, t));
-const px = a.x + t * dx, py = a.y + t * dy;
-const ex = pt.x - px, ey = pt.y - py;
-if (ex * ex + ey * ey < tol2) return true;
-}
-return false;
-};
-const pointInPolygon = function (pt, poly) {
-let inside = false;
-for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-const xi = poly[i].x, yi = poly[i].y;
-const xj = poly[j].x, yj = poly[j].y;
-const intersect = ((yi > pt.y) !== (yj > pt.y)) &&
-(pt.x < (xj - xi) * (pt.y - yi) / ((yj - yi) || 1e-9) + xi);
-if (intersect) inside = !inside;
-}
-return inside;
-};
-const strokeInPolygon = function (stroke, poly) {
-if (!stroke.points || stroke.points.length === 0) return false;
-let inside = 0;
-for (let i = 0; i < stroke.points.length; i++) {
-if (pointInPolygon(stroke.points[i], poly)) inside++;
-}
-return inside * 2 >= stroke.points.length;
-};
-const strokeBounds = function (strokes, ids) {
-const setIds = new Set(ids);
-let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-for (let i = 0; i < strokes.length; i++) {
-if (!setIds.has(strokes[i].id)) continue;
-const pts = strokes[i].points || [];
-for (let j = 0; j < pts.length; j++) {
-if (pts[j].x < minX) minX = pts[j].x;
-if (pts[j].y < minY) minY = pts[j].y;
-if (pts[j].x > maxX) maxX = pts[j].x;
-if (pts[j].y > maxY) maxY = pts[j].y;
-}
-}
-if (minX === Infinity) return null;
-return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
-};
-const getCanvasPoint = function (ev) {
-if (props.scrollMode === "scroll") {
-const info = getScrollPageAt(ev.clientX, ev.clientY);
-if (!info) return null;
-return { x: info.localX, y: info.localY, p: ev.pressure > 0 ? ev.pressure : 0.5, pageIdx: info.pageIdx };
-}
-const canvas = canvasRef.current;
-const rect = canvas.getBoundingClientRect();
-return {
-x: ev.clientX - rect.left,
-y: ev.clientY - rect.top,
-p: ev.pressure > 0 ? ev.pressure : 0.5,
-pageIdx: props.pageIdx,
-};
-};
-const shouldWrite = function (ev) {
-if (!props.fingerWrites && ev.pointerType !== "pen") return false;
-return true;
-};
-const isPenEraser = function (ev) {
-return (
-ev.pointerType === "eraser" ||
-(ev.pointerType === "pen" && (
-ev.button === 2 || ev.button === 5 || ev.button === 1 ||
-(ev.buttons & 2) !== 0 || (ev.buttons & 32) !== 0 ||
-(ev.buttons & 4) !== 0 || (ev.buttons & 16) !== 0
-))
-);
-};
-const handlePointerDown = function (ev) {
-ev.preventDefault();
-const ptr = { x: ev.clientX, y: ev.clientY, id: ev.pointerId, type: ev.pointerType };
-activePointersRef.current.set(ev.pointerId, ptr);
-if (activePointersRef.current.size >= 2) {
-isDrawingRef.current = false;
-activeStrokeRef.current = null;
-const arr = Array.from(activePointersRef.current.values());
-const p1 = arr[0], p2 = arr[1];
-const dx = p2.x - p1.x, dy = p2.y - p1.y;
-const dist = Math.hypot(dx, dy);
-const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
-pinchStartRef.current = { dist: dist, zoom: zoom };
-panStartRef.current = { x: mx, y: my, offset: { x: panOffset.x, y: panOffset.y } };
-return;
-}
-if (!shouldWrite(ev)) {
-if (props.scrollMode === "scroll") return;
-panStartRef.current = {
-x: ev.clientX, y: ev.clientY,
-offset: { x: panOffset.x, y: panOffset.y },
-};
-return;
-}
-const pt = getCanvasPoint(ev);
-if (!pt) return;
-const penEraser = isPenEraser(ev);
-let activeTool = penEraser ? "eraser" : props.tool;
-if (selection && selection.pageIdx === pt.pageIdx && selection.bounds) {
-const bb = selection.bounds;
-if (pt.x >= bb.x - 4 && pt.x <= bb.x + bb.w + 4 &&
-pt.y >= bb.y - 4 && pt.y <= bb.y + bb.h + 4) {
-dragSelRef.current = {
-active: true, startX: pt.x, startY: pt.y, dx: 0, dy: 0,
-pageIdx: pt.pageIdx,
-};
-isDrawingRef.current = true;
-lastPointRef.current = pt;
-try { canvasRef.current.setPointerCapture(ev.pointerId); } catch (e) {}
-return;
 } else {
-setSelection(null);
-}
-}
-isDrawingRef.current = true;
-lastPointRef.current = pt;
-if (activeTool === "lasso") {
-selectionLassoRef.current = props.scrollMode === "scroll" ?
-{ pageIdx: pt.pageIdx, points: [pt] } : [pt];
-activeStrokePageRef.current = pt.pageIdx;
-activeStrokeRef.current = null;
-} else if (activeTool === "eraser") {
-const pg = notebook.pages[pt.pageIdx];
-if (!pg) { isDrawingRef.current = false; return; }
-eraseAccumRef.current = { pageIdx: pt.pageIdx, strokes: (pg.strokes || []).slice() };
-eraseAt(pt);
-activeStrokeRef.current = { tool: "eraser", points: [pt] };
-activeStrokePageRef.current = pt.pageIdx;
-} else {
-let color, size;
-if (activeTool === "pen") { color = props.penColor; size = props.penSize; }
-else if (activeTool === "marker") { color = props.markerColor; size = props.markerSize; }
-else if (activeTool === "highlighter") { color = props.hlColor; size = props.hlSize; }
-activeStrokeRef.current = { id: genStrokeId(), tool: activeTool, color: color, size: size, points: [pt] };
-activeStrokePageRef.current = pt.pageIdx;
-}
-try { canvasRef.current.setPointerCapture(ev.pointerId); } catch (e) {}
-};
-const genStrokeId = function () {
-return "s_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-};
-const eraseAt = function (pt) {
-if (!eraseAccumRef.current) return;
-const pg = notebook.pages[eraseAccumRef.current.pageIdx];
-if (!pg) return;
-const tol = props.eraserSize / 2;
-const strokes = eraseAccumRef.current.strokes;
-let hit = false;
-const kept = [];
-for (let i = 0; i < strokes.length; i++) {
-if (pointNearStroke(pt, strokes[i], tol)) hit = true;
-else kept.push(strokes[i]);
-}
-if (hit) {
-eraseAccumRef.current.strokes = kept;
-if (props.scrollMode === "scroll" && props.onReplaceStrokesOnPage) {
-props.onReplaceStrokesOnPage(eraseAccumRef.current.pageIdx, kept);
-} else if (props.onReplaceStrokes) {
-props.onReplaceStrokes(kept);
-}
-}
-};
-const handlePointerMove = function (ev) {
-if (activePointersRef.current.has(ev.pointerId)) {
-activePointersRef.current.set(ev.pointerId, {
-x: ev.clientX, y: ev.clientY, id: ev.pointerId, type: ev.pointerType,
-});
-}
-if (activePointersRef.current.size >= 2 && pinchStartRef.current) {
-const arr = Array.from(activePointersRef.current.values());
-const p1 = arr[0], p2 = arr[1];
-const dx = p2.x - p1.x, dy = p2.y - p1.y;
-const dist = Math.hypot(dx, dy);
-const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
-if (!props.zoomLocked) {
-const newZoom = Math.max(0.5, Math.min(4, pinchStartRef.current.zoom * (dist / pinchStartRef.current.dist)));
-setZoom(newZoom);
-}
-if (panStartRef.current) {
-const dxPan = mx - panStartRef.current.x;
-const dyPan = my - panStartRef.current.y;
-setPanOffset({
-x: panStartRef.current.offset.x + dxPan,
-y: panStartRef.current.offset.y + dyPan,
-});
-}
-return;
-}
-if (!isDrawingRef.current && panStartRef.current && activePointersRef.current.size === 1) {
-if (props.scrollMode === "paged") {
-const dxPan = ev.clientX - panStartRef.current.x;
-const dyPan = ev.clientY - panStartRef.current.y;
-setPanOffset({
-x: panStartRef.current.offset.x + dxPan,
-y: panStartRef.current.offset.y + dyPan,
-});
-}
-return;
-}
-if (!isDrawingRef.current) return;
-ev.preventDefault();
-const pt = getCanvasPoint(ev);
-if (!pt) return;
-if (dragSelRef.current && dragSelRef.current.active) {
-dragSelRef.current.dx = pt.x - dragSelRef.current.startX;
-dragSelRef.current.dy = pt.y - dragSelRef.current.startY;
-redraw();
-return;
-}
-if (!activeStrokeRef.current && !selectionLassoRef.current) return;
-if (selectionLassoRef.current) {
-const lassoPts = props.scrollMode === "scroll" ? selectionLassoRef.current.points : selectionLassoRef.current;
-if (pt.pageIdx !== activeStrokePageRef.current) return;
-lassoPts.push(pt);
-redraw();
-return;
-}
-const last = lastPointRef.current;
-const ddx = pt.x - last.x, ddy = pt.y - last.y;
-if (ddx * ddx + ddy * ddy < 1) return;
-const active = activeStrokeRef.current;
-if (active.tool === "eraser") {
-eraseAt(pt);
-return;
-}
-active.points.push(pt);
-lastPointRef.current = pt;
-if (props.scrollMode === "scroll") {
-redraw();
-return;
-}
-const canvas = canvasRef.current;
-const ctx = canvas.getContext("2d");
-const dpr = dprRef.current;
+// ── Modo paginado ──
+const cW = canvas.width / dpr;
+const cH = canvas.height / dpr;
 ctx.save();
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-ctx.lineCap = "round"; ctx.lineJoin = "round";
-if (active.tool === "highlighter") {
-ctx.globalAlpha = 0.35;
-ctx.globalCompositeOperation = "multiply";
-} else {
-ctx.globalAlpha = active.tool === "marker" ? 0.92 : 1;
-ctx.globalCompositeOperation = "source-over";
-}
-ctx.strokeStyle = active.color;
-ctx.lineWidth = active.size;
-const pts = active.points;
-if (pts.length >= 3) {
-const n = pts.length;
-const prev = pts[n - 3], curr = pts[n - 2], next = pts[n - 1];
-const m1x = (prev.x + curr.x) / 2, m1y = (prev.y + curr.y) / 2;
-const m2x = (curr.x + next.x) / 2, m2y = (curr.y + next.y) / 2;
-ctx.beginPath();
-ctx.moveTo(m1x, m1y);
-ctx.quadraticCurveTo(curr.x, curr.y, m2x, m2y);
-ctx.stroke();
-} else if (pts.length === 2) {
-ctx.beginPath();
-ctx.moveTo(pts[0].x, pts[0].y);
-ctx.lineTo(pts[1].x, pts[1].y);
-ctx.stroke();
-}
+ctx.scale(dpr, dpr);
+ctx.fillStyle = "#dde3ed";
+ctx.fillRect(0, 0, cW, cH);
+// Calcular tamaño de página ajustado a la ventana
+const fitScale = Math.min((cW - 32) / PAGE_W, (cH - 32) / PAGE_H);
+const pageW = PAGE_W * fitScale * zoom;
+const pageH = PAGE_H * fitScale * zoom;
+const pageX = (cW - pageW) / 2 + pan.x;
+const pageY = (cH - pageH) / 2 + pan.y;
+// Sombra página
+ctx.save();
+ctx.shadowColor = "rgba(0,0,0,0.12)"; ctx.shadowBlur = 20; ctx.shadowOffsetY = 4;
+ctx.fillStyle = currentPage ? (currentPage.bg || "#fffef8") : "#fffef8";
+ctx.fillRect(pageX, pageY, pageW, pageH);
+ctx.restore();
+// Clip y dibujar
+ctx.save();
+ctx.beginPath(); ctx.rect(pageX, pageY, pageW, pageH); ctx.clip();
+ctx.translate(pageX, pageY); ctx.scale(fitScale * zoom, fitScale * zoom);
+if (currentPage) {
+drawBackground(ctx, PAGE_W, PAGE_H, currentPage);
+if (currentPage.imageData) {
+const img = new window.Image();
+img.onload = function() {
+ctx.save();
+ctx.drawImage(img, 0, 0, PAGE_W, PAGE_H);
+const strokes2 = currentPage.strokes || [];
+for (let ii = 0; ii < strokes2.length; ii++) drawStroke(ctx, strokes2[ii], 0, 0);
 ctx.restore();
 };
-const handlePointerUp = function (ev) {
-activePointersRef.current.delete(ev.pointerId);
-if (activePointersRef.current.size === 0) {
-pinchStartRef.current = null;
-panStartRef.current = null;
+img.src = currentPage.imageData;
+} else {
+const strokes = currentPage.strokes || [];
+for (let i = 0; i < strokes.length; i++) drawStroke(ctx, strokes[i], 0, 0);
 }
-if (dragSelRef.current && dragSelRef.current.active) {
-const { dx, dy, pageIdx } = dragSelRef.current;
-if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-const pg = notebook.pages[pageIdx];
-if (pg && selection) {
-const setIds = new Set(selection.strokeIds);
-const newStrokes = pg.strokes.map(function (s) {
-if (!setIds.has(s.id)) return s;
-return Object.assign({}, s, {
-points: s.points.map(function (p) { return { x: p.x + dx, y: p.y + dy }; }),
+}
+ctx.restore();
+ctx.restore();
+}
+}, [currentPage, notebook, props.scrollMode, zoom, pan]);
+
+b.useEffect(function () { redrawFull(); }, [redrawFull]);
+
+// ─── Overlay (trazo activo, sin repintar todo) ──────────────────────────────
+const clearOverlay = function () {
+const ov = overlayRef.current;
+if (!ov) return;
+const ctx = ov.getContext("2d");
+ctx.clearRect(0, 0, ov.width, ov.height);
+};
+
+const drawActiveStroke = function () {
+const ov = overlayRef.current;
+if (!ov || !activeStrokeRef.current) return;
+const ctx = ov.getContext("2d");
+const dpr = dprRef.current;
+ctx.clearRect(0, 0, ov.width, ov.height);
+ctx.save();
+ctx.scale(dpr, dpr);
+const stroke = activeStrokeRef.current;
+// Obtener transform actual
+const { tx, ty, sc } = getPageTransform();
+ctx.translate(tx, ty); ctx.scale(sc, sc);
+drawStroke(ctx, stroke, 0, 0);
+ctx.restore();
+};
+
+// ─── Obtener transform de página ────────────────────────────────────────────
+const getPageTransform = b.useCallback(function () {
+const canvas = canvasRef.current;
+if (!canvas) return { tx: 0, ty: 0, sc: 1 };
+const dpr = dprRef.current;
+const cW = canvas.width / dpr;
+const cH = canvas.height / dpr;
+if (props.scrollMode === "scroll") {
+const pageW = Math.min(cW - 40, PAGE_W);
+const scale = pageW / PAGE_W;
+const startX = (cW - pageW) / 2;
+const scrollTop = scrollContainerRef.current ? scrollContainerRef.current.scrollTop : 0;
+const GAP = 20;
+const pageH = PAGE_H * scale;
+const pageY = GAP + props.pageIdx * (pageH + GAP) - scrollTop;
+return { tx: startX, ty: pageY, sc: scale };
+} else {
+const fitScale = Math.min((cW - 32) / PAGE_W, (cH - 32) / PAGE_H);
+const pageW = PAGE_W * fitScale * zoom;
+const pageH = PAGE_H * fitScale * zoom;
+const pageX = (cW - pageW) / 2 + pan.x;
+const pageY = (cH - pageH) / 2 + pan.y;
+return { tx: pageX, ty: pageY, sc: fitScale * zoom };
+}
+}, [props.scrollMode, props.pageIdx, zoom, pan]);
+
+// ─── Convertir punto pantalla → coordenadas de página ──────────────────────
+const screenToPage = function (clientX, clientY) {
+const canvas = canvasRef.current;
+if (!canvas) return null;
+const rect = canvas.getBoundingClientRect();
+const sx = clientX - rect.left;
+const sy = clientY - rect.top;
+const { tx, ty, sc } = getPageTransform();
+const px = (sx - tx) / sc;
+const py = (sy - ty) / sc;
+if (props.scrollMode !== "scroll" && (px < 0 || py < 0 || px > PAGE_W || py > PAGE_H)) return null;
+return { x: px, y: py };
+};
+
+// ─── Qué página toca el punto en modo scroll ────────────────────────────────
+const getScrollPageAt = function (clientX, clientY) {
+const canvas = canvasRef.current;
+if (!canvas) return { pageIdx: props.pageIdx, pt: null };
+const rect = canvas.getBoundingClientRect();
+const sx = clientX - rect.left;
+const sy = clientY - rect.top;
+const dpr = dprRef.current;
+const cW = canvas.width / dpr;
+const GAP = 20;
+const pageW = Math.min(cW - 40, PAGE_W);
+const scale = pageW / PAGE_W;
+const pageH = PAGE_H * scale;
+const startX = (cW - pageW) / 2;
+const scrollTop = scrollContainerRef.current ? scrollContainerRef.current.scrollTop : 0;
+for (let i = 0; i < notebook.pages.length; i++) {
+const pageY = GAP + i * (pageH + GAP) - scrollTop;
+if (sx >= startX && sx <= startX + pageW && sy >= pageY && sy <= pageY + pageH) {
+const px = (sx - startX) / scale;
+const py = (sy - pageY) / scale;
+return { pageIdx: i, pt: { x: px, y: py } };
+}
+}
+return { pageIdx: -1, pt: null };
+};
+
+// ─── Eraser ─────────────────────────────────────────────────────────────────
+const applyEraser = function (pt, pgIdx, eraserSize) {
+const pg = notebook.pages[pgIdx];
+if (!pg) return;
+const r = eraserSize / 2;
+const newStrokes = pg.strokes.filter(function (s) {
+return !s.points.some(function (p) {
+return Math.hypot(p.x - pt.x, p.y - pt.y) < r;
 });
 });
-if (props.scrollMode === "scroll") props.onReplaceStrokesOnPage(pageIdx, newStrokes);
+if (newStrokes.length !== pg.strokes.length) {
+if (props.scrollMode === "scroll") props.onReplaceStrokesOnPage(pgIdx, newStrokes);
 else props.onReplaceStrokes(newStrokes);
-setSelection(Object.assign({}, selection, {
-bounds: { x: selection.bounds.x + dx, y: selection.bounds.y + dy, w: selection.bounds.w, h: selection.bounds.h },
-}));
 }
+};
+
+// ─── Pointer handlers ───────────────────────────────────────────────────────
+const handlePointerDown = function (e) {
+// Barrel button (botón 2 del lápiz) → goma temporal
+if (e.pointerType === "pen" && (e.buttons & 2)) {
+prevToolRef.current = activeToolRef.current;
+props.onSetTool("eraser");
+activeToolRef.current = "eraser";
 }
-dragSelRef.current = null;
+
+activePointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+e.target.setPointerCapture(e.pointerId);
+
+if (activePointersRef.current.size === 2) {
+// Pinch/pan
 isDrawingRef.current = false;
-redraw();
+activeStrokeRef.current = null;
+clearOverlay();
+const pts = Array.from(activePointersRef.current.values());
+pinchRef.current = {
+startDist: Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y),
+startZoom: zoom,
+midX: (pts[0].x + pts[1].x) / 2,
+midY: (pts[0].y + pts[1].y) / 2,
+};
 return;
 }
+
+// Dedo en modo solo-lápiz → ignorar
+if (!props.fingerWrites && e.pointerType === "touch") return;
+
+const tool = activeToolRef.current;
+
+if (props.scrollMode === "scroll") {
+const { pageIdx: pIdx, pt } = getScrollPageAt(e.clientX, e.clientY);
+if (pIdx < 0 || !pt) return;
+isDrawingRef.current = true;
+lastPointRef.current = pt;
+if (tool === "eraser") {
+applyEraser(pt, pIdx, props.eraserSize);
+redrawFull();
+} else {
+activeStrokeRef.current = {
+id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+tool: tool,
+color: tool === "highlighter" ? props.hlColor : tool === "marker" ? props.markerColor : props.penColor,
+size: tool === "highlighter" ? props.hlSize : tool === "marker" ? props.markerSize : props.penSize,
+points: [pt],
+pageIdx: pIdx,
+};
+pointsBufferRef.current = [pt];
+}
+} else {
+const pt = screenToPage(e.clientX, e.clientY);
+if (!pt) return;
+isDrawingRef.current = true;
+lastPointRef.current = pt;
+if (tool === "eraser") {
+applyEraser(pt, props.pageIdx, props.eraserSize);
+redrawFull();
+} else {
+activeStrokeRef.current = {
+id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+tool: tool,
+color: tool === "highlighter" ? props.hlColor : tool === "marker" ? props.markerColor : props.penColor,
+size: tool === "highlighter" ? props.hlSize : tool === "marker" ? props.markerSize : props.penSize,
+points: [pt],
+};
+pointsBufferRef.current = [pt];
+}
+}
+};
+
+const handlePointerMove = function (e) {
+activePointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+// Pinch zoom
+if (activePointersRef.current.size === 2 && pinchRef.current) {
+if (props.zoomLocked || props.scrollMode === "scroll") return;
+const pts = Array.from(activePointersRef.current.values());
+const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+const newZoom = Math.min(4, Math.max(0.5, pinchRef.current.startZoom * (dist / pinchRef.current.startDist)));
+setZoom(newZoom);
+return;
+}
+
+if (!isDrawingRef.current) return;
+if (!props.fingerWrites && e.pointerType === "touch") return;
+
+const tool = activeToolRef.current;
+
+if (props.scrollMode === "scroll") {
+const { pageIdx: pIdx, pt } = getScrollPageAt(e.clientX, e.clientY);
+if (!pt || !activeStrokeRef.current) return;
+if (tool === "eraser") {
+applyEraser(pt, pIdx, props.eraserSize);
+if (rafRef.current) cancelAnimationFrame(rafRef.current);
+rafRef.current = requestAnimationFrame(redrawFull);
+return;
+}
+pointsBufferRef.current.push(pt);
+activeStrokeRef.current.points = pointsBufferRef.current.slice();
+if (rafRef.current) cancelAnimationFrame(rafRef.current);
+rafRef.current = requestAnimationFrame(drawActiveStroke);
+} else {
+const pt = screenToPage(e.clientX, e.clientY);
+if (!pt) return;
+if (tool === "eraser") {
+applyEraser(pt, props.pageIdx, props.eraserSize);
+if (rafRef.current) cancelAnimationFrame(rafRef.current);
+rafRef.current = requestAnimationFrame(redrawFull);
+return;
+}
+if (!activeStrokeRef.current) return;
+pointsBufferRef.current.push(pt);
+activeStrokeRef.current.points = pointsBufferRef.current.slice();
+if (rafRef.current) cancelAnimationFrame(rafRef.current);
+rafRef.current = requestAnimationFrame(drawActiveStroke);
+}
+};
+
+const handlePointerUp = function (e) {
+activePointersRef.current.delete(e.pointerId);
+pinchRef.current = null;
+
+// Barrel button suelto → restaurar herramienta
+if (e.pointerType === "pen" && !(e.buttons & 2) && prevToolRef.current && activeToolRef.current === "eraser") {
+props.onSetTool(prevToolRef.current);
+activeToolRef.current = prevToolRef.current;
+prevToolRef.current = null;
+}
+
 if (!isDrawingRef.current) return;
 isDrawingRef.current = false;
-if (selectionLassoRef.current) {
-const pts = props.scrollMode === "scroll" ? selectionLassoRef.current.points : selectionLassoRef.current;
-const pgIdx = activeStrokePageRef.current;
-selectionLassoRef.current = null;
-if (pts && pts.length > 3) {
-const pg = notebook.pages[pgIdx];
-if (pg) {
-const selectedIds = [];
-for (let i = 0; i < pg.strokes.length; i++) {
-if (strokeInPolygon(pg.strokes[i], pts)) {
-if (pg.strokes[i].id) selectedIds.push(pg.strokes[i].id);
-}
-}
-if (selectedIds.length > 0) {
-const bb = strokeBounds(pg.strokes, selectedIds);
-setSelection({ pageIdx: pgIdx, strokeIds: selectedIds, bounds: bb });
-} else {
-setSelection(null);
-}
-}
-}
-redraw();
-return;
-}
+clearOverlay();
+
 const s = activeStrokeRef.current;
 activeStrokeRef.current = null;
-eraseAccumRef.current = null;
-if (!s || s.points.length === 0) return;
-if (s.tool === "eraser") { redraw(); return; }
-const pg = activeStrokePageRef.current;
-if (props.scrollMode === "scroll" && pg != null && pg !== props.pageIdx) {
-props.onAddStrokeToPage(pg, s);
+pointsBufferRef.current = [];
+
+if (!s || s.points.length === 0 || s.tool === "eraser") {
+redrawFull();
+return;
+}
+
+const pIdx = props.scrollMode === "scroll" ? s.pageIdx : props.pageIdx;
+if (props.scrollMode === "scroll") {
+props.onAddStrokeToPage(pIdx, { id: s.id, tool: s.tool, color: s.color, size: s.size, points: s.points });
 } else {
-props.onAddStroke(s);
+props.onAddStroke({ id: s.id, tool: s.tool, color: s.color, size: s.size, points: s.points });
 }
 };
-const copySelection = function () {
-if (!selection) return;
-const pg = notebook.pages[selection.pageIdx];
-if (!pg) return;
-const setIds = new Set(selection.strokeIds);
-const copied = pg.strokes.filter(function (s) { return setIds.has(s.id); }).map(function (s) {
-return Object.assign({}, s, { points: s.points.map(function (p) { return { x: p.x, y: p.y }; }) });
-});
-clipboardRef.current = copied;
+
+// ─── Import PDF/imagen ──────────────────────────────────────────────────────
+const handleImport = function (e) {
+const file = e.target.files && e.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = function (ev) {
+const data = ev.target.result;
+if (file.type === "application/pdf") {
+// Usar pdf.js si disponible, o añadir como imagen de fondo
+const img = new window.Image();
+// Fallback: página con imagen base64
+props.onAddImagePage && props.onAddImagePage(data, "pdf");
+} else {
+// imagen
+props.onAddImagePage && props.onAddImagePage(data, "image");
+}
 };
-const pasteSelection = function () {
-if (!clipboardRef.current || !selectedNb || !currentPage) return;
-const offset = 20;
-const newStrokes = clipboardRef.current.map(function (s) {
-return Object.assign({}, s, {
-id: genStrokeId(),
-points: s.points.map(function (p) { return { x: p.x + offset, y: p.y + offset }; }),
-});
-});
-const pgIdx = selection ? selection.pageIdx : props.pageIdx;
-const pg = notebook.pages[pgIdx];
-if (!pg) return;
-const combined = pg.strokes.concat(newStrokes);
-if (props.scrollMode === "scroll") props.onReplaceStrokesOnPage(pgIdx, combined);
-else props.onReplaceStrokes(combined);
-const newIds = newStrokes.map(function (s) { return s.id; });
-const bb = strokeBounds(combined, newIds);
-setSelection({ pageIdx: pgIdx, strokeIds: newIds, bounds: bb });
+reader.readAsDataURL(file);
+if (importRef.current) importRef.current.value = "";
 };
-const deleteSelection = function () {
-if (!selection) return;
-const pg = notebook.pages[selection.pageIdx];
-if (!pg) return;
-const setIds = new Set(selection.strokeIds);
-const kept = pg.strokes.filter(function (s) { return !setIds.has(s.id); });
-if (props.scrollMode === "scroll") props.onReplaceStrokesOnPage(selection.pageIdx, kept);
-else props.onReplaceStrokes(kept);
-setSelection(null);
+
+// ─── Scroll handler ─────────────────────────────────────────────────────────
+const handleScroll = function () {
+if (rafRef.current) cancelAnimationFrame(rafRef.current);
+rafRef.current = requestAnimationFrame(redrawFull);
 };
-const selectedNb_ = notebook;
+
+// ─── UI helpers ─────────────────────────────────────────────────────────────
 const subjectColor = notebook.color || "#2563eb";
-return d.jsx("div", {
-style: {
-position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 60,
-background: currentPage && currentPage.bg === "#0f172a" ? "#0f172a" : "#f0f4ff",
-display: "flex", flexDirection: "column",
+const isDark = currentPage && currentPage.bg === "#0f172a";
+const barBg = isDark ? "rgba(15,23,42,0.95)" : "rgba(255,255,255,0.93)";
+const barBorder = isDark ? "rgba(255,255,255,0.06)" : "rgba(37,99,235,0.10)";
+const iconCol = isDark ? "#94a3b8" : "#475569";
+
+const toolBtn = function (toolName, icon, label, activeColor) {
+const isActive = props.tool === toolName;
+const col = toolName === "pen" ? props.penColor
+: toolName === "marker" ? props.markerColor
+: toolName === "highlighter" ? props.hlColor
+: activeColor || "#64748b";
+return d.jsxs("button", {
+onClick: function () {
+if (props.tool === toolName) props.onSetShowToolPanel(props.showToolPanel === toolName ? null : toolName);
+else { props.onSetTool(toolName); props.onSetShowToolPanel(null); }
 },
-children: d.jsxs(d.Fragment, {
+style: {
+display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+padding: "6px 10px", borderRadius: 10, border: "none",
+background: isActive ? col + "22" : "transparent",
+cursor: "pointer", minWidth: 44,
+},
 children: [
+d.jsx(icon, { size: 18, color: isActive ? col : iconCol }),
+d.jsx("span", { style: { fontSize: 9, fontWeight: 600, color: isActive ? col : iconCol, letterSpacing: "0.04em" }, children: label }),
+]
+}, toolName);
+};
+
+const [showThumbnails, setShowThumbnails] = b.useState(false);
+const [showPageMenu, setShowPageMenu] = b.useState(false);
+const [showImportMenu, setShowImportMenu] = b.useState(false);
+
+return d.jsxs("div", {
+style: { position: "fixed", inset: 0, zIndex: 60, display: "flex", flexDirection: "column", background: isDark ? "#0f172a" : "#dde3ed" },
+children: [
+
+// ── Barra superior ──────────────────────────────────────────────────────
 d.jsxs("div", {
-style: {
-display: "flex", alignItems: "center", gap: 8,
-padding: "10px 14px",
-background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)",
-borderBottom: "1px solid rgba(37,99,235,0.1)", flexShrink: 0, zIndex: 2,
-},
+style: { display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: barBg, backdropFilter: "blur(20px)", borderBottom: "1px solid " + barBorder, flexShrink: 0 },
 children: [
 d.jsx("button", {
 onClick: props.onBack,
-style: {
-width: 34, height: 34, borderRadius: 10,
-border: "1px solid rgba(37,99,235,0.12)",
-background: "rgba(255,255,255,0.6)",
-display: "flex", alignItems: "center", justifyContent: "center",
-cursor: "pointer",
-},
-children: d.jsx(vh, { size: 16, color: "#475569" }),
+style: { width: 34, height: 34, borderRadius: 10, border: "1px solid " + barBorder, background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
+children: d.jsx(vh, { size: 16, color: iconCol }),
 }),
 d.jsxs("div", {
 style: { flex: 1, minWidth: 0 },
 children: [
-d.jsx("p", {
-style: { fontSize: 14, fontWeight: 700, lineHeight: 1.2, color: "#0f172a" },
-children: notebook.name,
+d.jsx("p", { style: { fontSize: 14, fontWeight: 700, color: isDark ? "#f1f5f9" : "#0f172a", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: notebook.name }),
+d.jsx("p", { style: { fontSize: 11, color: subjectColor, fontWeight: 500 }, children: notebook.subject + (props.scrollMode === "paged" ? " · Pág. " + (props.pageIdx + 1) + "/" + notebook.pages.length : " · " + notebook.pages.length + " pág.") }),
+],
 }),
-d.jsx("p", {
-style: { fontSize: 11, color: subjectColor, fontWeight: 500 },
-children: notebook.subject + (props.scrollMode === "paged" ? (" · Pág. " + (props.pageIdx + 1) + "/" + notebook.pages.length) : (" · " + notebook.pages.length + " pág.")),
+// Undo/Redo
+d.jsx("button", { onClick: props.onUndo, style: { width: 32, height: 32, borderRadius: 8, border: "none", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: props.undoStack.length > 0 ? 1 : 0.3 }, children: d.jsx(yV, { size: 15, color: iconCol }) }),
+d.jsx("button", { onClick: props.onRedo, style: { width: 32, height: 32, borderRadius: 8, border: "none", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: props.redoStack.length > 0 ? 1 : 0.3 }, children: d.jsx(cV, { size: 15, color: iconCol }) }),
+// Importar
+d.jsxs(d.Fragment, { children: [
+d.jsx("input", { ref: importRef, type: "file", accept: "image/*,application/pdf", style: { display: "none" }, onChange: handleImport }),
+d.jsx("button", {
+onClick: function () { if (importRef.current) importRef.current.click(); },
+style: { width: 32, height: 32, borderRadius: 8, border: "none", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
+children: d.jsx(vV, { size: 15, color: iconCol }),
+}),
+]}),
+// Menú página
+d.jsx("button", {
+onClick: function () { setShowPageMenu(function (v) { return !v; }); },
+style: { width: 32, height: 32, borderRadius: 8, border: "none", background: showPageMenu ? subjectColor + "22" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
+children: d.jsx(iV, { size: 15, color: showPageMenu ? subjectColor : iconCol }),
 }),
 ],
 }),
-d.jsx("button", {
-onClick: props.onUndo,
-style: {
-width: 34, height: 34, borderRadius: 10, border: "none",
-background: props.undoStack.length > 0 ? "rgba(255,255,255,0.6)" : "transparent",
-display: "flex", alignItems: "center", justifyContent: "center",
-cursor: props.undoStack.length > 0 ? "pointer" : "default",
-opacity: props.undoStack.length > 0 ? 1 : 0.3,
-},
-children: d.jsx(yV, { size: 15, color: "#475569" }),
-}),
-d.jsx("button", {
-onClick: props.onRedo,
-style: {
-width: 34, height: 34, borderRadius: 10, border: "none",
-background: props.redoStack.length > 0 ? "rgba(255,255,255,0.6)" : "transparent",
-display: "flex", alignItems: "center", justifyContent: "center",
-cursor: props.redoStack.length > 0 ? "pointer" : "default",
-opacity: props.redoStack.length > 0 ? 1 : 0.3,
-},
-children: d.jsx(cV, { size: 15, color: "#475569" }),
-}),
-d.jsx("button", {
-onClick: function () { props.onSetShowSettings(!props.showSettings); },
-style: {
-width: 34, height: 34, borderRadius: 10, border: "none",
-background: props.showSettings ? "rgba(37,99,235,0.12)" : "rgba(255,255,255,0.6)",
-display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-},
-children: d.jsx(J5, { size: 15, color: props.showSettings ? "#2563eb" : "#475569" }),
-}),
-d.jsx("button", {
-onClick: function () { props.onSetShowPageMenu(!props.showPageMenu); },
-style: {
-width: 34, height: 34, borderRadius: 10, border: "none",
-background: props.showPageMenu ? "rgba(37,99,235,0.12)" : "rgba(255,255,255,0.6)",
-display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-},
-children: d.jsx(iV, { size: 15, color: props.showPageMenu ? "#2563eb" : "#475569" }),
-}),
-],
-}),
+
+// ── Canvas area ─────────────────────────────────────────────────────────
 d.jsxs("div", {
 ref: containerRef,
-style: {
-flex: 1, position: "relative", overflow: props.scrollMode === "scroll" ? "auto" : "hidden",
-touchAction: "none", background: "#e2e8f0",
-},
+style: { flex: 1, position: "relative", overflow: "hidden" },
 children: [
+// Scroll container (modo scroll)
 props.scrollMode === "scroll" ? d.jsx("div", {
 ref: scrollContainerRef,
-onScroll: function () { redraw(); },
-style: { position: "absolute", inset: 0, overflow: "auto", touchAction: "pan-y" },
+onScroll: handleScroll,
+style: { position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden" },
 children: d.jsx("div", {
-style: { height: (notebook.pages.length * (containerRef.current ? ((containerRef.current.getBoundingClientRect().width - 32) / PAGE_ASPECT) + 44 : 900) + 32) + "px" },
+style: {
+height: (notebook.pages.length * (PAGE_H * (Math.min((containerRef.current ? containerRef.current.getBoundingClientRect().width - 40 : PAGE_W) , PAGE_W) / PAGE_W) + 20) + 40) + "px",
+pointerEvents: "none",
+},
 }),
 }) : null,
+
+// Canvas base (strokes guardados)
 d.jsx("canvas", {
 ref: canvasRef,
+style: { position: "absolute", top: 0, left: 0, display: "block" },
+}),
+
+// Canvas overlay (trazo activo)
+d.jsx("canvas", {
+ref: overlayRef,
 onPointerDown: handlePointerDown,
 onPointerMove: handlePointerMove,
 onPointerUp: handlePointerUp,
 onPointerLeave: handlePointerUp,
 onPointerCancel: handlePointerUp,
 onContextMenu: function (e) { e.preventDefault(); },
-style: {
-display: "block", touchAction: "none",
-cursor: props.tool === "eraser" ? "cell" : props.tool === "lasso" ? "crosshair" : "crosshair",
-position: "absolute", top: 0, left: 0,
-transform: props.scrollMode === "paged" ? ("translate(" + panOffset.x + "px," + panOffset.y + "px) scale(" + zoom + ")") : "none",
-transformOrigin: "center center",
-pointerEvents: "auto",
-},
-}),
-selection ? d.jsxs("div", {
-style: {
-position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
-background: "rgba(255,255,255,0.98)", backdropFilter: "blur(20px)",
-borderRadius: 12,
-boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-display: "flex", gap: 4, padding: 6, zIndex: 5,
-},
-children: [
-d.jsx("button", {
-onClick: copySelection,
-style: toolBarBtnStyle,
-children: "Copiar",
-}),
-clipboardRef.current ? d.jsx("button", {
-onClick: pasteSelection,
-style: toolBarBtnStyle,
-children: "Pegar",
-}) : null,
-d.jsx("button", {
-onClick: deleteSelection,
-style: Object.assign({}, toolBarBtnStyle, { color: "#dc2626" }),
-children: "Borrar",
-}),
-d.jsx("button", {
-onClick: function () { setSelection(null); },
-style: toolBarBtnStyle,
-children: "✕",
+style: { position: "absolute", top: 0, left: 0, display: "block", touchAction: "none", cursor: props.tool === "eraser" ? "cell" : "crosshair" },
 }),
 ],
-}) : null,
-!selection && clipboardRef.current ? d.jsx("button", {
-onClick: pasteSelection,
-style: {
-position: "absolute", top: 12, right: 12,
-padding: "6px 12px", borderRadius: 10, border: "none",
-background: "rgba(37,99,235,0.95)", color: "white",
-fontSize: 12, fontWeight: 600, cursor: "pointer",
-boxShadow: "0 4px 12px rgba(37,99,235,0.3)",
-zIndex: 5,
-},
-children: "Pegar",
-}) : null,
-],
 }),
+
+// ── Barra de herramientas inferior ──────────────────────────────────────
 d.jsxs("div", {
-style: {
-padding: "8px",
-background: "rgba(255,255,255,0.92)", backdropFilter: "blur(20px)",
-borderTop: "1px solid rgba(37,99,235,0.1)",
-display: "flex", alignItems: "center", justifyContent: "center",
-gap: 3, flexShrink: 0, zIndex: 2,
-overflowX: "auto",
-},
+style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 2, padding: "6px 8px", background: barBg, backdropFilter: "blur(20px)", borderTop: "1px solid " + barBorder, flexShrink: 0, overflowX: "auto" },
 children: [
-ToolBtn({
-active: props.tool === "pen", color: props.penColor, icon: Av, label: "Boli",
-onClick: function () {
-if (props.tool === "pen") props.onSetShowToolPanel(props.showToolPanel === "pen" ? null : "pen");
-else { props.onSetTool("pen"); props.onSetShowToolPanel(null); }
-},
-}),
-ToolBtn({
-active: props.tool === "marker", color: props.markerColor, icon: rV, label: "Rotul.",
-onClick: function () {
-if (props.tool === "marker") props.onSetShowToolPanel(props.showToolPanel === "marker" ? null : "marker");
-else { props.onSetTool("marker"); props.onSetShowToolPanel(null); }
-},
-}),
-ToolBtn({
-active: props.tool === "highlighter", color: props.hlColor, icon: eV, label: "Resal.",
-onClick: function () {
-if (props.tool === "highlighter") props.onSetShowToolPanel(props.showToolPanel === "highlighter" ? null : "highlighter");
-else { props.onSetTool("highlighter"); props.onSetShowToolPanel(null); }
-},
-}),
-ToolBtn({
-active: props.tool === "eraser", color: "#64748b", icon: a2, label: "Goma",
-onClick: function () {
-if (props.tool === "eraser") props.onSetShowToolPanel(props.showToolPanel === "eraser" ? null : "eraser");
-else { props.onSetTool("eraser"); props.onSetShowToolPanel(null); }
-},
-}),
-ToolBtn({
-active: props.tool === "lasso", color: "#64748b", icon: K5, label: "Selec.",
-onClick: function () {
-props.onSetTool("lasso"); props.onSetShowToolPanel(null);
-},
-}),
-d.jsx("div", { style: { width: 1, height: 24, background: "rgba(0,0,0,0.08)", margin: "0 3px" } }),
+toolBtn("pen", Av, "Boli"),
+toolBtn("marker", rV, "Rotul."),
+toolBtn("highlighter", eV, "Resal."),
+toolBtn("eraser", a2, "Goma"),
+d.jsx("div", { style: { width: 1, height: 24, background: barBorder, margin: "0 4px" } }),
+// Zoom (solo paginado)
+props.scrollMode === "paged" ? d.jsxs(d.Fragment, { children: [
+d.jsx("button", { onClick: function () { if (!props.zoomLocked) setZoom(function (z) { return Math.max(0.5, z - 0.25); }); }, style: { width: 30, height: 30, borderRadius: 8, border: "none", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: props.zoomLocked ? 0.3 : 1 }, children: d.jsx(rV, { size: 13, color: iconCol }) }),
+d.jsx("button", { onClick: function () { setZoom(1); setPan({ x: 0, y: 0 }); }, style: { height: 30, padding: "0 8px", borderRadius: 8, border: "none", background: subjectColor + "18", fontSize: 11, fontWeight: 700, color: subjectColor, cursor: "pointer" }, children: Math.round(zoom * 100) + "%" }),
+d.jsx("button", { onClick: function () { if (!props.zoomLocked) setZoom(function (z) { return Math.min(4, z + 0.25); }); }, style: { width: 30, height: 30, borderRadius: 8, border: "none", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: props.zoomLocked ? 0.3 : 1 }, children: d.jsx(pt, { size: 13, color: iconCol }) }),
+d.jsx("div", { style: { width: 1, height: 24, background: barBorder, margin: "0 4px" } }),
+]}) : null,
+// Navegación de páginas
+props.scrollMode === "paged" ? d.jsxs(d.Fragment, { children: [
+d.jsx("button", { onClick: props.onPrevPage, disabled: props.pageIdx === 0, style: { width: 30, height: 30, borderRadius: 8, border: "none", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: props.pageIdx > 0 ? "pointer" : "default", opacity: props.pageIdx > 0 ? 1 : 0.3 }, children: d.jsx(vh, { size: 13, color: iconCol }) }),
+d.jsx("button", { onClick: function () { setShowThumbnails(function (v) { return !v; }); }, style: { height: 30, padding: "0 10px", borderRadius: 8, border: "none", background: subjectColor + "18", fontSize: 12, fontWeight: 700, color: subjectColor, cursor: "pointer" }, children: (props.pageIdx + 1) + "/" + notebook.pages.length }),
+d.jsx("button", { onClick: props.pageIdx < notebook.pages.length - 1 ? props.onNextPage : props.onAddPage, style: { width: 30, height: 30, borderRadius: 8, border: "none", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }, children: props.pageIdx < notebook.pages.length - 1 ? d.jsx(G5, { size: 13, color: iconCol }) : d.jsx(pt, { size: 13, color: subjectColor }) }),
+]}) : d.jsxs(d.Fragment, { children: [
+d.jsx("button", { onClick: props.onAddPage, style: { height: 30, padding: "0 10px", borderRadius: 8, border: "none", background: subjectColor + "18", fontSize: 11, fontWeight: 700, color: subjectColor, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }, children: [d.jsx(pt, { size: 12 }), "Página"] }),
+]}),
+d.jsx("div", { style: { width: 1, height: 24, background: barBorder, margin: "0 4px" } }),
+// Scroll/paged toggle
 d.jsx("button", {
-onClick: function () { if (!props.zoomLocked) setZoom(Math.max(0.5, zoom - 0.2)); },
-style: zoomBtnStyle(false, props.zoomLocked),
-children: d.jsx(rV, { size: 14, color: "#475569" }),
+onClick: props.onToggleScroll,
+style: { height: 30, padding: "0 10px", borderRadius: 8, border: "none", background: "transparent", fontSize: 11, fontWeight: 600, color: iconCol, cursor: "pointer" },
+children: props.scrollMode === "scroll" ? "📄" : "📜",
+title: props.scrollMode === "scroll" ? "Modo paginado" : "Modo scroll",
 }),
+// Bloqueo zoom
 d.jsx("button", {
-onClick: function () { setZoom(1); setPanOffset({ x: 0, y: 0 }); },
-style: {
-height: 34, borderRadius: 8, border: "none",
-background: "rgba(37,99,235,0.08)",
-padding: "0 8px",
-fontSize: 11, fontWeight: 600, color: "#2563eb",
-cursor: "pointer",
-},
-children: Math.round(zoom * 100) + "%",
+onClick: props.onToggleZoomLock,
+style: { width: 30, height: 30, borderRadius: 8, border: "none", background: props.zoomLocked ? subjectColor + "22" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
+children: props.zoomLocked ? d.jsx(q5, { size: 13, color: subjectColor }) : d.jsx(Y5, { size: 13, color: iconCol }),
 }),
+// Dedo/lápiz
 d.jsx("button", {
-onClick: function () { if (!props.zoomLocked) setZoom(Math.min(4, zoom + 0.2)); },
-style: zoomBtnStyle(false, props.zoomLocked),
-children: d.jsx(pt, { size: 14, color: "#475569" }),
-}),
-d.jsx("div", { style: { width: 1, height: 24, background: "rgba(0,0,0,0.08)", margin: "0 3px" } }),
-props.scrollMode === "paged" ? d.jsxs(d.Fragment, {
-children: [
-d.jsx("button", {
-onClick: props.onPrevPage,
-disabled: props.pageIdx === 0,
-style: {
-width: 34, height: 34, borderRadius: 8, border: "none",
-background: props.pageIdx > 0 ? "rgba(37,99,235,0.08)" : "transparent",
-display: "flex", alignItems: "center", justifyContent: "center",
-cursor: props.pageIdx > 0 ? "pointer" : "default",
-opacity: props.pageIdx > 0 ? 1 : 0.3,
-},
-children: d.jsx(vh, { size: 14, color: "#475569" }),
-}),
-d.jsx("button", {
-onClick: function () { props.onSetShowThumbs(!props.showThumbs); },
-style: {
-height: 34, borderRadius: 8, border: "none",
-background: "rgba(37,99,235,0.08)",
-padding: "0 10px",
-fontSize: 12, fontWeight: 600, color: "#2563eb",
-cursor: "pointer",
-},
-children: (props.pageIdx + 1) + "/" + notebook.pages.length,
-}),
-d.jsx("button", {
-onClick: props.pageIdx < notebook.pages.length - 1 ? props.onNextPage : function () { props.onAddPage(); },
-style: {
-width: 34, height: 34, borderRadius: 8, border: "none",
-background: "rgba(37,99,235,0.08)",
-display: "flex", alignItems: "center", justifyContent: "center",
-cursor: "pointer",
-transform: props.pageIdx < notebook.pages.length - 1 ? "scaleX(-1)" : "none",
-},
-children: props.pageIdx < notebook.pages.length - 1
-? d.jsx(vh, { size: 14, color: "#475569" })
-: d.jsx(pt, { size: 16, color: "#2563eb" }),
-}),
-],
-}) : d.jsx("button", {
-onClick: function () { props.onAddPage(); },
-style: {
-height: 34, borderRadius: 8, border: "none",
-background: "rgba(37,99,235,0.08)",
-padding: "0 12px",
-fontSize: 12, fontWeight: 600, color: "#2563eb",
-display: "flex", alignItems: "center", gap: 4,
-cursor: "pointer",
-},
-children: [d.jsx(pt, { size: 14 }), "Página"],
+onClick: props.onToggleFinger,
+style: { width: 30, height: 30, borderRadius: 8, border: "none", background: props.fingerWrites ? subjectColor + "22" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
+title: props.fingerWrites ? "Solo lápiz" : "Dedo habilitado",
+children: d.jsx("span", { style: { fontSize: 14 }, children: props.fingerWrites ? "✋" : "✏️" }),
 }),
 ],
 }),
+
+// ── Panel herramienta activa ────────────────────────────────────────────
 props.showToolPanel ? d.jsx("div", {
 onClick: function (e) { e.stopPropagation(); },
-style: {
-position: "absolute", bottom: 58, left: 8, right: 8,
-background: "rgba(255,255,255,0.98)", backdropFilter: "blur(20px)",
-borderRadius: 14,
-boxShadow: "0 12px 32px rgba(0,0,0,0.12)",
-border: "1px solid rgba(37,99,235,0.08)",
-padding: 12, zIndex: 10, maxWidth: 520, margin: "0 auto",
-},
-children: ToolPanel({ panel: props.showToolPanel, props: props }),
+style: { position: "absolute", bottom: 62, left: 8, right: 8, background: barBg, backdropFilter: "blur(20px)", borderRadius: 14, boxShadow: "0 12px 32px rgba(0,0,0,0.12)", border: "1px solid " + barBorder, padding: 12, zIndex: 10, maxWidth: 500, margin: "0 auto" },
+children: ToolPanel({ panel: props.showToolPanel, props: props, isDark: isDark }),
 }) : null,
-props.showPageMenu ? d.jsx("div", {
+
+// ── Menú página ─────────────────────────────────────────────────────────
+showPageMenu ? d.jsx("div", {
 onClick: function (e) { e.stopPropagation(); },
-style: {
-position: "absolute", top: 58, right: 10,
-background: "rgba(255,255,255,0.98)", backdropFilter: "blur(20px)",
-borderRadius: 14,
-boxShadow: "0 12px 32px rgba(0,0,0,0.12)",
-border: "1px solid rgba(37,99,235,0.08)",
-padding: 10, zIndex: 10, minWidth: 220,
-},
-children: PageMenu({ props: props }),
-}) : null,
-props.showSettings ? d.jsx("div", {
-onClick: function (e) { e.stopPropagation(); },
-style: {
-position: "absolute", top: 58, right: 56,
-background: "rgba(255,255,255,0.98)", backdropFilter: "blur(20px)",
-borderRadius: 14,
-boxShadow: "0 12px 32px rgba(0,0,0,0.12)",
-border: "1px solid rgba(37,99,235,0.08)",
-padding: 10, zIndex: 10, minWidth: 260,
-},
-children: SettingsMenu({ props: props }),
-}) : null,
-props.showThumbs ? d.jsxs(d.Fragment, {
+style: { position: "absolute", top: 56, right: 8, background: barBg, backdropFilter: "blur(20px)", borderRadius: 14, boxShadow: "0 12px 32px rgba(0,0,0,0.12)", border: "1px solid " + barBorder, padding: 8, zIndex: 10, minWidth: 200 },
+children: d.jsxs("div", {
+style: { display: "flex", flexDirection: "column", gap: 2 },
 children: [
-d.jsx("div", {
-onClick: function () { props.onSetShowThumbs(false); },
-style: { position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 11 },
+d.jsx("p", { style: { fontSize: 10, fontWeight: 700, color: subjectColor, padding: "4px 8px", letterSpacing: "0.06em", textTransform: "uppercase" }, children: "Página" }),
+// Template
+[["lined", "Pautado"], ["grid", "Cuadrícula"], ["dotted", "Puntos"], ["blank", "En blanco"]].map(function (t) {
+return d.jsx("button", {
+onClick: function () { props.onSetTemplate(t[0]); setShowPageMenu(false); },
+style: { padding: "8px 12px", borderRadius: 8, border: "none", background: "transparent", textAlign: "left", fontSize: 13, cursor: "pointer", color: currentPage && currentPage.template === t[0] ? subjectColor : (isDark ? "#cbd5e1" : "#374151"), fontWeight: currentPage && currentPage.template === t[0] ? 700 : 400 },
+children: t[1],
+}, t[0]);
 }),
-d.jsx("div", {
-style: {
-position: "absolute", left: 12, right: 12, bottom: 70, top: 70,
-background: "rgba(255,255,255,0.98)", backdropFilter: "blur(20px)",
-borderRadius: 16, boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
-padding: 14, zIndex: 12, overflow: "auto",
-},
-children: Thumbs({ notebook: notebook, props: props }),
+d.jsx("div", { style: { height: 1, background: barBorder, margin: "4px 0" } }),
+// Color fondo
+d.jsx("p", { style: { fontSize: 10, fontWeight: 700, color: subjectColor, padding: "4px 8px", letterSpacing: "0.06em", textTransform: "uppercase" }, children: "Fondo" }),
+d.jsx("div", { style: { display: "flex", gap: 6, padding: "4px 8px", flexWrap: "wrap" }, children:
+props._BG_COLORS.map(function (c) {
+return d.jsx("button", {
+onClick: function () { props.onSetBg(c.bg); setShowPageMenu(false); },
+style: { width: 26, height: 26, borderRadius: 6, background: c.bg, border: currentPage && currentPage.bg === c.bg ? "2px solid " + subjectColor : "1.5px solid rgba(0,0,0,0.12)", cursor: "pointer" },
+title: c.label,
+}, c.bg);
+})
+}),
+d.jsx("div", { style: { height: 1, background: barBorder, margin: "4px 0" } }),
+d.jsx("button", {
+onClick: function () { props.onAddPage(); setShowPageMenu(false); },
+style: { padding: "8px 12px", borderRadius: 8, border: "none", background: "transparent", textAlign: "left", fontSize: 13, cursor: "pointer", color: subjectColor, fontWeight: 600 },
+children: "+ Nueva página",
+}),
+d.jsx("button", {
+onClick: function () { props.onDeletePage(); setShowPageMenu(false); },
+style: { padding: "8px 12px", borderRadius: 8, border: "none", background: "transparent", textAlign: "left", fontSize: 13, cursor: "pointer", color: "#dc2626" },
+children: "Eliminar esta página",
+}),
+d.jsx("button", {
+onClick: function () { props.onClearPage(); setShowPageMenu(false); },
+style: { padding: "8px 12px", borderRadius: 8, border: "none", background: "transparent", textAlign: "left", fontSize: 13, cursor: "pointer", color: "#dc2626" },
+children: "Borrar contenido",
 }),
 ],
+}),
 }) : null,
+
+// ── Miniaturas ──────────────────────────────────────────────────────────
+showThumbnails ? d.jsxs(d.Fragment, { children: [
+d.jsx("div", { onClick: function () { setShowThumbnails(false); }, style: { position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 20 } }),
+d.jsx("div", {
+style: { position: "absolute", left: 12, right: 12, top: 60, bottom: 70, background: barBg, backdropFilter: "blur(20px)", borderRadius: 16, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", padding: 12, zIndex: 21, overflowY: "auto" },
+children: d.jsxs(d.Fragment, { children: [
+d.jsx("p", { style: { fontSize: 12, fontWeight: 700, color: subjectColor, marginBottom: 10, letterSpacing: "0.04em" }, children: "Páginas" }),
+d.jsx("div", {
+style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 },
+children: notebook.pages.map(function (pg, i) {
+return d.jsxs("button", {
+onClick: function () { props.onJumpPage(i); setShowThumbnails(false); },
+style: { borderRadius: 8, overflow: "hidden", border: i === props.pageIdx ? "2px solid " + subjectColor : "1.5px solid rgba(0,0,0,0.08)", cursor: "pointer", background: pg.bg || "#fffef8", aspectRatio: "0.707", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" },
+children: [
+d.jsx("span", { style: { position: "absolute", bottom: 3, right: 5, fontSize: 9, color: "rgba(100,116,139,0.7)", fontWeight: 600 }, children: i + 1 }),
 ],
+}, i);
 }),
+}),
+] }),
+}),
+]}) : null,
+
+],
 });
 }
+
 const toolBarBtnStyle = {
 padding: "6px 10px", borderRadius: 8, border: "none",
 background: "transparent", color: "#475569",
