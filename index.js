@@ -12371,13 +12371,8 @@ if (!s || !s.points || s.points.length < 1) return;
 ox = ox || 0; oy = oy || 0;
 ctx.save();
 ctx.lineCap = "round"; ctx.lineJoin = "round";
-if (s.tool === "highlighter") {
-ctx.globalAlpha = 0.35;
+ctx.globalAlpha = s.tool === "highlighter" ? 0.38 : 1;
 ctx.globalCompositeOperation = "source-over";
-} else {
-ctx.globalAlpha = 1;
-ctx.globalCompositeOperation = "source-over";
-}
 ctx.strokeStyle = s.color;
 ctx.lineWidth = s.size;
 const p = s.points;
@@ -12408,12 +12403,15 @@ function redrawDry() {
 const dry = dryRef.current;
 const rail = railRef.current;
 if (!dry) return;
-const ctx = dry.getContext("2d", { desynchronized: true });
+const ctx = dry.getContext("2d");
 const dpr = dprRef.current;
 const W = dry.width / dpr, H = dry.height / dpr;
+// Reset completo del contexto antes de cada frame
 ctx.setTransform(1, 0, 0, 1, 0, 0);
+ctx.globalAlpha = 1;
+ctx.globalCompositeOperation = "source-over";
+ctx.shadowBlur = 0; ctx.shadowColor = "transparent"; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
 ctx.clearRect(0, 0, dry.width, dry.height);
-ctx.save();
 ctx.scale(dpr, dpr);
 ctx.fillStyle = "#dde3ed";
 ctx.fillRect(0, 0, W, H);
@@ -12422,36 +12420,54 @@ if (isScroll && rail) {
 const pw = Math.min(W - 32, PAGE_W);
 const sc = pw / PAGE_W, ph = PAGE_H * sc;
 const sx = (W - pw) / 2, GAP = 20, st = rail.scrollTop;
-// update spacer
 const spacer = rail.querySelector("div");
 if (spacer) spacer.style.height = (GAP + notebook.pages.length * (ph + GAP) + 40) + "px";
 notebook.pages.forEach(function (pg, i) {
 const py = GAP + i * (ph + GAP) - st;
 if (py + ph < -80 || py > H + 80) return;
+// Sombra página — contexto limpio
 ctx.save();
+ctx.globalCompositeOperation = "source-over";
+ctx.globalAlpha = 1;
 ctx.shadowColor = "rgba(0,0,0,0.09)"; ctx.shadowBlur = 16; ctx.shadowOffsetY = 3;
 ctx.fillStyle = pg.bg || "#fffef8"; ctx.fillRect(sx, py, pw, ph);
 ctx.restore();
+// Contenido página
 ctx.save();
+ctx.globalCompositeOperation = "source-over";
+ctx.globalAlpha = 1;
+ctx.shadowBlur = 0; ctx.shadowColor = "transparent"; ctx.shadowOffsetY = 0;
 ctx.beginPath(); ctx.rect(sx, py, pw, ph); ctx.clip();
 ctx.translate(sx, py); ctx.scale(sc, sc);
 drawBg(ctx, PAGE_W, PAGE_H, pg);
 (pg.strokes || []).forEach(function (s) { drawStroke(ctx, s); });
 ctx.restore();
+// Número de página
+ctx.save();
+ctx.globalCompositeOperation = "source-over";
+ctx.globalAlpha = 1;
 ctx.fillStyle = "rgba(100,116,139,0.45)";
 ctx.font = "11px -apple-system, sans-serif";
 ctx.textAlign = "center";
 ctx.fillText((i + 1) + " / " + notebook.pages.length, W / 2, py + ph + 14);
+ctx.restore();
 });
 } else {
 const { tx, ty, sc } = getXform();
 const pw = PAGE_W * sc, ph = PAGE_H * sc;
+// Sombra
 ctx.save();
+ctx.globalCompositeOperation = "source-over";
+ctx.globalAlpha = 1;
 ctx.shadowColor = "rgba(0,0,0,0.12)"; ctx.shadowBlur = 24; ctx.shadowOffsetY = 5;
 ctx.fillStyle = currentPage ? (currentPage.bg || "#fffef8") : "#fffef8";
 ctx.fillRect(tx, ty, pw, ph);
 ctx.restore();
+// Contenido
 ctx.save();
+ctx.globalCompositeOperation = "source-over";
+ctx.globalAlpha = 1;
+ctx.shadowBlur = 0; ctx.shadowColor = "transparent"; ctx.shadowOffsetY = 0;
 ctx.beginPath(); ctx.rect(tx, ty, pw, ph); ctx.clip();
 ctx.translate(tx, ty); ctx.scale(sc, sc);
 if (currentPage) {
@@ -12460,15 +12476,21 @@ drawBg(ctx, PAGE_W, PAGE_H, currentPage);
 }
 ctx.restore();
 }
-ctx.restore();
+// Reset final
+ctx.setTransform(1, 0, 0, 1, 0, 0);
+ctx.globalAlpha = 1;
+ctx.globalCompositeOperation = "source-over";
 }
 
 function redrawWet() {
 const wet = wetRef.current;
 if (!wet || !activeStroke.current) return;
-const ctx = wet.getContext("2d", { desynchronized: true });
+const ctx = wet.getContext("2d");
 const dpr = dprRef.current;
 ctx.setTransform(1, 0, 0, 1, 0, 0);
+ctx.globalAlpha = 1;
+ctx.globalCompositeOperation = "source-over";
+ctx.shadowBlur = 0; ctx.shadowColor = "transparent"; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
 ctx.clearRect(0, 0, wet.width, wet.height);
 ctx.save();
 ctx.scale(dpr, dpr);
@@ -12605,7 +12627,7 @@ penTimer.current = setTimeout(function () { penLive.current = false; }, 500);
 if (!isDrawing.current) return;
 isDrawing.current = false;
 const wet = wetRef.current;
-if (wet) { const ctx = wet.getContext("2d", { desynchronized: true }); ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0, 0, wet.width, wet.height); }
+if (wet) { const ctx = wet.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1; ctx.globalCompositeOperation="source-over"; ctx.shadowBlur=0; ctx.clearRect(0, 0, wet.width, wet.height); }
 const s = activeStroke.current; activeStroke.current = null; ptsBuf.current = [];
 if (!s || s.points.length === 0 || s.tool === "eraser") { redrawDry(); return; }
 const pgi = props.scrollMode === "scroll" && s._pg != null ? s._pg : props.pageIdx;
