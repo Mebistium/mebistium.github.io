@@ -11858,53 +11858,7 @@ arr.forEach(function (nb) { try { Cl(_rUid, "notebooks", nb); } catch (e) {} });
 return function () { if (unsub) try { unsub(); } catch (e) {} };
 }, [_rUid]);
 
-// ── CRDT: sync de operaciones remotas al cambiar de cuaderno ─────────────
-const _crdtUnsub = b.useRef(null);
-const _processedOpsRef = b.useRef(new Set()); // evitar re-procesar ops
-b.useEffect(function() {
-  if (_crdtUnsub.current) { try { _crdtUnsub.current(); } catch(e) {} _crdtUnsub.current = null; }
-  if (!_rUid || !selectedId) return;
-  _processedOpsRef.current = new Set(); // resetear al cambiar de cuaderno
-  try {
-    _crdtUnsub.current = Al(_rUid, "crdt_ops_" + selectedId, function(remoteOps) {
-      try {
-        if (!Array.isArray(remoteOps) || remoteOps.length === 0) return;
-        // Filtrar ops ya procesadas — evita re-renders infinitos
-        const newOps = remoteOps.filter(function(op) {
-          const key = (op.device || '') + ':' + (op.clock || 0);
-          return !_processedOpsRef.current.has(key);
-        });
-        if (newOps.length === 0) return;
-        // Marcar como procesadas antes de aplicar
-        newOps.forEach(function(op) {
-          _processedOpsRef.current.add((op.device || '') + ':' + (op.clock || 0));
-        });
-        const decoded = newOps.map(function(op) {
-          try { return MebistiumCRDT.decodeOp(op); } catch(e) { return op; }
-        });
-        // Guardar localmente
-        const localOps = MebistiumCRDT.loadOps();
-        MebistiumCRDT.saveOps(localOps.concat(decoded));
-        // Aplicar al estado — usando función updater para leer el estado más reciente
-        setNotebooks(function(prev) {
-          return prev.map(function(n) {
-            if (n.id !== selectedId) return n;
-            try {
-              const merged = MebistiumCRDT.applyOps(n.pages.slice(), decoded);
-              const mergedPages = n.pages.map(function(orig, i) {
-                return merged[i] ? Object.assign({}, orig, { strokes: merged[i].strokes }) : orig;
-              });
-              return Object.assign({}, n, { pages: mergedPages });
-            } catch(e) { return n; }
-          });
-        });
-      } catch(e) {}
-    });
-  } catch(e) {}
-  return function() {
-    if (_crdtUnsub.current) { try { _crdtUnsub.current(); } catch(e) {} _crdtUnsub.current = null; }
-  };
-}, [_rUid, selectedId]);
+
 const _saveTimer = b.useRef(null);
 const _prevIds = b.useRef(null);
 b.useEffect(function () {
@@ -11975,6 +11929,54 @@ b.useEffect(function () {
 setUndoStack([]);
 setRedoStack([]);
 }, [selectedId, pageIdx]);
+
+// ── CRDT: sync de operaciones remotas al cambiar de cuaderno ─────────────
+const _crdtUnsub = b.useRef(null);
+const _processedOpsRef = b.useRef(new Set()); // evitar re-procesar ops
+b.useEffect(function() {
+  if (_crdtUnsub.current) { try { _crdtUnsub.current(); } catch(e) {} _crdtUnsub.current = null; }
+  if (!_rUid || !selectedId) return;
+  _processedOpsRef.current = new Set(); // resetear al cambiar de cuaderno
+  try {
+    _crdtUnsub.current = Al(_rUid, "crdt_ops_" + selectedId, function(remoteOps) {
+      try {
+        if (!Array.isArray(remoteOps) || remoteOps.length === 0) return;
+        // Filtrar ops ya procesadas — evita re-renders infinitos
+        const newOps = remoteOps.filter(function(op) {
+          const key = (op.device || '') + ':' + (op.clock || 0);
+          return !_processedOpsRef.current.has(key);
+        });
+        if (newOps.length === 0) return;
+        // Marcar como procesadas antes de aplicar
+        newOps.forEach(function(op) {
+          _processedOpsRef.current.add((op.device || '') + ':' + (op.clock || 0));
+        });
+        const decoded = newOps.map(function(op) {
+          try { return MebistiumCRDT.decodeOp(op); } catch(e) { return op; }
+        });
+        // Guardar localmente
+        const localOps = MebistiumCRDT.loadOps();
+        MebistiumCRDT.saveOps(localOps.concat(decoded));
+        // Aplicar al estado — usando función updater para leer el estado más reciente
+        setNotebooks(function(prev) {
+          return prev.map(function(n) {
+            if (n.id !== selectedId) return n;
+            try {
+              const merged = MebistiumCRDT.applyOps(n.pages.slice(), decoded);
+              const mergedPages = n.pages.map(function(orig, i) {
+                return merged[i] ? Object.assign({}, orig, { strokes: merged[i].strokes }) : orig;
+              });
+              return Object.assign({}, n, { pages: mergedPages });
+            } catch(e) { return n; }
+          });
+        });
+      } catch(e) {}
+    });
+  } catch(e) {}
+  return function() {
+    if (_crdtUnsub.current) { try { _crdtUnsub.current(); } catch(e) {} _crdtUnsub.current = null; }
+  };
+}, [_rUid, selectedId]);
 const genId = function () {
 return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 };
