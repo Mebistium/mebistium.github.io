@@ -10367,10 +10367,16 @@ window.location.reload();
 }, []);
 if (!show) return null;
 const handleUpdate = function() {
+setShow(false);
 if (reg && reg.waiting) {
+// Escuchar el cambio de controller Y forzar reload de seguridad
+const doReload = function() { window.location.reload(true); };
+navigator.serviceWorker.addEventListener("controllerchange", doReload, { once: true });
 reg.waiting.postMessage({ type: "SKIP_WAITING" });
+// Fallback: si en 2s no hubo controllerchange, recargar igual
+setTimeout(doReload, 2000);
 } else {
-window.location.reload();
+window.location.reload(true);
 }
 };
 return d.jsxs(Y.div, {
