@@ -11854,43 +11854,50 @@ return function () { if (unsub) try { unsub(); } catch (e) {} };
 
 // ── CRDT: sync de operaciones remotas al cambiar de cuaderno ─────────────
 const _crdtUnsub = b.useRef(null);
+const _processedOpsRef = b.useRef(new Set()); // evitar re-procesar ops
 b.useEffect(function() {
-  if (_crdtUnsub.current) { try { _crdtUnsub.current(); } catch(e) {} }
-  const nb = notebooks.find(function(n) { return n.id === (selectedId || ''); });
-  if (!_rUid || !nb) return;
-  // Suscribirse a ops remotas en tiempo real
+  if (_crdtUnsub.current) { try { _crdtUnsub.current(); } catch(e) {} _crdtUnsub.current = null; }
+  if (!_rUid || !selectedId) return;
+  _processedOpsRef.current = new Set(); // resetear al cambiar de cuaderno
   try {
-    _crdtUnsub.current = Al(_rUid, "crdt_ops_" + nb.id, function(remoteOps) {
-      if (!Array.isArray(remoteOps) || remoteOps.length === 0) return;
-      const localOps = MebistiumCRDT.loadOps();
-      // Decodificar ops remotas
-      const decoded = remoteOps.map(function(op) {
-        try { return MebistiumCRDT.decodeOp(op); } catch(e) { return op; }
-      });
-      // Encontrar ops nuevas (que no tenemos localmente)
-      const delta = MebistiumCRDT.mergeOps(localOps, decoded);
-      if (delta.length === 0) return;
-      // Aplicar delta al estado actual del notebook
-      setNotebooks(function(prev) {
-        return prev.map(function(n) {
-          if (n.id !== nb.id) return n;
-          try {
-            const merged = MebistiumCRDT.applyOps(n.pages, delta);
-            // Preservar metadatos de página (template, bg, etc.)
-            const mergedPages = merged.map(function(mp, i) {
-              const orig = n.pages[i] || mp;
-              return Object.assign({}, orig, { strokes: mp.strokes });
-            });
-            return Object.assign({}, n, { pages: mergedPages });
-          } catch(e) { return n; }
+    _crdtUnsub.current = Al(_rUid, "crdt_ops_" + selectedId, function(remoteOps) {
+      try {
+        if (!Array.isArray(remoteOps) || remoteOps.length === 0) return;
+        // Filtrar ops ya procesadas — evita re-renders infinitos
+        const newOps = remoteOps.filter(function(op) {
+          const key = (op.device || '') + ':' + (op.clock || 0);
+          return !_processedOpsRef.current.has(key);
         });
-      });
-      // Guardar ops merged localmente
-      const allOps = localOps.concat(delta);
-      MebistiumCRDT.saveOps(allOps);
+        if (newOps.length === 0) return;
+        // Marcar como procesadas antes de aplicar
+        newOps.forEach(function(op) {
+          _processedOpsRef.current.add((op.device || '') + ':' + (op.clock || 0));
+        });
+        const decoded = newOps.map(function(op) {
+          try { return MebistiumCRDT.decodeOp(op); } catch(e) { return op; }
+        });
+        // Guardar localmente
+        const localOps = MebistiumCRDT.loadOps();
+        MebistiumCRDT.saveOps(localOps.concat(decoded));
+        // Aplicar al estado — usando función updater para leer el estado más reciente
+        setNotebooks(function(prev) {
+          return prev.map(function(n) {
+            if (n.id !== selectedId) return n;
+            try {
+              const merged = MebistiumCRDT.applyOps(n.pages.slice(), decoded);
+              const mergedPages = n.pages.map(function(orig, i) {
+                return merged[i] ? Object.assign({}, orig, { strokes: merged[i].strokes }) : orig;
+              });
+              return Object.assign({}, n, { pages: mergedPages });
+            } catch(e) { return n; }
+          });
+        });
+      } catch(e) {}
     });
   } catch(e) {}
-  return function() { if (_crdtUnsub.current) try { _crdtUnsub.current(); } catch(e) {} };
+  return function() {
+    if (_crdtUnsub.current) { try { _crdtUnsub.current(); } catch(e) {} _crdtUnsub.current = null; }
+  };
 }, [_rUid, selectedId]);
 const _saveTimer = b.useRef(null);
 const _prevIds = b.useRef(null);
@@ -12344,11 +12351,20 @@ const DEVICE_ID = (function () {
   return id;
 })();
 
-let _lamport = 0; // Lamport clock local
+let _lamport = (function() {
+  try { const s = localStorage.getItem('mb-lamport-clock'); return s ? parseInt(s, 10) : 0; } catch(e) { return 0; }
+})();
 
-function nextClock() { return ++_lamport; }
+function nextClock() {
+  ++_lamport;
+  try { localStorage.setItem('mb-lamport-clock', _lamport); } catch(e) {}
+  return _lamport;
+}
 
-function updateClock(remote) { _lamport = Math.max(_lamport, remote) + 1; }
+function updateClock(remote) {
+  _lamport = Math.max(_lamport, remote) + 1;
+  try { localStorage.setItem('mb-lamport-clock', _lamport); } catch(e) {}
+}
 
 // ── Crear operación Add ───────────────────────────────────────────────────
 function opAdd(stroke, pageId) {
@@ -12420,9 +12436,13 @@ function applyOps(pages, ops) {
 // ── Merge de dos arrays de ops (para sync entre dispositivos) ─────────────
 // Devuelve ops que el receptor no tenía (delta)
 function mergeOps(localOps, remoteOps) {
-  const localIds = new Set(localOps.map(function (op) { return op.id + op.type + op.clock; }));
-  return remoteOps.filter(function (op) {
-    return !localIds.has(op.id + op.type + op.clock);
+  // Clave única universal: device + clock (identifica inequívocamente cualquier evento CRDT)
+  // Separamos con ':' para evitar colisiones de concatenación (ej: "abc"+"1" vs "ab"+"c1")
+  const localKeys = new Set(localOps.map(function(op) {
+    return (op.device || '') + ':' + (op.clock || 0);
+  }));
+  return remoteOps.filter(function(op) {
+    return !localKeys.has((op.device || '') + ':' + (op.clock || 0));
   });
 }
 
@@ -12525,12 +12545,13 @@ function makeCircle(n){return Array.from({length:n},(_,i)=>({x:Math.cos(2*Math.P
 function makeRect(n){const q=Math.floor(n/4);const pts=[];for(let i=0;i<q;i++)pts.push({x:i*(200/q),y:0});for(let i=0;i<q;i++)pts.push({x:200,y:i*(200/q)});for(let i=0;i<q;i++)pts.push({x:200-i*(200/q),y:200});for(let i=0;i<q;i++)pts.push({x:0,y:200-i*(200/q)});return pts;}
 function makeTriangle(n){const q=Math.floor(n/3);const pts=[];for(let i=0;i<q;i++)pts.push({x:100+i*(100/q),y:200-i*(200/q)});for(let i=0;i<q;i++)pts.push({x:200-i*(200/q),y:i*(200/q)});for(let i=0;i<q;i++)pts.push({x:i*(100/q),y:200-i*(200/q)+0});return pts;}
 function makeLine(n){return Array.from({length:n},(_,i)=>({x:i*(200/(n-1)),y:100}));}
-const TEMPLATES=[
+let TEMPLATES=[];
+try{TEMPLATES=[
   {name:'circle',pts:prepare(makeCircle(64))},
   {name:'rectangle',pts:prepare(makeRect(64))},
   {name:'triangle',pts:prepare(makeTriangle(64))},
   {name:'line',pts:prepare(makeLine(64))},
-];
+];}catch(e){console.warn('Shape templates failed:',e);}
 function prepare(pts){let p=Resample(pts.slice(),NumPoints);const r=IndicativeAngle(p);p=RotateBy(p,-r);p=ScaleTo(p,SquareSize);p=TranslateTo(p,Origin);return Vectorize(p);}
 function recognize(pts){
   if(pts.length<8)return{name:'none',score:0};
@@ -12587,6 +12608,10 @@ this._initInkAPI();
 // OPFS root handle
 this._opfsRoot=null;
 this._initOPFS();
+// Debounce para evitar escrituras simultáneas en OPFS
+this._saveTimeout=null;
+this._isSaving=false;
+this._activePgIdx=0; // página activa en modo scroll — fallback para drawWet
 }
 
 // ── Delegated Ink API ─────────────────────────────────────────────────────
@@ -12676,7 +12701,10 @@ const size=view[i++];
 const nPts=view[i++];
 const points=[];
 for(let pi2=0;pi2<nPts;pi2++){points.push({x:view[i++],y:view[i++],pressure:view[i++],t:view[i++]});}
-strokes.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),tool,color,size,points});
+const _rnd=new Uint32Array(2);
+        crypto.getRandomValues(_rnd);
+        const _sid=si+'-'+_rnd[0].toString(36)+_rnd[1].toString(36);
+        strokes.push({id:_sid,tool,color,size,points});
 }
 pages.push({strokes});
 }
@@ -12833,7 +12861,12 @@ this._reset(ctx);ctx.clearRect(0,0,cv.width,cv.height);
 if(!s||!s.points.length)return;
 ctx.scale(dpr,dpr);
 let tx,ty,sc;
-if(this.scrollMode==='scroll'&&s._pg!=null){const pw=Math.min(this.W-32,PAGE_W);sc=pw/PAGE_W;const ph=PAGE_H*sc,GAP=20;tx=(this.W-pw)/2;ty=GAP+s._pg*(ph+GAP)-this.scrollTop;}
+if(this.scrollMode==='scroll'){
+  // Usar _pg del trazo activo; si undefined, usar _activePgIdx como fallback seguro
+  const pgIdx=s._pg!=null?s._pg:this._activePgIdx;
+  const pw=Math.min(this.W-32,PAGE_W);sc=pw/PAGE_W;const ph=PAGE_H*sc,GAP=20;
+  tx=(this.W-pw)/2;ty=GAP+pgIdx*(ph+GAP)-this.scrollTop;
+}
 else{const x=this.getXform();tx=x.tx;ty=x.ty;sc=x.sc;}
 ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.shadowColor='transparent';ctx.shadowOffsetY=0;
 if(this.scrollMode!=='scroll'){ctx.beginPath();ctx.rect(tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.clip();}
@@ -12892,17 +12925,26 @@ commitStroke(rawPts,toolName,color,size,pgi){
 if(!rawPts.length)return;
 if(toolName!=='highlighter'&&this.isScribble(rawPts)){this.eraseInArea(rawPts,pgi);return;}
 // Shape recognition — solo para boli/rotulador, no resaltador
-// Se activa si el trazo tiene >12 puntos y la duración fue breve (forma rápida)
 let finalPts=rawPts.length>4?this.rdp(rawPts,0.5):rawPts;
 let finalTool=toolName;
 if((toolName==='pen'||toolName==='marker')&&rawPts.length>12){
+try{
 const shaped=applyShapeRecognition(rawPts,color,size);
-if(shaped){finalPts=shaped.points;/* shape override */}
+if(shaped&&shaped.points&&shaped.points.length>1){finalPts=shaped.points;}
+}catch(e){}
 }
 const s={id:Date.now().toString(36)+Math.random().toString(36).slice(2),tool:finalTool,color,size,points:finalPts};
 if(this.scrollMode==='scroll')this.onStrokeAddedToPage&&this.onStrokeAddedToPage(pgi,s);
 else this.onStrokeAdded&&this.onStrokeAdded(s);
-if(this.notebook){const nb=this.notebook;setTimeout(()=>this.saveToDisk(nb.id,nb.pages),0);}
+if(this.notebook){
+  if(this._saveTimeout)clearTimeout(this._saveTimeout);
+  const nb=this.notebook;
+  this._saveTimeout=setTimeout(()=>{
+    if(this._isSaving)return;
+    this._isSaving=true;
+    this.saveToDisk(nb.id,nb.pages).catch(()=>{}).finally(()=>{this._isSaving=false;});
+  },1000);
+}
 }
 }
 
@@ -12942,6 +12984,7 @@ const syncCtrl=b.useCallback(function(){
   ctrl.sync(propsRef.current);
   ctrl.zoom=zoomRef.current; ctrl.pan=panRef.current;
   ctrl.scrollTop=railRef.current?railRef.current.scrollTop:0;
+  ctrl._activePgIdx=propsRef.current.pageIdx||0;
 },[getCtrl]);
 
 // ── Zoom Window: renderiza la región ampliada ─────────────────────────────
@@ -13049,6 +13092,7 @@ const onDown=b.useCallback(function(e){
   const pressure=e.pressure!=null?e.pressure:0.5;
   if(p.scrollMode==='scroll'){
     const h=ctrl.scrollHit(cx,cy);if(!h){drawing.current=false;return;}
+    ctrl._activePgIdx=h.idx; // sincronizar fallback
     if(toolRef.current==='eraser'){rPts.forEach(function(re){const h2=ctrl.scrollHit(re.clientX-r.left,re.clientY-r.top);if(h2&&ctrl.applyEraser(h2.x,h2.y,h2.idx,getSize()))ctrl.drawDry();});return;}
     const pt={x:h.x,y:h.y,pressure};stroke.current={tool:toolRef.current,color:getColor(),size:getSize(),points:[pt],_pg:h.idx};ptsBuf.current=[pt];
   }else{
@@ -13268,7 +13312,7 @@ return d.jsxs('div',{
   ]}),
   // Canvas — 3 capas (bg+dry+wet)
   d.jsxs('div',{ref:wrapRef,style:{flex:1,position:'relative',overflow:'hidden'},children:[
-    props.scrollMode==='scroll'?d.jsx('div',{ref:railRef,onScroll:function(){const ctrl=getCtrl();ctrl.scrollTop=railRef.current.scrollTop;if(rafId.current)cancelAnimationFrame(rafId.current);rafId.current=requestAnimationFrame(function(){ctrl.drawDry();});},style:{position:'absolute',inset:0,overflowY:'auto',overflowX:'hidden',zIndex:1},children:d.jsx('div',{style:{height:(20+notebook.pages.length*(1154*(Math.min((wrapRef.current?wrapRef.current.getBoundingClientRect().width-32:816),816)/816)+20)+40)+'px'}})}):null,
+    props.scrollMode==='scroll'?d.jsx('div',{ref:railRef,onScroll:function(){const ctrl=getCtrl();ctrl.scrollTop=railRef.current.scrollTop;if(rafId.current)cancelAnimationFrame(rafId.current);rafId.current=requestAnimationFrame(function(){ctrl.drawDry();});},style:{position:'absolute',inset:0,overflowY:'auto',overflowX:'hidden',zIndex:1},children:d.jsx('div',{style:{height:(notebook.pages.length*1250+100)+'px'}})}):null,
     d.jsx('canvas',{ref:bgRef,style:{position:'absolute',top:0,left:0,zIndex:2}}),
     d.jsx('canvas',{ref:dryRef,style:{position:'absolute',top:0,left:0,zIndex:3}}),
     d.jsx('canvas',{ref:wetRef,onPointerDown:onDown,onPointerMove:onMove,onPointerUp:onUp,onPointerLeave:onUp,onPointerCancel:onUp,onContextMenu:function(e){e.preventDefault();},style:{position:'absolute',top:0,left:0,zIndex:4,touchAction:'none',cursor:props.tool==='eraser'?'cell':'crosshair'}}),
@@ -13319,11 +13363,12 @@ return d.jsxs('div',{
             if(!cv)return;
             const ctrl=getCtrl();
             const dpr=ctrl.dpr||1;
-            const W=Math.floor(cv.parentElement?cv.parentElement.getBoundingClientRect().width:340);
+            let W=340;
+            try{ if(cv.parentElement)W=Math.floor(cv.parentElement.getBoundingClientRect().width)||340; }catch(e){}
             const H=100;
             cv.width=W*dpr; cv.height=H*dpr;
             cv.style.width=W+'px'; cv.style.height=H+'px';
-            setTimeout(renderZoomWindow,50);
+            setTimeout(renderZoomWindow,80);
           },
           style:{display:'block',width:'100%',flex:1},
         }),
