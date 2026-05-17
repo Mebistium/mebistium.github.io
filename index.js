@@ -11729,7 +11729,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v27.0",
+children: "v27.9",
 }),
 ],
 }),
@@ -11756,7 +11756,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v27.0",
+children: "v27.9",
 });
 }
 
@@ -12285,7 +12285,7 @@ d.jsx("button", { onClick: createNotebook, className: "btn-primary w-full", chil
 ],
 });
 }
-return d.jsx(NotebookEditor, {
+return d.jsx(NotesErrorBoundary, { onBack: function(){setSelectedId(null);}, children: d.jsx(NotebookEditor, {
 key: selectedNb.id,
 notebook: selectedNb, currentPage: currentPage, pageIdx: pageIdx,
 tool: tool,
@@ -12326,7 +12326,7 @@ onToggleZoomLock: function () { setZoomLocked(function (v) { return !v; }); },
 _COLORS: _COLORS, _HL_COLORS: _HL_COLORS,
 _PEN_SIZES: _PEN_SIZES, _MARKER_SIZES: _MARKER_SIZES, _HL_SIZES: _HL_SIZES,
 _ERASER_SIZES: _ERASER_SIZES, _BG_COLORS: _BG_COLORS, _TEMPLATES: _TEMPLATES,
-});
+})});
 }
 
 
@@ -12946,6 +12946,31 @@ if(this.notebook){
   },1000);
 }
 }
+}
+
+
+class NotesErrorBoundary extends b.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  componentDidCatch(error, info) { console.error('NotesErrorBoundary:', error, info); }
+  render() {
+    if (this.state.error) {
+      return d.jsxs('div', {
+        style: { position:'fixed', inset:0, zIndex:60, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'#f0f4ff', gap:16, padding:24 },
+        children: [
+          d.jsx('div', { style:{fontSize:32}, children:'📓' }),
+          d.jsx('p', { style:{fontSize:16, fontWeight:700, color:'#0f172a'}, children:'Error en el cuaderno' }),
+          d.jsx('p', { style:{fontSize:12, color:'#64748b', textAlign:'center', maxWidth:280}, children: this.state.error.message || 'Error desconocido' }),
+          d.jsx('button', {
+            onClick: () => { this.setState({ error: null }); this.props.onBack && this.props.onBack(); },
+            style: { height:44, padding:'0 20px', borderRadius:12, border:'none', background:'#2563eb', color:'#fff', fontSize:14, fontWeight:600, cursor:'pointer' },
+            children: 'Volver a la biblioteca'
+          }),
+        ]
+      });
+    }
+    return this.props.children;
+  }
 }
 
 function NotebookEditor(props) {
