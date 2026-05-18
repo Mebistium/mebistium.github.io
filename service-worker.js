@@ -1,3 +1,4 @@
+// mebistium-v27-10 - Service Worker Corregido
 const CACHE_NAME = 'mebistium-v27-10';
 
 const urlsToCache = [
@@ -14,7 +15,6 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(urlsToCache);
     })
-    // NO skipWaiting aquí — esperamos a que el usuario confirme
   );
 });
 
@@ -28,15 +28,19 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// El frontend nos manda SKIP_WAITING cuando el usuario pulsa "Actualizar"
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
+// Evento fetch protegido contra protocolos de extensiones
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  if (!url.protocol.startsWith('http')) return;
+
   event.respondWith(
     fetch(event.request).then((response) => {
       if (response && response.status === 200) {
