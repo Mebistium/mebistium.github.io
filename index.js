@@ -11735,7 +11735,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v27.9",
+children: "v27.10",
 }),
 ],
 }),
@@ -11762,7 +11762,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v27.9",
+children: "v27.10",
 });
 }
 
@@ -12525,975 +12525,1176 @@ return {
 };
 })();
 
-const DollarRecognizer=(function(){
-const NumPoints=64,SquareSize=250,Origin={x:0,y:0},Diagonal=Math.sqrt(SquareSize*SquareSize+SquareSize*SquareSize),HalfDiagonal=Diagonal/2,AngleRange=Math.PI*2,AnglePrecision=Math.PI/90,Phi=(1+Math.sqrt(5))/2;
-function Resample(pts,n){
-  let I=PathLength(pts)/(n-1),D=0;
-  const newPts=[{x:pts[0].x,y:pts[0].y}];
-  for(let i=1;i<pts.length;i++){
-    const d=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);
-    if(D+d>=I){const q={x:pts[i-1].x+(I-D)/d*(pts[i].x-pts[i-1].x),y:pts[i-1].y+(I-D)/d*(pts[i].y-pts[i-1].y)};newPts.push(q);pts.splice(i,0,q);D=0;}
-    else D+=d;
+// ════════════════════════════════════════════════════════════════════════════
+// CanvasController — Motor de tinta limpio y fiable
+// Arquitectura: 2 canvas (dry + wet), sin complejidad innecesaria
+// ════════════════════════════════════════════════════════════════════════════
+class CanvasController {
+  constructor() {
+    this.dryCtx = null;
+    this.wetCtx = null;
+    this.dryCv  = null;
+    this.wetCv  = null;
+    this.dpr    = window.devicePixelRatio || 1;
+    this.PAGE_W = 816;
+    this.PAGE_H = 1154;
+    this.zoom   = 1;
+    this.pan    = { x: 0, y: 0 };
+    this.scrollMode = 'paged';
+    this.scrollTop  = 0;
+    this._activePgIdx = 0;
+    this.notebook    = null;
+    this.currentPage = null;
+    this.pageIdx     = 0;
+    this.W = 0;
+    this.H = 0;
+    // Callbacks hacia React — se asignan en sync()
+    this.onStrokeAdded            = null;
+    this.onStrokesReplaced        = null;
+    this.onAddStrokeToPage        = null;
+    this.onReplaceStrokesOnPage   = null;
+    // OPFS debounce
+    this._saveTimer  = null;
+    this._opfsRoot   = null;
+    this._initOPFS();
+    // Delegated Ink (Chrome/Edge — baja latencia SO)
+    this._inkPresenter = null;
+    this._initInk();
   }
-  if(newPts.length===n-1)newPts.push({x:pts[pts.length-1].x,y:pts[pts.length-1].y});
-  return newPts;
-}
-function IndicativeAngle(pts){const c=Centroid(pts);return Math.atan2(c.y-pts[0].y,c.x-pts[0].x);}
-function RotateBy(pts,r){const c=Centroid(pts);return pts.map(p=>({x:(p.x-c.x)*Math.cos(r)-(p.y-c.y)*Math.sin(r)+c.x,y:(p.x-c.x)*Math.sin(r)+(p.y-c.y)*Math.cos(r)+c.y}));}
-function ScaleTo(pts,s){const b=BoundingBox(pts),sx=s/Math.max(b.width,0.001),sy=s/Math.max(b.height,0.001);return pts.map(p=>({x:p.x*sx,y:p.y*sy}));}
-function TranslateTo(pts,pt){const c=Centroid(pts);return pts.map(p=>({x:p.x+pt.x-c.x,y:p.y+pt.y-c.y}));}
-function Vectorize(pts){const s=pts.reduce((a,p)=>a+p.x*p.x+p.y*p.y,0);const m=Math.sqrt(s);return pts.map(p=>({x:p.x/m,y:p.y/m}));}
-function OptimalCosineDistance(v1,v2){let a=0,b=0;for(let i=0;i<v1.length;i++){a+=v1[i].x*v2[i].x+v1[i].y*v2[i].y;b+=v1[i].x*v2[i].y-v1[i].y*v2[i].x;}const r=Math.atan(b/a);return Math.acos(a*Math.cos(r)+b*Math.sin(r));}
-function PathDistance(a,b){let d=0;for(let i=0;i<a.length;i++)d+=Math.hypot(a[i].x-b[i].x,a[i].y-b[i].y);return d/a.length;}
-function PathLength(pts){let d=0;for(let i=1;i<pts.length;i++)d+=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);return d;}
-function BoundingBox(pts){const minX=Math.min(...pts.map(p=>p.x)),minY=Math.min(...pts.map(p=>p.y)),maxX=Math.max(...pts.map(p=>p.x)),maxY=Math.max(...pts.map(p=>p.y));return{x:minX,y:minY,width:maxX-minX,height:maxY-minY};}
-function Centroid(pts){return{x:pts.reduce((a,p)=>a+p.x,0)/pts.length,y:pts.reduce((a,p)=>a+p.y,0)/pts.length};}
-// Templates built-in
-function makeCircle(n){return Array.from({length:n},(_,i)=>({x:Math.cos(2*Math.PI*i/n)*100+100,y:Math.sin(2*Math.PI*i/n)*100+100}));}
-function makeRect(n){const q=Math.floor(n/4);const pts=[];for(let i=0;i<q;i++)pts.push({x:i*(200/q),y:0});for(let i=0;i<q;i++)pts.push({x:200,y:i*(200/q)});for(let i=0;i<q;i++)pts.push({x:200-i*(200/q),y:200});for(let i=0;i<q;i++)pts.push({x:0,y:200-i*(200/q)});return pts;}
-function makeTriangle(n){const q=Math.floor(n/3);const pts=[];for(let i=0;i<q;i++)pts.push({x:100+i*(100/q),y:200-i*(200/q)});for(let i=0;i<q;i++)pts.push({x:200-i*(200/q),y:i*(200/q)});for(let i=0;i<q;i++)pts.push({x:i*(100/q),y:200-i*(200/q)+0});return pts;}
-function makeLine(n){return Array.from({length:n},(_,i)=>({x:i*(200/(n-1)),y:100}));}
-let TEMPLATES=[];
-try{TEMPLATES=[
-  {name:'circle',pts:prepare(makeCircle(64))},
-  {name:'rectangle',pts:prepare(makeRect(64))},
-  {name:'triangle',pts:prepare(makeTriangle(64))},
-  {name:'line',pts:prepare(makeLine(64))},
-];}catch(e){console.warn('Shape templates failed:',e);}
-function prepare(pts){let p=Resample(pts.slice(),NumPoints);const r=IndicativeAngle(p);p=RotateBy(p,-r);p=ScaleTo(p,SquareSize);p=TranslateTo(p,Origin);return Vectorize(p);}
-function recognize(pts){
-  if(pts.length<8)return{name:'none',score:0};
-  let p=Resample(pts.slice(),NumPoints);
-  const r=IndicativeAngle(p);p=RotateBy(p,-r);p=ScaleTo(p,SquareSize);p=TranslateTo(p,Origin);const v=Vectorize(p);
-  let best=Infinity,name='none';
-  TEMPLATES.forEach(t=>{const d=OptimalCosineDistance(t.pts,v);if(d<best){best=d;name=t.name;}});
-  return{name,score:1-best/Math.PI};
-}
-return{recognize,BoundingBox};
-})();
 
-// Convertir trazo reconocido en primitiva geométrica perfecta
-function applyShapeRecognition(pts,color,size){
-  if(!pts||pts.length<10)return null;
-  const result=DollarRecognizer.recognize(pts);
-  if(result.score<0.75)return null; // confianza mínima 75%
-  const bb=DollarRecognizer.BoundingBox(pts);
-  const cx=bb.x+bb.width/2,cy=bb.y+bb.height/2;
-  const w=Math.max(bb.width,20),h=Math.max(bb.height,20);
-  // Generar puntos perfectos según la forma
-  let perfectPts=[];
-  if(result.name==='circle'){
-    const r=Math.max(w,h)/2;
-    perfectPts=Array.from({length:48},(_,i)=>({x:cx+r*Math.cos(2*Math.PI*i/48),y:cy+r*Math.sin(2*Math.PI*i/48)}));
-    perfectPts.push(perfectPts[0]); // cerrar
-  }else if(result.name==='rectangle'){
-    perfectPts=[{x:bb.x,y:bb.y},{x:bb.x+w,y:bb.y},{x:bb.x+w,y:bb.y+h},{x:bb.x,y:bb.y+h},{x:bb.x,y:bb.y}];
-  }else if(result.name==='triangle'){
-    perfectPts=[{x:cx,y:bb.y},{x:bb.x+w,y:bb.y+h},{x:bb.x,y:bb.y+h},{x:cx,y:bb.y}];
-  }else if(result.name==='line'){
-    const p0=pts[0],pN=pts[pts.length-1];perfectPts=[p0,pN];
-  }else{
+  async _initOPFS() {
+    try {
+      if (navigator.storage && navigator.storage.getDirectory) {
+        this._opfsRoot = await navigator.storage.getDirectory();
+      }
+    } catch (_) {}
+  }
+
+  async _initInk() {
+    try {
+      if (navigator.ink) {
+        this._inkPresenter = await navigator.ink.requestPresenter({ presentationArea: this.wetCv || undefined });
+      }
+    } catch (_) {}
+  }
+
+  // ── Inicializar con los canvas DOM ───────────────────────────────────────
+  init(dryCv, wetCv) {
+    this.dryCv  = dryCv;
+    this.wetCv  = wetCv;
+    this.dryCtx = dryCv.getContext('2d');
+    this.wetCtx = wetCv.getContext('2d', { desynchronized: true, alpha: true });
+    // Reintentar ink con canvas disponible
+    this._initInk();
+  }
+
+  // ── Sincronizar estado desde React ──────────────────────────────────────
+  sync(props) {
+    this.notebook     = props.notebook;
+    this.currentPage  = props.currentPage;
+    this.pageIdx      = props.pageIdx || 0;
+    this.scrollMode   = props.scrollMode || 'paged';
+    this.onStrokeAdded          = s    => props.onAddStroke(s);
+    this.onStrokesReplaced      = s    => props.onReplaceStrokes(s);
+    this.onAddStrokeToPage      = (i,s)=> props.onAddStrokeToPage(i, s);
+    this.onReplaceStrokesOnPage = (i,s)=> props.onReplaceStrokesOnPage(i, s);
+  }
+
+  // ── Redimensionar canvas ────────────────────────────────────────────────
+  setSize(W, H) {
+    const dpr = this.dpr;
+    [this.dryCv, this.wetCv].forEach(cv => {
+      if (!cv) return;
+      cv.width  = W * dpr;
+      cv.height = H * dpr;
+      cv.style.width  = W + 'px';
+      cv.style.height = H + 'px';
+    });
+    this.W = W;
+    this.H = H;
+  }
+
+  // ── Geometría ────────────────────────────────────────────────────────────
+  getXform() {
+    const { W, H, PAGE_W, PAGE_H, zoom, pan } = this;
+    if (!W || !H) return { tx: 0, ty: 0, sc: 1 };
+    const fit = Math.min((W - 24) / PAGE_W, (H - 24) / PAGE_H);
+    const sc  = fit * zoom;
+    return {
+      tx: (W - PAGE_W * sc) / 2 + pan.x,
+      ty: (H - PAGE_H * sc) / 2 + pan.y,
+      sc,
+    };
+  }
+
+  screenToPage(cx, cy) {
+    const { tx, ty, sc } = this.getXform();
+    return { x: (cx - tx) / sc, y: (cy - ty) / sc };
+  }
+
+  scrollHit(cx, cy) {
+    const { W, PAGE_W, PAGE_H, notebook, scrollTop } = this;
+    if (!W || !notebook) return null;
+    const pw  = Math.min(W - 32, PAGE_W);
+    const sc  = pw / PAGE_W;
+    const ph  = PAGE_H * sc;
+    const sx  = (W - pw) / 2;
+    const GAP = 20;
+    for (let i = 0; i < notebook.pages.length; i++) {
+      const py = GAP + i * (ph + GAP) - scrollTop;
+      if (cx >= sx && cx <= sx + pw && cy >= py && cy <= py + ph) {
+        return { idx: i, x: (cx - sx) / sc, y: (cy - py) / sc };
+      }
+    }
     return null;
   }
-  return{tool:'pen',color,size,points:perfectPts,_shape:result.name};
+
+  // ── Reset completo del contexto canvas ──────────────────────────────────
+  _reset(ctx) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha              = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowBlur               = 0;
+    ctx.shadowColor              = 'transparent';
+    ctx.shadowOffsetX            = 0;
+    ctx.shadowOffsetY            = 0;
+    ctx.setLineDash([]);
+  }
+
+  // ── Dibujar fondo/plantilla de una página ────────────────────────────────
+  drawPageBg(ctx, W, H, pg) {
+    if (!pg) { ctx.fillStyle = '#fffef8'; ctx.fillRect(0, 0, W, H); return; }
+    ctx.fillStyle = pg.bg || '#fffef8';
+    ctx.fillRect(0, 0, W, H);
+    if (pg.imageData) {
+      const img = new window.Image();
+      img.src = pg.imageData;
+      if (img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, 0, 0, W, H);
+      } else {
+        img.onload = () => { this.drawDry(); };
+      }
+      return;
+    }
+    const dk = pg.bg === '#0f172a';
+    const lc = dk ? 'rgba(148,163,184,.14)' : 'rgba(37,99,235,.08)';
+    const dc = dk ? 'rgba(148,163,184,.25)' : 'rgba(37,99,235,.2)';
+    const mc = dk ? 'rgba(248,113,113,.2)'  : 'rgba(239,68,68,.16)';
+    if (pg.template === 'lined') {
+      ctx.strokeStyle = lc; ctx.lineWidth = 0.8;
+      for (let y = 56; y < H; y += 32) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+      ctx.strokeStyle = mc; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(72, 0); ctx.lineTo(72, H); ctx.stroke();
+    } else if (pg.template === 'grid') {
+      ctx.strokeStyle = lc; ctx.lineWidth = 0.6;
+      for (let x = 0; x < W; x += 24) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 0; y < H; y += 24) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    } else if (pg.template === 'dotted') {
+      ctx.fillStyle = dc;
+      for (let x = 24; x < W; x += 24) {
+        for (let y = 24; y < H; y += 24) {
+          ctx.beginPath(); ctx.arc(x, y, 1.1, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+    }
+  }
+
+  // ── Dibujar un trazo con Catmull-Rom + presión ───────────────────────────
+  drawStroke(ctx, s, forThumbnail) {
+    if (!s || !s.points || !s.points.length) return;
+    // Filtrar puntos inválidos
+    const pts = s.points.filter(p => p && isFinite(p.x) && isFinite(p.y));
+    if (!pts.length) return;
+
+    ctx.save();
+    ctx.lineCap              = 'round';
+    ctx.lineJoin             = 'round';
+    ctx.shadowBlur           = 0;
+    ctx.shadowColor          = 'transparent';
+    ctx.shadowOffsetY        = 0;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha          = s.tool === 'highlighter' ? 0.38 : 1;
+    ctx.strokeStyle          = s.color || '#0f172a';
+
+    if (pts.length === 1) {
+      const r = s.size / 2;
+      ctx.beginPath();
+      ctx.arc(pts[0].x, pts[0].y, r, 0, Math.PI * 2);
+      ctx.fillStyle = s.color || '#0f172a';
+      ctx.fill();
+      ctx.restore();
+      return;
+    }
+
+    // Highlighter y trazos simples: quadratic bezier suave
+    if (s.tool === 'highlighter' || forThumbnail || pts.length <= 3) {
+      ctx.lineWidth = s.size;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length - 1; i++) {
+        const mx = (pts[i].x + pts[i + 1].x) / 2;
+        const my = (pts[i].y + pts[i + 1].y) / 2;
+        ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
+      }
+      ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
+
+    // Boli/rotulador: Catmull-Rom con presión y velocidad
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[Math.min(pts.length - 1, i + 2)];
+      const vel = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const vf  = Math.max(0.5, Math.min(1.0, 1 - vel / 60));
+      const pf  = (p1.pressure != null) ? (0.5 + p1.pressure * 0.5) : 0.85;
+      ctx.lineWidth = Math.max(0.5, s.size * vf * pf);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.bezierCurveTo(
+        p1.x + (p2.x - p0.x) / 6, p1.y + (p2.y - p0.y) / 6,
+        p2.x - (p3.x - p1.x) / 6, p2.y - (p3.y - p1.y) / 6,
+        p2.x, p2.y
+      );
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ── Capa Dry: fondo + página + strokes ──────────────────────────────────
+  drawDry() {
+    const ctx = this.dryCtx;
+    const cv  = this.dryCv;
+    if (!ctx || !cv || !this.notebook) return;
+    const { W, H, PAGE_W, PAGE_H, dpr, notebook } = this;
+
+    this._reset(ctx);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.scale(dpr, dpr);
+
+    // Fondo gris de la app
+    ctx.fillStyle = '#dde3ed';
+    ctx.fillRect(0, 0, W, H);
+
+    if (this.scrollMode === 'scroll') {
+      // ── Modo scroll: todas las páginas apiladas ──────────────────────────
+      const pw  = Math.min(W - 32, PAGE_W);
+      const sc  = pw / PAGE_W;
+      const ph  = PAGE_H * sc;
+      const sx  = (W - pw) / 2;
+      const GAP = 20;
+      const st  = this.scrollTop;
+
+      notebook.pages.forEach((pg, i) => {
+        const py = GAP + i * (ph + GAP) - st;
+        if (py + ph < -100 || py > H + 100) return; // culling
+
+        // Sombra de página
+        ctx.save();
+        ctx.shadowColor   = 'rgba(0,0,0,0.10)';
+        ctx.shadowBlur    = 14;
+        ctx.shadowOffsetY = 3;
+        ctx.fillStyle     = pg.bg || '#fffef8';
+        ctx.fillRect(sx, py, pw, ph);
+        ctx.restore();
+
+        // Contenido
+        ctx.save();
+        ctx.beginPath(); ctx.rect(sx, py, pw, ph); ctx.clip();
+        ctx.translate(sx, py); ctx.scale(sc, sc);
+        this.drawPageBg(ctx, PAGE_W, PAGE_H, pg);
+        (pg.strokes || []).forEach(s => this.drawStroke(ctx, s));
+        ctx.restore();
+
+        // Número de página
+        ctx.save();
+        ctx.fillStyle  = 'rgba(100,116,139,.5)';
+        ctx.font       = '11px -apple-system, sans-serif';
+        ctx.textAlign  = 'center';
+        ctx.fillText((i + 1) + ' / ' + notebook.pages.length, W / 2, py + ph + 14);
+        ctx.restore();
+      });
+
+    } else {
+      // ── Modo paginado: una sola página ──────────────────────────────────
+      const pg = this.currentPage;
+      if (!pg) { this._reset(ctx); return; }
+      const { tx, ty, sc } = this.getXform();
+      const pw = PAGE_W * sc;
+      const ph = PAGE_H * sc;
+
+      // Sombra de página
+      ctx.save();
+      ctx.shadowColor   = 'rgba(0,0,0,0.13)';
+      ctx.shadowBlur    = 26;
+      ctx.shadowOffsetY = 5;
+      ctx.fillStyle     = pg.bg || '#fffef8';
+      ctx.fillRect(tx, ty, pw, ph);
+      ctx.restore();
+
+      // Contenido de página
+      ctx.save();
+      ctx.beginPath(); ctx.rect(tx, ty, pw, ph); ctx.clip();
+      ctx.translate(tx, ty); ctx.scale(sc, sc);
+      this.drawPageBg(ctx, PAGE_W, PAGE_H, pg);
+      (pg.strokes || []).forEach(s => this.drawStroke(ctx, s));
+      ctx.restore();
+    }
+
+    this._reset(ctx);
+  }
+
+  // ── Capa Wet: trazo activo ───────────────────────────────────────────────
+  drawWet(s, predPts, pointerEvent, color, size) {
+    const ctx = this.wetCtx;
+    const cv  = this.wetCv;
+    if (!ctx || !cv) return;
+    this._reset(ctx);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    if (!s || !s.points || !s.points.length) return;
+
+    const { PAGE_W, PAGE_H, dpr } = this;
+    ctx.scale(dpr, dpr);
+
+    let tx, ty, sc;
+    if (this.scrollMode === 'scroll') {
+      const pgIdx = (s._pg != null) ? s._pg : this._activePgIdx;
+      const pw    = Math.min(this.W - 32, PAGE_W);
+      sc  = pw / PAGE_W;
+      const ph  = PAGE_H * sc;
+      const GAP = 20;
+      tx = (this.W - pw) / 2;
+      ty = GAP + pgIdx * (ph + GAP) - this.scrollTop;
+    } else {
+      const x = this.getXform();
+      tx = x.tx; ty = x.ty; sc = x.sc;
+    }
+
+    ctx.save();
+    if (this.scrollMode !== 'scroll') {
+      ctx.beginPath();
+      ctx.rect(tx, ty, PAGE_W * sc, PAGE_H * sc);
+      ctx.clip();
+    }
+    ctx.translate(tx, ty);
+    ctx.scale(sc, sc);
+    this.drawStroke(ctx, s);
+    if (predPts && predPts.length) {
+      ctx.globalAlpha = 0.35;
+      this.drawStroke(ctx, Object.assign({}, s, { points: s.points.concat(predPts) }));
+    }
+    ctx.restore();
+    this._reset(ctx);
+
+    // Delegated Ink API
+    if (this._inkPresenter && pointerEvent) {
+      try {
+        this._inkPresenter.updateInkTrailStartPoint(pointerEvent, {
+          color: color || '#000000',
+          diameter: Math.max(1, (size || 2) * (pointerEvent.pressure || 0.5) * sc * dpr),
+        });
+      } catch (_) {}
+    }
+  }
+
+  clearWet() {
+    const ctx = this.wetCtx;
+    const cv  = this.wetCv;
+    if (!ctx || !cv) return;
+    this._reset(ctx);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+  }
+
+  // ── Eraser vectorial (por trazo) ─────────────────────────────────────────
+  applyEraser(px, py, pgi, eraserSize) {
+    const pg = this.notebook && this.notebook.pages[pgi];
+    if (!pg) return false;
+    const r    = (eraserSize || 20) / 2;
+    const newS = pg.strokes.filter(s =>
+      !s.points.some(p => Math.hypot(p.x - px, p.y - py) < r)
+    );
+    if (newS.length !== pg.strokes.length) {
+      if (this.scrollMode === 'scroll') {
+        this.onReplaceStrokesOnPage && this.onReplaceStrokesOnPage(pgi, newS);
+      } else {
+        this.onStrokesReplaced && this.onStrokesReplaced(newS);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  // ── Scribble-to-erase: garabato rápido borra sin cambiar de herramienta ──
+  isScribble(pts) {
+    if (!pts || pts.length < 10) return false;
+    let changes = 0, lastDir = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const dx = pts[i].x - pts[i - 1].x;
+      if (Math.abs(dx) < 0.5) continue;
+      const d = dx > 0 ? 1 : -1;
+      if (lastDir !== 0 && d !== lastDir) changes++;
+      lastDir = d;
+    }
+    // Bounding box manual (sin spread operator)
+    let minX = pts[0].x, maxX = pts[0].x;
+    let minY = pts[0].y, maxY = pts[0].y;
+    for (let i = 1; i < pts.length; i++) {
+      if (pts[i].x < minX) minX = pts[i].x;
+      if (pts[i].x > maxX) maxX = pts[i].x;
+      if (pts[i].y < minY) minY = pts[i].y;
+      if (pts[i].y > maxY) maxY = pts[i].y;
+    }
+    const bw = maxX - minX;
+    const bh = maxY - minY;
+    // Garabato: > 3 cambios de dirección, ancho > alto (ratio > 1.2), anchura > 20px
+    return changes >= 3 && (bh > 0 ? bw / bh : 0) > 1.2 && bw > 20;
+  }
+
+  eraseInArea(pts, pgi) {
+    if (!pts || !pts.length) return;
+    let minX = pts[0].x, maxX = pts[0].x;
+    let minY = pts[0].y, maxY = pts[0].y;
+    for (let i = 1; i < pts.length; i++) {
+      if (pts[i].x < minX) minX = pts[i].x;
+      if (pts[i].x > maxX) maxX = pts[i].x;
+      if (pts[i].y < minY) minY = pts[i].y;
+      if (pts[i].y > maxY) maxY = pts[i].y;
+    }
+    minX -= 8; maxX += 8; minY -= 8; maxY += 8;
+    const pg = this.notebook && this.notebook.pages[pgi];
+    if (!pg) return;
+    const newS = pg.strokes.filter(s =>
+      !s.points.some(p => p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY)
+    );
+    if (newS.length !== pg.strokes.length) {
+      if (this.scrollMode === 'scroll') {
+        this.onReplaceStrokesOnPage && this.onReplaceStrokesOnPage(pgi, newS);
+      } else {
+        this.onStrokesReplaced && this.onStrokesReplaced(newS);
+      }
+    }
+  }
+
+  // ── RDP simplificación ε=0.5 ────────────────────────────────────────────
+  rdp(pts, eps) {
+    if (pts.length < 3) return pts;
+    let maxD = 0, maxI = 0;
+    const p1 = pts[0], p2 = pts[pts.length - 1];
+    const dx = p2.x - p1.x, dy = p2.y - p1.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    for (let i = 1; i < pts.length - 1; i++) {
+      const d = len > 0
+        ? Math.abs(dy * (pts[i].x - p1.x) - dx * (pts[i].y - p1.y)) / len
+        : Math.hypot(pts[i].x - p1.x, pts[i].y - p1.y);
+      if (d > maxD) { maxD = d; maxI = i; }
+    }
+    if (maxD > eps) {
+      const l = this.rdp(pts.slice(0, maxI + 1), eps);
+      const r = this.rdp(pts.slice(maxI), eps);
+      return l.slice(0, -1).concat(r);
+    }
+    return [p1, p2];
+  }
+
+  // ── Commit: guarda el trazo y dispara callbacks ──────────────────────────
+  commitStroke(rawPts, toolName, color, size, pgi) {
+    if (!rawPts.length) return;
+    // Scribble-to-erase (no aplica a resaltador)
+    if (toolName !== 'highlighter' && this.isScribble(rawPts)) {
+      this.eraseInArea(rawPts, pgi);
+      return;
+    }
+    const pts = rawPts.length > 4 ? this.rdp(rawPts, 0.5) : rawPts;
+    const s = {
+      id:     Date.now().toString(36) + Math.random().toString(36).slice(2),
+      tool:   toolName,
+      color,
+      size,
+      points: pts,
+    };
+    if (this.scrollMode === 'scroll') {
+      this.onAddStrokeToPage && this.onAddStrokeToPage(pgi, s);
+    } else {
+      this.onStrokeAdded && this.onStrokeAdded(s);
+    }
+    // OPFS: guardar en background con debounce 1s
+    if (this.notebook && this._opfsRoot) {
+      clearTimeout(this._saveTimer);
+      const nb = this.notebook;
+      this._saveTimer = setTimeout(() => this._saveToDisk(nb), 1000);
+    }
+  }
+
+  // ── OPFS: persistencia binaria ───────────────────────────────────────────
+  async _saveToDisk(nb) {
+    if (!this._opfsRoot) return;
+    try {
+      const fh       = await this._opfsRoot.getFileHandle(nb.id + '.bin', { create: true });
+      const writable = await fh.createWritable();
+      await writable.write(this._serialize(nb.pages));
+      await writable.close();
+    } catch (_) {}
+  }
+
+  _serialize(pages) {
+    const toolMap = { pen: 0, marker: 1, highlighter: 2, eraser: 3 };
+    const parts   = [];
+    parts.push(new Float32Array([pages.length]).buffer);
+    pages.forEach(pg => {
+      const strokes = pg.strokes || [];
+      parts.push(new Float32Array([strokes.length]).buffer);
+      strokes.forEach(s => {
+        const pts = s.points || [];
+        const col = s.color || '#000000';
+        const r   = parseInt(col.slice(1, 3), 16) / 255;
+        const g   = parseInt(col.slice(3, 5), 16) / 255;
+        const b_  = parseInt(col.slice(5, 7), 16) / 255;
+        parts.push(new Float32Array([toolMap[s.tool] || 0, r, g, b_, s.size || 2, pts.length]).buffer);
+        const buf = new Float32Array(pts.length * 3);
+        pts.forEach((p, i) => {
+          buf[i * 3]     = p.x;
+          buf[i * 3 + 1] = p.y;
+          buf[i * 3 + 2] = p.pressure != null ? p.pressure : 0.5;
+        });
+        parts.push(buf.buffer);
+      });
+    });
+    const total = parts.reduce((a, b) => a + b.byteLength, 0);
+    const out   = new Uint8Array(total);
+    let off = 0;
+    parts.forEach(b => { out.set(new Uint8Array(b), off); off += b.byteLength; });
+    return out.buffer;
+  }
 }
 
-class CanvasController{
-constructor(){
-this.bgCtx=null;this.dryCtx=null;this.wetCtx=null;
-this.bgCv=null;this.dryCv=null;this.wetCv=null;
-this.dpr=window.devicePixelRatio||1;
-this.PAGE_W=816;this.PAGE_H=1154;
-this.zoom=1;this.pan={x:0,y:0};
-this.scrollMode='paged';this.scrollTop=0;
-this.notebook=null;this.pageIdx=0;this.currentPage=null;
-this.bgCache=null;this.W=0;this.H=0;
-this.onStrokeAdded=null;this.onStrokesReplaced=null;
-this.onStrokeAddedToPage=null;this.onStrokesReplacedOnPage=null;
-// Delegated Ink API (SO-level latency)
-this.inkPresenter=null;
-this._initInkAPI();
-// OPFS root handle
-this._opfsRoot=null;
-this._initOPFS();
-// Debounce para evitar escrituras simultáneas en OPFS
-this._saveTimeout=null;
-this._isSaving=false;
-this._activePgIdx=0; // página activa en modo scroll — fallback para drawWet
-}
-
-// ── Delegated Ink API ─────────────────────────────────────────────────────
-async _initInkAPI(){
-try{
-if(navigator.ink){
-this.inkPresenter=await navigator.ink.requestPresenter({presentationArea:this.wetCv||undefined});
-}
-}catch(e){}
-}
-
-// ── OPFS init ─────────────────────────────────────────────────────────────
-async _initOPFS(){
-try{
-if(navigator.storage&&navigator.storage.getDirectory){
-this._opfsRoot=await navigator.storage.getDirectory();
-}
-}catch(e){}
-}
-
-// ── OPFS: guardar notebook como binario ───────────────────────────────────
-async saveToDisk(notebookId,pages){
-if(!this._opfsRoot)return;
-try{
-const fh=await this._opfsRoot.getFileHandle(notebookId+'.bin',{create:true});
-const writable=await fh.createWritable();
-const buf=this._serializeToBinary(pages);
-await writable.write(buf);
-await writable.close();
-}catch(e){}
-}
-
-async loadFromDisk(notebookId){
-if(!this._opfsRoot)return null;
-try{
-const fh=await this._opfsRoot.getFileHandle(notebookId+'.bin');
-const file=await fh.getFile();
-const buf=await file.arrayBuffer();
-return this._deserializeFromBinary(buf);
-}catch(e){return null;}
-}
-
-// Serialización Float32Array: [nStrokes, nPts, tool(0-3), r,g,b, size, x,y,p,t, ...]
-_serializeToBinary(pages){
-const toolMap={pen:0,marker:1,highlighter:2,eraser:3};
-const parts=[];
-// Header: número de páginas
-const header=new Float32Array([pages.length]);
-parts.push(header.buffer);
-pages.forEach(function(pg){
-const strokes=pg.strokes||[];
-const pgHeader=new Float32Array([strokes.length]);
-parts.push(pgHeader.buffer);
-strokes.forEach(function(s){
-const pts=s.points||[];
-const col=s.color||'#000000';
-const r=parseInt(col.slice(1,3),16)/255;
-const g=parseInt(col.slice(3,5),16)/255;
-const b=parseInt(col.slice(5,7),16)/255;
-const sHeader=new Float32Array([toolMap[s.tool]||0,r,g,b,s.size||2,pts.length]);
-parts.push(sHeader.buffer);
-const ptBuf=new Float32Array(pts.length*4);
-pts.forEach(function(p,i){ptBuf[i*4]=p.x;ptBuf[i*4+1]=p.y;ptBuf[i*4+2]=p.pressure!=null?p.pressure:0.5;ptBuf[i*4+3]=p.t||0;});
-parts.push(ptBuf.buffer);
-});
-});
-const total=parts.reduce(function(a,b){return a+b.byteLength;},0);
-const out=new Uint8Array(total);
-let off=0;parts.forEach(function(b){out.set(new Uint8Array(b),off);off+=b.byteLength;});
-return out.buffer;
-}
-
-_deserializeFromBinary(buf){
-const toolNames=['pen','marker','highlighter','eraser'];
-const view=new Float32Array(buf);
-let i=0;
-const nPages=view[i++];
-const pages=[];
-for(let pi=0;pi<nPages;pi++){
-const nStrokes=view[i++];
-const strokes=[];
-for(let si=0;si<nStrokes;si++){
-const tool=toolNames[view[i++]||0];
-const r=Math.round(view[i++]*255),g=Math.round(view[i++]*255),b=Math.round(view[i++]*255);
-const color='#'+r.toString(16).padStart(2,'0')+g.toString(16).padStart(2,'0')+b.toString(16).padStart(2,'0');
-const size=view[i++];
-const nPts=view[i++];
-const points=[];
-for(let pi2=0;pi2<nPts;pi2++){points.push({x:view[i++],y:view[i++],pressure:view[i++],t:view[i++]});}
-const _rnd=new Uint32Array(2);
-        crypto.getRandomValues(_rnd);
-        const _sid=si+'-'+_rnd[0].toString(36)+_rnd[1].toString(36);
-        strokes.push({id:_sid,tool,color,size,points});
-}
-pages.push({strokes});
-}
-return pages;
-}
-
-init(bgCv,dryCv,wetCv){
-this.bgCtx=bgCv.getContext('2d');
-this.dryCtx=dryCv.getContext('2d');
-this.wetCtx=wetCv.getContext('2d',{desynchronized:true,alpha:true});
-this.bgCv=bgCv;this.dryCv=dryCv;this.wetCv=wetCv;
-// Reintentar Ink API con el canvas ya disponible
-this._initInkAPI();
-}
-
-setSize(W,H){
-const dpr=this.dpr;
-[this.bgCv,this.dryCv,this.wetCv].forEach(cv=>{if(!cv)return;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';});
-this.bgCache=null;this.W=W;this.H=H;
-}
-
-sync(props){
-this.notebook=props.notebook;this.currentPage=props.currentPage;
-this.pageIdx=props.pageIdx;this.scrollMode=props.scrollMode;
-this.onStrokeAdded=s=>props.onAddStroke(s);
-this.onStrokesReplaced=s=>props.onReplaceStrokes(s);
-this.onStrokeAddedToPage=(pi,s)=>props.onAddStrokeToPage(pi,s);
-this.onStrokesReplacedOnPage=(pi,s)=>props.onReplaceStrokesOnPage(pi,s);
-}
-
-getXform(){
-const{W,H,PAGE_W,PAGE_H,zoom,pan}=this;if(!W)return{tx:0,ty:0,sc:1};
-const fit=Math.min((W-24)/PAGE_W,(H-24)/PAGE_H),sc=fit*zoom;
-return{tx:(W-PAGE_W*sc)/2+pan.x,ty:(H-PAGE_H*sc)/2+pan.y,sc};
-}
-
-s2p(cx,cy){const{tx,ty,sc}=this.getXform();return{x:(cx-tx)/sc,y:(cy-ty)/sc};}
-
-scrollHit(cx,cy){
-const{W,PAGE_W,PAGE_H,notebook,scrollTop}=this;if(!W||!notebook)return null;
-const pw=Math.min(W-32,PAGE_W),sc=pw/PAGE_W,ph=PAGE_H*sc,sx=(W-pw)/2,GAP=20;
-for(let i=0;i<notebook.pages.length;i++){
-const py=GAP+i*(ph+GAP)-scrollTop;
-if(cx>=sx&&cx<=sx+pw&&cy>=py&&cy<=py+ph)return{idx:i,x:(cx-sx)/sc,y:(cy-py)/sc};
-}return null;
-}
-
-// ── RDP simplification ε=0.5 ─────────────────────────────────────────────
-rdp(pts,eps){
-if(pts.length<3)return pts;
-let maxD=0,maxI=0;
-const p1=pts[0],p2=pts[pts.length-1],dx=p2.x-p1.x,dy=p2.y-p1.y,len=Math.sqrt(dx*dx+dy*dy);
-for(let i=1;i<pts.length-1;i++){
-const d=len>0?Math.abs(dy*(pts[i].x-p1.x)-dx*(pts[i].y-p1.y))/len:Math.hypot(pts[i].x-p1.x,pts[i].y-p1.y);
-if(d>maxD){maxD=d;maxI=i;}
-}
-if(maxD>eps){const l=this.rdp(pts.slice(0,maxI+1),eps),r=this.rdp(pts.slice(maxI),eps);return l.slice(0,-1).concat(r);}
-return[p1,p2];
-}
-
-_reset(ctx){
-ctx.setTransform(1,0,0,1,0,0);
-ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
-ctx.shadowBlur=0;ctx.shadowColor='transparent';ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
-}
-
-drawPageBg(ctx,W,H,pg){
-ctx.fillStyle=pg.bg||'#fffef8';ctx.fillRect(0,0,W,H);
-if(pg.imageData){const img=new window.Image();img.src=pg.imageData;if(img.complete){ctx.drawImage(img,0,0,W,H);return;}img.onload=()=>{ctx.drawImage(img,0,0,W,H);this.bgCache=null;this.redrawAll();};return;}
-const dk=pg.bg==='#0f172a';
-const lc=dk?'rgba(148,163,184,.14)':'rgba(37,99,235,.08)';
-const dc=dk?'rgba(148,163,184,.25)':'rgba(37,99,235,.2)';
-const mc=dk?'rgba(248,113,113,.2)':'rgba(239,68,68,.16)';
-if(pg.template==='lined'){ctx.strokeStyle=lc;ctx.lineWidth=.8;for(let y=56;y<H;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}ctx.strokeStyle=mc;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(72,0);ctx.lineTo(72,H);ctx.stroke();}
-else if(pg.template==='grid'){ctx.strokeStyle=lc;ctx.lineWidth=.6;for(let x=0;x<W;x+=24){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(let y=0;y<H;y+=24){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}}
-else if(pg.template==='dotted'){ctx.fillStyle=dc;for(let x=24;x<W;x+=24)for(let y=24;y<H;y+=24){ctx.beginPath();ctx.arc(x,y,1.1,0,Math.PI*2);ctx.fill();}}
-}
-
-// ── Trazo con presión + velocidad + Catmull-Rom ───────────────────────────
-drawStroke(ctx,s,simple){
-if(!s||!s.points||!s.points.length)return;
-ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-ctx.globalAlpha=s.tool==='highlighter'?0.38:1;
-ctx.globalCompositeOperation='source-over';
-ctx.shadowBlur=0;ctx.shadowColor='transparent';ctx.shadowOffsetY=0;
-ctx.strokeStyle=s.color;
-const p=s.points;
-if(p.length===1){
-const pw=p[0].pressure!=null?s.size*(0.4+p[0].pressure*0.6):s.size;
-ctx.beginPath();ctx.arc(p[0].x,p[0].y,pw/2,0,Math.PI*2);ctx.fillStyle=s.color;ctx.fill();ctx.restore();return;
-}
-if(simple||p.length===2||s.tool==='highlighter'){
-ctx.lineWidth=s.size;ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);
-for(let i=1;i<p.length-1;i++){const mx=(p[i].x+p[i+1].x)/2,my=(p[i].y+p[i+1].y)/2;ctx.quadraticCurveTo(p[i].x,p[i].y,mx,my);}
-ctx.lineTo(p[p.length-1].x,p[p.length-1].y);ctx.stroke();ctx.restore();return;
-}
-// Catmull-Rom + presión + velocidad por segmento
-for(let i=0;i<p.length-1;i++){
-const cur=p[i],nxt=p[i+1];
-const vel=Math.hypot(nxt.x-cur.x,nxt.y-cur.y);
-const vf=Math.max(0.5,Math.min(1.0,1-vel/50));
-const pf=cur.pressure!=null?(0.5+cur.pressure*0.5):0.85;
-const p0=p[Math.max(0,i-1)],p1=p[i],p2=p[i+1],p3=p[Math.min(p.length-1,i+2)];
-ctx.lineWidth=Math.max(0.5,s.size*vf*pf);
-ctx.beginPath();ctx.moveTo(p1.x,p1.y);
-ctx.bezierCurveTo(p1.x+(p2.x-p0.x)/6,p1.y+(p2.y-p0.y)/6,p2.x-(p3.x-p1.x)/6,p2.y-(p3.y-p1.y)/6,p2.x,p2.y);
-ctx.stroke();
-}
-ctx.restore();
-}
-
-// ── Capas ─────────────────────────────────────────────────────────────────
-drawBg(){
-const ctx=this.bgCtx,cv=this.bgCv;if(!ctx||!cv)return;
-const{W,H,PAGE_W,PAGE_H,dpr}=this;
-this._reset(ctx);ctx.clearRect(0,0,cv.width,cv.height);
-if(this.scrollMode==='scroll'||!this.currentPage)return;
-const pg=this.currentPage;const{tx,ty,sc}=this.getXform();
-if(this.bgCache&&this.bgCache.id===pg.id&&this.bgCache.template===pg.template&&this.bgCache.bg===pg.bg&&this.bgCache.imageData===pg.imageData){
-ctx.scale(dpr,dpr);ctx.save();ctx.shadowColor='rgba(0,0,0,0.12)';ctx.shadowBlur=24;ctx.shadowOffsetY=5;ctx.fillStyle=pg.bg||'#fffef8';ctx.fillRect(tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.restore();
-ctx.save();ctx.beginPath();ctx.rect(tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.clip();ctx.drawImage(this.bgCache.canvas,tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.restore();return;
-}
-const ofc=document.createElement('canvas');ofc.width=PAGE_W;ofc.height=PAGE_H;
-this.drawPageBg(ofc.getContext('2d'),PAGE_W,PAGE_H,pg);
-this.bgCache={id:pg.id,template:pg.template,bg:pg.bg,imageData:pg.imageData,canvas:ofc};
-ctx.scale(dpr,dpr);ctx.save();ctx.shadowColor='rgba(0,0,0,0.12)';ctx.shadowBlur=24;ctx.shadowOffsetY=5;ctx.fillStyle=pg.bg||'#fffef8';ctx.fillRect(tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.restore();
-ctx.save();ctx.beginPath();ctx.rect(tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.clip();ctx.drawImage(ofc,tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.restore();
-}
-
-drawDry(){
-const ctx=this.dryCtx,cv=this.dryCv;if(!ctx||!cv||!this.notebook)return;
-const{W,H,PAGE_W,PAGE_H,dpr,notebook}=this;
-this._reset(ctx);ctx.clearRect(0,0,cv.width,cv.height);ctx.scale(dpr,dpr);
-if(this.scrollMode==='scroll'){
-const pw=Math.min(W-32,PAGE_W),sc=pw/PAGE_W,ph=PAGE_H*sc,sx=(W-pw)/2,GAP=20,st=this.scrollTop;
-ctx.fillStyle='#dde3ed';ctx.fillRect(0,0,W,H);
-notebook.pages.forEach((pg,i)=>{
-const py=GAP+i*(ph+GAP)-st;if(py+ph<-80||py>H+80)return;
-ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.shadowColor='rgba(0,0,0,0.09)';ctx.shadowBlur=14;ctx.shadowOffsetY=3;ctx.fillStyle=pg.bg||'#fffef8';ctx.fillRect(sx,py,pw,ph);ctx.restore();
-ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.shadowColor='transparent';ctx.shadowOffsetY=0;ctx.beginPath();ctx.rect(sx,py,pw,ph);ctx.clip();ctx.translate(sx,py);ctx.scale(sc,sc);this.drawPageBg(ctx,PAGE_W,PAGE_H,pg);(pg.strokes||[]).forEach(s=>this.drawStroke(ctx,s));ctx.restore();
-ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.fillStyle='rgba(100,116,139,.45)';ctx.font='11px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText((i+1)+' / '+notebook.pages.length,W/2,py+ph+14);ctx.restore();
-});
-}else{
-ctx.clearRect(0,0,W,H);const{tx,ty,sc}=this.getXform(),pg=this.currentPage;if(!pg)return;
-ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.shadowColor='transparent';ctx.shadowOffsetY=0;ctx.beginPath();ctx.rect(tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.clip();ctx.translate(tx,ty);ctx.scale(sc,sc);(pg.strokes||[]).forEach(s=>this.drawStroke(ctx,s));ctx.restore();
-}
-this._reset(ctx);
-}
-
-drawWet(s,predPts,pointerEvent,color,size){
-const ctx=this.wetCtx,cv=this.wetCv;if(!ctx||!cv)return;
-const{PAGE_W,PAGE_H,dpr}=this;
-this._reset(ctx);ctx.clearRect(0,0,cv.width,cv.height);
-if(!s||!s.points.length)return;
-ctx.scale(dpr,dpr);
-let tx,ty,sc;
-if(this.scrollMode==='scroll'){
-  // Usar _pg del trazo activo; si undefined, usar _activePgIdx como fallback seguro
-  const pgIdx=s._pg!=null?s._pg:this._activePgIdx;
-  const pw=Math.min(this.W-32,PAGE_W);sc=pw/PAGE_W;const ph=PAGE_H*sc,GAP=20;
-  tx=(this.W-pw)/2;ty=GAP+pgIdx*(ph+GAP)-this.scrollTop;
-}
-else{const x=this.getXform();tx=x.tx;ty=x.ty;sc=x.sc;}
-ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.shadowColor='transparent';ctx.shadowOffsetY=0;
-if(this.scrollMode!=='scroll'){ctx.beginPath();ctx.rect(tx,ty,PAGE_W*sc,PAGE_H*sc);ctx.clip();}
-ctx.translate(tx,ty);ctx.scale(sc,sc);
-this.drawStroke(ctx,s);
-if(predPts&&predPts.length){ctx.globalAlpha=0.35;this.drawStroke(ctx,Object.assign({},s,{points:s.points.concat(predPts)}));ctx.globalAlpha=1;}
-ctx.restore();this._reset(ctx);
-// Delegated Ink API — SO pinta los últimos px antes que el frame
-if(this.inkPresenter&&pointerEvent){
-try{this.inkPresenter.updateInkTrailStartPoint(pointerEvent,{color:color||'#000000',diameter:Math.max(1,(size||2)*(pointerEvent.pressure||0.5)*sc*dpr)});}catch(e){}
-}
-}
-
-clearWet(){
-const ctx=this.wetCtx,cv=this.wetCv;if(!ctx||!cv)return;
-this._reset(ctx);ctx.clearRect(0,0,cv.width,cv.height);
-}
-
-redrawAll(){this.drawBg();this.drawDry();}
-
-// ── Eraser vectorial ──────────────────────────────────────────────────────
-applyEraser(px,py,pgi,eraserSize){
-const pg=this.notebook&&this.notebook.pages[pgi];if(!pg)return false;
-const r=eraserSize/2;
-const newS=pg.strokes.filter(s=>!s.points.some(p=>Math.hypot(p.x-px,p.y-py)<r));
-if(newS.length!==pg.strokes.length){
-if(this.scrollMode==='scroll')this.onStrokesReplacedOnPage&&this.onStrokesReplacedOnPage(pgi,newS);
-else this.onStrokesReplaced&&this.onStrokesReplaced(newS);
-return true;
-}return false;
-}
-
-// ── Scribble-to-erase ─────────────────────────────────────────────────────
-isScribble(pts){
-if(!pts||pts.length<8)return false;
-let changes=0,lastDir=0;
-for(let i=1;i<pts.length;i++){const dx=pts[i].x-pts[i-1].x;if(Math.abs(dx)<0.5)continue;const d=dx>0?1:-1;if(lastDir!==0&&d!==lastDir)changes++;lastDir=d;}
-const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
-const bw=Math.max(...xs)-Math.min(...xs),bh=Math.max(...ys)-Math.min(...ys);
-return changes>=3&&(bh>0?bw/bh:0)>1.2&&bw>20;
-}
-
-eraseInArea(pts,pgi){
-const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
-const minX=Math.min(...xs)-8,maxX=Math.max(...xs)+8,minY=Math.min(...ys)-8,maxY=Math.max(...ys)+8;
-const pg=this.notebook&&this.notebook.pages[pgi];if(!pg)return;
-const newS=pg.strokes.filter(s=>!s.points.some(p=>p.x>=minX&&p.x<=maxX&&p.y>=minY&&p.y<=maxY));
-if(newS.length!==pg.strokes.length){
-if(this.scrollMode==='scroll')this.onStrokesReplacedOnPage&&this.onStrokesReplacedOnPage(pgi,newS);
-else this.onStrokesReplaced&&this.onStrokesReplaced(newS);
-}
-}
-
-// ── Commit trazo final (RDP + scribble check) ─────────────────────────────
-commitStroke(rawPts,toolName,color,size,pgi){
-if(!rawPts.length)return;
-if(toolName!=='highlighter'&&this.isScribble(rawPts)){this.eraseInArea(rawPts,pgi);return;}
-// Shape recognition — solo para boli/rotulador, no resaltador
-let finalPts=rawPts.length>4?this.rdp(rawPts,0.5):rawPts;
-let finalTool=toolName;
-if((toolName==='pen'||toolName==='marker')&&rawPts.length>12){
-try{
-const shaped=applyShapeRecognition(rawPts,color,size);
-if(shaped&&shaped.points&&shaped.points.length>1){finalPts=shaped.points;}
-}catch(e){}
-}
-const s={id:Date.now().toString(36)+Math.random().toString(36).slice(2),tool:finalTool,color,size,points:finalPts};
-if(this.scrollMode==='scroll')this.onStrokeAddedToPage&&this.onStrokeAddedToPage(pgi,s);
-else this.onStrokeAdded&&this.onStrokeAdded(s);
-if(this.notebook){
-  if(this._saveTimeout)clearTimeout(this._saveTimeout);
-  const nb=this.notebook;
-  this._saveTimeout=setTimeout(()=>{
-    if(this._isSaving)return;
-    this._isSaving=true;
-    this.saveToDisk(nb.id,nb.pages).catch(()=>{}).finally(()=>{this._isSaving=false;});
-  },1000);
-}
-}
-}
-
-
+// ════════════════════════════════════════════════════════════════════════════
+// NotesErrorBoundary — captura crashes del editor sin tirar toda la app
+// ════════════════════════════════════════════════════════════════════════════
 class NotesErrorBoundary extends b.Component {
   constructor(props) { super(props); this.state = { error: null }; }
-  static getDerivedStateFromError(error) { return { error }; }
-  componentDidCatch(error, info) { console.error('NotesErrorBoundary:', error, info); }
+  static getDerivedStateFromError(e) { return { error: e }; }
+  componentDidCatch(e, info) { console.error('[NotesErrorBoundary]', e, info); }
   render() {
     if (this.state.error) {
       return d.jsxs('div', {
-        style: { position:'fixed', inset:0, zIndex:60, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'#f0f4ff', gap:16, padding:24 },
+        style: { position: 'fixed', inset: 0, zIndex: 60, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f0f4ff', gap: 16, padding: 24 },
         children: [
-          d.jsx('div', { style:{fontSize:32}, children:'📓' }),
-          d.jsx('p', { style:{fontSize:16, fontWeight:700, color:'#0f172a'}, children:'Error en el cuaderno' }),
-          d.jsx('p', { style:{fontSize:12, color:'#64748b', textAlign:'center', maxWidth:280}, children: this.state.error.message || 'Error desconocido' }),
+          d.jsx('p', { style: { fontSize: 16, fontWeight: 700, color: '#0f172a' }, children: 'Error en el cuaderno' }),
+          d.jsx('p', { style: { fontSize: 12, color: '#64748b', textAlign: 'center', maxWidth: 280 }, children: this.state.error.message || 'Error desconocido' }),
           d.jsx('button', {
             onClick: () => { this.setState({ error: null }); this.props.onBack && this.props.onBack(); },
-            style: { height:44, padding:'0 20px', borderRadius:12, border:'none', background:'#2563eb', color:'#fff', fontSize:14, fontWeight:600, cursor:'pointer' },
-            children: 'Volver a la biblioteca'
+            style: { height: 44, padding: '0 20px', borderRadius: 12, border: 'none', background: '#2563eb', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' },
+            children: 'Volver a la biblioteca',
           }),
-        ]
+        ],
       });
     }
     return this.props.children;
   }
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// NotebookEditor — componente principal del editor
+// ════════════════════════════════════════════════════════════════════════════
 function NotebookEditor(props) {
-const notebook=props.notebook, currentPage=props.currentPage;
-const wrapRef=b.useRef(null), bgRef=b.useRef(null), dryRef=b.useRef(null), wetRef=b.useRef(null), railRef=b.useRef(null), importRef=b.useRef(null);
-const ctrlRef=b.useRef(null);
-const getCtrl=b.useCallback(function(){if(!ctrlRef.current)ctrlRef.current=new CanvasController();return ctrlRef.current;},[]);
-const drawing=b.useRef(false), stroke=b.useRef(null), ptsBuf=b.useRef([]);
-const rafId=b.useRef(null), ptrs=b.useRef(new Map()), pinchR=b.useRef(null);
-const prevTool=b.useRef(null), penLive=b.useRef(false), penTimer=b.useRef(null);
-const toolRef=b.useRef(props.tool), zoomRef=b.useRef(1), panRef=b.useRef({x:0,y:0});
-const propsRef=b.useRef(props);
-const [zoom,setZoom]=b.useState(1), [pan,setPan]=b.useState({x:0,y:0});
-const [showPageMenu,setShowPageMenu]=b.useState(false), [showThumbs,setShowThumbs]=b.useState(false);
-const [showZoomWin,setShowZoomWin]=b.useState(false);
-const zoomWinOffsetRef=b.useRef(0);
-const zoomWinYRef=b.useRef(0);
-const zoomWinCanvasRef=b.useRef(null);
-const zwRafRef=b.useRef(null);
-const [audioRec,setAudioRec]=b.useState(false);
-const [audioTime,setAudioTime]=b.useState(0);
-const mediaRecRef=b.useRef(null);
-const audioChunksRef=b.useRef([]);
-const audioUrlRef=b.useRef(null);
-const audioElRef=b.useRef(null);
-const audioStartRef=b.useRef(0);
-const audioTimerRef=b.useRef(null);
-b.useEffect(function(){propsRef.current=props;});
-b.useEffect(function(){toolRef.current=props.tool;},[props.tool]);
-b.useEffect(function(){zoomRef.current=zoom;},[zoom]);
-b.useEffect(function(){panRef.current=pan;},[pan]);
+  const notebook    = props.notebook;
+  const currentPage = props.currentPage;
 
-// Init + resize
-const syncCtrl=b.useCallback(function(){
-  const ctrl=getCtrl();
-  ctrl.sync(propsRef.current);
-  ctrl.zoom=zoomRef.current; ctrl.pan=panRef.current;
-  ctrl.scrollTop=railRef.current?railRef.current.scrollTop:0;
-  ctrl._activePgIdx=propsRef.current.pageIdx||0;
-},[getCtrl]);
+  // ── Refs ────────────────────────────────────────────────────────────────
+  const wrapRef   = b.useRef(null);
+  const dryRef    = b.useRef(null);
+  const wetRef    = b.useRef(null);
+  const railRef   = b.useRef(null);
+  const importRef = b.useRef(null);
 
-// ── Zoom Window: renderiza la región ampliada ─────────────────────────────
-const renderZoomWindow=b.useCallback(function(){
-  const cv=zoomWinCanvasRef.current;
-  const ctrl=getCtrl();
-  if(!cv||!ctrl.bgCtx)return;
-  const W=cv.width,H=cv.height;
-  const ctx=cv.getContext('2d');
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.clearRect(0,0,W,H);
-  const pg=propsRef.current.currentPage;if(!pg)return;
-  const ZS=3; // zoom 3x
-  const ox=zoomWinOffsetRef.current;
-  const oy=zoomWinYRef.current;
-  const dpr=ctrl.dpr;
-  const displayW=W/dpr, displayH=H/dpr;
-  // Fondo
-  ctx.fillStyle=pg.bg||'#fffef8';
-  ctx.fillRect(0,0,W,H);
-  ctx.save();
-  ctx.scale(dpr*ZS,dpr*ZS);
-  ctx.translate(-ox,-oy);
-  ctrl.drawPageBg(ctx,ctrl.PAGE_W,ctrl.PAGE_H,pg);
-  (pg.strokes||[]).forEach(function(s){ctrl.drawStroke(ctx,s);});
-  ctx.restore();
-  // Cursor line — indicador posición actual
-  ctx.save();
-  ctx.strokeStyle='rgba(37,99,235,0.3)';
-  ctx.lineWidth=1*dpr;
-  ctx.setLineDash([4*dpr,4*dpr]);
-  ctx.beginPath();ctx.moveTo(W*0.5,0);ctx.lineTo(W*0.5,H);ctx.stroke();
-  ctx.restore();
-  // Marco
-  ctx.save();
-  ctx.strokeStyle='rgba(37,99,235,0.15)';
-  ctx.lineWidth=1*dpr;
-  ctx.strokeRect(0,0,W,H);
-  ctx.restore();
-},[getCtrl]);
+  // CanvasController — una sola instancia, nunca recreada
+  const ctrlRef = b.useRef(null);
+  const getCtrl = b.useCallback(() => {
+    if (!ctrlRef.current) ctrlRef.current = new CanvasController();
+    return ctrlRef.current;
+  }, []);
 
-// Auto-advance: cuando el lápiz llega al 65% del ancho → desplazar
-const zwAutoAdvance=b.useCallback(function(pageX){
-  const cv=zoomWinCanvasRef.current;
-  if(!cv)return;
-  const ctrl=getCtrl();
-  const ZS=3;
-  const dpr=ctrl.dpr;
-  const displayW=cv.width/dpr;
-  // Calcular posición X en coordenadas de la ventana de zoom
-  const relX=(pageX-zoomWinOffsetRef.current)*ZS;
-  const threshold=displayW*0.65;
-  if(relX>threshold){
-    // Avanzar suavemente
-    zoomWinOffsetRef.current+=18;
-    // Límite derecho: no pasar del final de la página
-    const maxOffset=ctrl.PAGE_W-(displayW/ZS);
-    if(zoomWinOffsetRef.current>maxOffset)zoomWinOffsetRef.current=maxOffset;
-    if(zwRafRef.current)cancelAnimationFrame(zwRafRef.current);
-    zwRafRef.current=requestAnimationFrame(renderZoomWindow);
-  }
-},[getCtrl,renderZoomWindow]);
+  // Dibujo — todo en refs para evitar stale closures
+  const drawing  = b.useRef(false);
+  const stroke   = b.useRef(null);
+  const ptsBuf   = b.useRef([]);
+  const rafId    = b.useRef(null);
+  const ptrs     = b.useRef(new Map());
+  const pinchRef = b.useRef(null);
+  const prevTool = b.useRef(null);
+  const penLive  = b.useRef(false);
+  const penTimer = b.useRef(null);
 
-const resize=b.useCallback(function(){
-  const wrap=wrapRef.current; if(!wrap) return;
-  const r=wrap.getBoundingClientRect();
-  const W=Math.floor(r.width),H=Math.floor(r.height);
-  const ctrl=getCtrl(); if(!ctrl.bgCtx) return;
-  syncCtrl(); ctrl.setSize(W,H); ctrl.redrawAll();
-},[getCtrl,syncCtrl]);
+  // Refs para valores que se leen en callbacks sin re-crear el callback
+  const propsRef    = b.useRef(props);
+  const toolRef     = b.useRef(props.tool);
+  const zoomRef     = b.useRef(1);
+  const panRef      = b.useRef({ x: 0, y: 0 });
+  const audioRecRef = b.useRef(false);
 
-b.useEffect(function(){
-  const bg=bgRef.current,dry=dryRef.current,wet=wetRef.current;
-  if(!bg||!dry||!wet) return;
-  getCtrl().init(bg,dry,wet);
-  resize();
-  const ro=new ResizeObserver(resize);
-  if(wrapRef.current) ro.observe(wrapRef.current);
-  return function(){ro.disconnect();};
-},[resize,getCtrl]);
+  // ── Estado React (mínimo necesario) ────────────────────────────────────
+  const [zoom, setZoom]                     = b.useState(1);
+  const [showPageMenu, setShowPageMenu]     = b.useState(false);
+  const [showThumbs, setShowThumbs]         = b.useState(false);
+  const [audioRec, setAudioRec]             = b.useState(false);
+  const [audioTime, setAudioTime]           = b.useState(0);
 
-// Redibujar al cambiar página/strokes/zoom/pan
-b.useEffect(function(){
-  const ctrl=getCtrl(); if(!ctrl.bgCtx) return;
-  syncCtrl(); ctrl.bgCache=null; ctrl.redrawAll();
-});
+  // Audio refs
+  const mediaRecRef     = b.useRef(null);
+  const audioChunksRef  = b.useRef([]);
+  const audioUrlRef     = b.useRef(null);
+  const audioElRef      = b.useRef(null);
+  const audioStartRef   = b.useRef(0);
+  const audioTimerRef   = b.useRef(null);
 
-// Helpers
-function getColor(){const t=toolRef.current,p=propsRef.current;return t==='highlighter'?p.hlColor:t==='marker'?p.markerColor:p.penColor;}
-function getSize(){const t=toolRef.current,p=propsRef.current;return t==='highlighter'?p.hlSize:t==='marker'?p.markerSize:t==='eraser'?p.eraserSize:p.penSize;}
+  // ── Sincronizar refs con estado/props ───────────────────────────────────
+  b.useEffect(() => { propsRef.current = props; });
+  b.useEffect(() => { toolRef.current  = props.tool; }, [props.tool]);
+  b.useEffect(() => { zoomRef.current  = zoom; },       [zoom]);
+  b.useEffect(() => { audioRecRef.current = audioRec; }, [audioRec]);
 
-// Pointer events — 100% imperativos, sin setState durante el dibujo
-const onDown=b.useCallback(function(e){
-  const p=propsRef.current,ctrl=getCtrl();
-  if(e.pointerType==='pen'&&(e.buttons&2)){prevTool.current=toolRef.current;p.onSetTool('eraser');toolRef.current='eraser';}
-  if(e.pointerType==='touch'&&(penLive.current||!p.fingerWrites))return;
-  if(e.pointerType==='pen'){penLive.current=true;clearTimeout(penTimer.current);}
-  ptrs.current.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  e.target.setPointerCapture(e.pointerId);
-  if(ptrs.current.size===2){drawing.current=false;stroke.current=null;ctrl.clearWet();const pp=Array.from(ptrs.current.values());pinchR.current={dist:Math.hypot(pp[1].x-pp[0].x,pp[1].y-pp[0].y),zoom:zoomRef.current};return;}
-  const r=e.target.getBoundingClientRect();
-  const cx=e.clientX-r.left,cy=e.clientY-r.top;
-  const rPts=e.getCoalescedEvents?e.getCoalescedEvents():[e];
-  drawing.current=true;
-  const pressure=e.pressure!=null?e.pressure:0.5;
-  if(p.scrollMode==='scroll'){
-    const h=ctrl.scrollHit(cx,cy);if(!h){drawing.current=false;return;}
-    ctrl._activePgIdx=h.idx; // sincronizar fallback
-    if(toolRef.current==='eraser'){rPts.forEach(function(re){const h2=ctrl.scrollHit(re.clientX-r.left,re.clientY-r.top);if(h2&&ctrl.applyEraser(h2.x,h2.y,h2.idx,getSize()))ctrl.drawDry();});return;}
-    const pt={x:h.x,y:h.y,pressure};stroke.current={tool:toolRef.current,color:getColor(),size:getSize(),points:[pt],_pg:h.idx};ptsBuf.current=[pt];
-  }else{
-    const pt=ctrl.s2p(cx,cy);pt.pressure=pressure;
-    if(toolRef.current==='eraser'){rPts.forEach(function(re){const rp=ctrl.s2p(re.clientX-r.left,re.clientY-r.top);if(ctrl.applyEraser(rp.x,rp.y,p.pageIdx,getSize()))ctrl.drawDry();});return;}
-    stroke.current={tool:toolRef.current,color:getColor(),size:getSize(),points:[pt]};ptsBuf.current=[pt];
-  }
-},[getCtrl]);
+  // ── syncCtrl: pasar estado actual al controlador ────────────────────────
+  const syncCtrl = b.useCallback(() => {
+    const ctrl = getCtrl();
+    ctrl.sync(propsRef.current);
+    ctrl.zoom      = zoomRef.current;
+    ctrl.pan       = panRef.current;
+    ctrl.scrollTop = railRef.current ? railRef.current.scrollTop : 0;
+    ctrl._activePgIdx = propsRef.current.pageIdx || 0;
+  }, [getCtrl]);
 
-const onMove=b.useCallback(function(e){
-  ptrs.current.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  const p=propsRef.current,ctrl=getCtrl();
-  if(ptrs.current.size===2&&pinchR.current&&p.scrollMode!=='scroll'){
-    const pp=Array.from(ptrs.current.values());
-    const nz=Math.min(4,Math.max(0.5,pinchR.current.zoom*Math.hypot(pp[1].x-pp[0].x,pp[1].y-pp[0].y)/pinchR.current.dist));
-    zoomRef.current=nz;ctrl.zoom=nz;setZoom(nz);ctrl.bgCache=null;ctrl.redrawAll();return;
-  }
-  if(!drawing.current)return;
-  if(e.pointerType==='touch'&&(penLive.current||!p.fingerWrites))return;
-  const r=e.target.getBoundingClientRect();
-  const rPts=e.getCoalescedEvents?e.getCoalescedEvents():[e];
-  rPts.forEach(function(re){
-    const cx=re.clientX-r.left,cy=re.clientY-r.top;
-    const pressure=re.pressure!=null?re.pressure:0.5;
-    const t=re.timeStamp||0;
-    if(p.scrollMode==='scroll'){
-      if(toolRef.current==='eraser'){const h=ctrl.scrollHit(cx,cy);if(h&&ctrl.applyEraser(h.x,h.y,h.idx,getSize()))ctrl.drawDry();return;}
-      if(!stroke.current)return;
-      const h=ctrl.scrollHit(cx,cy);if(h&&h.idx===stroke.current._pg)ptsBuf.current.push({x:h.x,y:h.y,pressure,t});
-    }else{
-      if(toolRef.current==='eraser'){const pt=ctrl.s2p(cx,cy);if(ctrl.applyEraser(pt.x,pt.y,p.pageIdx,getSize()))ctrl.drawDry();return;}
-      if(!stroke.current)return;
-      const pt=ctrl.s2p(cx,cy);pt.pressure=pressure;pt.t=t;
-      // Guardar timestamp de audio si estamos grabando
-      if(audioRec&&audioStartRef.current){pt.audioT=performance.now()-audioStartRef.current;}
-      ptsBuf.current.push(pt);
-    }
+  // ── Inicializar canvas y ResizeObserver ─────────────────────────────────
+  const resize = b.useCallback(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const rect = wrap.getBoundingClientRect();
+    const W = Math.floor(rect.width);
+    const H = Math.floor(rect.height);
+    const ctrl = getCtrl();
+    if (!ctrl.dryCtx) return;
+    syncCtrl();
+    ctrl.setSize(W, H);
+    ctrl.drawDry();
+  }, [getCtrl, syncCtrl]);
+
+  b.useEffect(() => {
+    const dry = dryRef.current;
+    const wet = wetRef.current;
+    if (!dry || !wet) return;
+    getCtrl().init(dry, wet);
+    resize();
+    const ro = new ResizeObserver(resize);
+    if (wrapRef.current) ro.observe(wrapRef.current);
+    return () => ro.disconnect();
+  }, [getCtrl, resize]);
+
+  // ── Redibujar cuando cambian página/strokes/zoom ────────────────────────
+  b.useEffect(() => {
+    const ctrl = getCtrl();
+    if (!ctrl.dryCtx) return;
+    syncCtrl();
+    ctrl.drawDry();
   });
-  if(!stroke.current)return;
-  let predPts=[];
-  if(e.getPredictedEvents&&p.scrollMode!=='scroll'){e.getPredictedEvents().forEach(function(pe){const pt=ctrl.s2p(pe.clientX-r.left,pe.clientY-r.top);pt.pressure=pe.pressure||0.5;pt.t=pe.timeStamp||0;predPts.push(pt);});}
-  stroke.current=Object.assign({},stroke.current,{points:ptsBuf.current.slice()});
-  if(rafId.current)cancelAnimationFrame(rafId.current);
-  const s=stroke.current,pred=predPts.length?predPts:null;
-  const lastEvt=e; const col=getColor(); const sz=getSize();
-  // Auto-advance zoom window si está activo
-  if(showZoomWin&&ptsBuf.current.length){
-    const lastPt=ptsBuf.current[ptsBuf.current.length-1];
-    zwAutoAdvance(lastPt.x);
-    if(zwRafRef.current)cancelAnimationFrame(zwRafRef.current);
-    zwRafRef.current=requestAnimationFrame(renderZoomWindow);
-  }
-  rafId.current=requestAnimationFrame(function(){ctrl.drawWet(s,pred,lastEvt,col,sz);});
-},[getCtrl]);
 
-const onUp=b.useCallback(function(e){
-  ptrs.current.delete(e.pointerId);pinchR.current=null;
-  const p=propsRef.current,ctrl=getCtrl();
-  if(e.pointerType==='pen'&&!(e.buttons&2)&&prevTool.current&&toolRef.current==='eraser'){p.onSetTool(prevTool.current);toolRef.current=prevTool.current;prevTool.current=null;}
-  if(e.pointerType==='pen'){clearTimeout(penTimer.current);penTimer.current=setTimeout(function(){penLive.current=false;},500);}
-  if(!drawing.current)return;
-  drawing.current=false;ctrl.clearWet();
-  const s=stroke.current;stroke.current=null;
-  const rawPts=ptsBuf.current.slice();ptsBuf.current=[];
-  if(!s||rawPts.length===0||s.tool==='eraser'){ctrl.drawDry();return;}
-  const pgi=p.scrollMode==='scroll'&&s._pg!=null?s._pg:p.pageIdx;
-  ctrl.commitStroke(rawPts,s.tool,s.color,s.size,pgi);
-  // Redibujar zoom window tras commit
-  if(showZoomWin){
-    if(zwRafRef.current)cancelAnimationFrame(zwRafRef.current);
-    zwRafRef.current=requestAnimationFrame(renderZoomWindow);
-  }
-},[getCtrl,showZoomWin,renderZoomWindow,zwAutoAdvance]);
-
-const handleImport=function(e){
-  const file=e.target.files&&e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(ev){propsRef.current.onAddImagePage&&propsRef.current.onAddImagePage(ev.target.result,file.type==='application/pdf'?'pdf':'image');};
-  reader.readAsDataURL(file);if(importRef.current)importRef.current.value='';
-};
-
-// ── Export página actual como PNG ────────────────────────────────────────
-const exportCurrentPage=b.useCallback(function(){
-  const ctrl=getCtrl();
-  const pg=propsRef.current.currentPage;
-  if(!ctrl||!pg)return;
-  const SCALE=2; // exportar a 2x para calidad
-  const ofc=document.createElement('canvas');
-  ofc.width=ctrl.PAGE_W*SCALE; ofc.height=ctrl.PAGE_H*SCALE;
-  const ctx=ofc.getContext('2d');
-  ctx.scale(SCALE,SCALE);
-  ctrl.drawPageBg(ctx,ctrl.PAGE_W,ctrl.PAGE_H,pg);
-  (pg.strokes||[]).forEach(function(s){ctrl.drawStroke(ctx,s);});
-  ofc.toBlob(function(blob){
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download=(propsRef.current.notebook.name||'apuntes')+'-p'+(propsRef.current.pageIdx+1)+'.png';
-    a.click();
-    setTimeout(function(){URL.revokeObjectURL(url);},2000);
-  },'image/png');
-},[getCtrl]);
-
-// ── Export cuaderno completo como PDF (jsPDF via CDN) ───────────────────
-const exportToPDF=b.useCallback(function(){
-  const ctrl=getCtrl();
-  const nb=propsRef.current.notebook;
-  if(!ctrl||!nb)return;
-  // Cargar jsPDF dinámicamente si no está disponible
-  const doExport=function(){
-    const{jsPDF}=window.jspdf||{};
-    if(!jsPDF){alert('Exportación PDF no disponible. Usa "Exportar imagen" para guardar la página actual.');return;}
-    const doc=new jsPDF({orientation:'portrait',unit:'pt',format:'a4'});
-    const pdfW=doc.internal.pageSize.getWidth();
-    const pdfH=doc.internal.pageSize.getHeight();
-    const SCALE=2;
-    nb.pages.forEach(function(pg,idx){
-      if(idx>0)doc.addPage();
-      const ofc=document.createElement('canvas');
-      ofc.width=ctrl.PAGE_W*SCALE; ofc.height=ctrl.PAGE_H*SCALE;
-      const ctx=ofc.getContext('2d');
-      ctx.scale(SCALE,SCALE);
-      ctrl.drawPageBg(ctx,ctrl.PAGE_W,ctrl.PAGE_H,pg);
-      (pg.strokes||[]).forEach(function(s){ctrl.drawStroke(ctx,s);});
-      const dataUrl=ofc.toDataURL('image/jpeg',0.92);
-      doc.addImage(dataUrl,'JPEG',0,0,pdfW,pdfH);
-    });
-    doc.save((nb.name||'apuntes')+'.pdf');
+  // ── Helpers de herramienta ──────────────────────────────────────────────
+  const getColor = () => {
+    const t = toolRef.current, p = propsRef.current;
+    return t === 'highlighter' ? p.hlColor : t === 'marker' ? p.markerColor : p.penColor;
   };
-  if(window.jspdf){doExport();return;}
-  const script=document.createElement('script');
-  script.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-  script.onload=doExport;
-  script.onerror=function(){alert('No se pudo cargar jsPDF. Revisa tu conexión a internet.');};
-  document.head.appendChild(script);
-},[getCtrl]);
+  const getSize = () => {
+    const t = toolRef.current, p = propsRef.current;
+    return t === 'highlighter' ? p.hlSize : t === 'marker' ? p.markerSize : t === 'eraser' ? p.eraserSize : p.penSize;
+  };
 
-// ── Audio Sync ────────────────────────────────────────────────────────────
-const startRecording=b.useCallback(async function(){
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    const rec=new window.MediaRecorder(stream);
-    audioChunksRef.current=[];
-    rec.ondataavailable=function(e){if(e.data.size>0)audioChunksRef.current.push(e.data);};
-    rec.onstop=function(){
-      const blob=new Blob(audioChunksRef.current,{type:'audio/webm'});
-      if(audioUrlRef.current)URL.revokeObjectURL(audioUrlRef.current);
-      audioUrlRef.current=URL.createObjectURL(blob);
-      // Crear elemento audio para reproducción
-      const el=new window.Audio(audioUrlRef.current);
-      audioElRef.current=el;
-      stream.getTracks().forEach(t=>t.stop());
-    };
-    rec.start(100); // chunk cada 100ms
-    mediaRecRef.current=rec;
-    audioStartRef.current=performance.now();
-    setAudioRec(true);
-    // Timer visual
-    audioTimerRef.current=setInterval(function(){
-      setAudioTime(Math.floor((performance.now()-audioStartRef.current)/1000));
-    },1000);
-  }catch(e){alert('No se pudo acceder al micrófono.');}
-},[]);
+  // ── Pointer events — imperativo puro, sin setState ──────────────────────
+  const onDown = b.useCallback(e => {
+    const p    = propsRef.current;
+    const ctrl = getCtrl();
+    // Barrel button → goma temporal
+    if (e.pointerType === 'pen' && (e.buttons & 2)) {
+      prevTool.current = toolRef.current;
+      p.onSetTool('eraser');
+      toolRef.current = 'eraser';
+    }
+    // Palm rejection: si hay lápiz activo, ignorar touch
+    if (e.pointerType === 'touch' && (penLive.current || !p.fingerWrites)) return;
+    if (e.pointerType === 'pen') { penLive.current = true; clearTimeout(penTimer.current); }
 
-const stopRecording=b.useCallback(function(){
-  if(mediaRecRef.current&&mediaRecRef.current.state!=='inactive'){
-    mediaRecRef.current.stop();
-  }
-  setAudioRec(false);
-  clearInterval(audioTimerRef.current);
-},[]);
+    ptrs.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    e.target.setPointerCapture(e.pointerId);
 
-const playAudioAt=b.useCallback(function(timestampMs){
-  const el=audioElRef.current;if(!el)return;
-  el.currentTime=timestampMs/1000;
-  el.play();
-},[]);
+    // Pinch zoom (2 dedos)
+    if (ptrs.current.size === 2) {
+      drawing.current = false;
+      stroke.current  = null;
+      ctrl.clearWet();
+      const pp = Array.from(ptrs.current.values());
+      pinchRef.current = {
+        dist: Math.hypot(pp[1].x - pp[0].x, pp[1].y - pp[0].y),
+        zoom: zoomRef.current,
+      };
+      return;
+    }
 
-// Formatear tiempo
-const fmtTime=function(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+    const rect = e.target.getBoundingClientRect();
+    const cx   = e.clientX - rect.left;
+    const cy   = e.clientY - rect.top;
+    const pres = e.pressure != null ? e.pressure : 0.5;
+    const rPts = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    drawing.current = true;
 
-// UI
-const nbColor=notebook.color||'#2563eb';
-const isDark=currentPage&&currentPage.bg==='#0f172a';
-const barBg=isDark?'rgba(15,23,42,0.96)':'rgba(255,255,255,0.93)';
-const barBorder=isDark?'rgba(255,255,255,0.06)':'rgba(37,99,235,0.09)';
-const ic=isDark?'#94a3b8':'#475569';
-
-const toolBtn=function(toolName,icon,label){
-  const isActive=props.tool===toolName;
-  const col=toolName==='pen'?props.penColor:toolName==='marker'?props.markerColor:toolName==='highlighter'?props.hlColor:'#64748b';
-  return d.jsxs('button',{
-    onClick:function(){if(props.tool===toolName)props.onSetShowToolPanel(props.showToolPanel===toolName?null:toolName);else{props.onSetTool(toolName);props.onSetShowToolPanel(null);}},
-    style:{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'5px 9px',borderRadius:10,border:'none',background:isActive?col+'1a':'transparent',cursor:'pointer',minWidth:42,position:'relative'},
-    children:[d.jsx(icon,{size:18,color:isActive?col:ic}),d.jsx('span',{style:{fontSize:9,fontWeight:600,color:isActive?col:ic,letterSpacing:'0.04em',textTransform:'uppercase'},children:label}),isActive?d.jsx('div',{style:{position:'absolute',bottom:2,left:'50%',transform:'translateX(-50%)',width:4,height:4,borderRadius:2,background:col}}):null]
-  },toolName);
-};
-
-return d.jsxs('div',{
-  style:{position:'fixed',inset:0,zIndex:60,display:'flex',flexDirection:'column',background:isDark?'#0f172a':'#dde3ed'},
-  onClick:function(){setShowPageMenu(false);},
-  children:[
-  // Top bar
-  d.jsxs('div',{style:{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',background:barBg,backdropFilter:'blur(20px)',borderBottom:'1px solid '+barBorder,flexShrink:0},children:[
-    d.jsx('button',{onClick:props.onBack,style:{width:34,height:34,borderRadius:10,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:d.jsx(vh,{size:16,color:ic})}),
-    d.jsxs('div',{style:{flex:1,minWidth:0},children:[
-      d.jsx('p',{style:{fontSize:14,fontWeight:700,color:isDark?'#f1f5f9':'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',lineHeight:1.2},children:notebook.name}),
-      d.jsx('p',{style:{fontSize:11,color:nbColor,fontWeight:500},children:notebook.subject+(props.scrollMode==='paged'?' · Pág. '+(props.pageIdx+1)+'/'+notebook.pages.length:' · '+notebook.pages.length+' pág.')}),
-    ]}),
-    d.jsx('button',{onClick:props.onUndo,style:{width:32,height:32,borderRadius:8,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',opacity:props.undoStack.length>0?1:0.3},children:d.jsx(yV,{size:15,color:ic})}),
-    d.jsx('button',{onClick:props.onRedo,style:{width:32,height:32,borderRadius:8,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',opacity:props.redoStack.length>0?1:0.3},children:d.jsx(cV,{size:15,color:ic})}),
-    d.jsxs(d.Fragment,{children:[
-      d.jsx('input',{ref:importRef,type:'file',accept:'image/*,application/pdf',style:{display:'none'},onChange:handleImport}),
-      d.jsx('button',{onClick:function(){if(importRef.current)importRef.current.click();},style:{width:32,height:32,borderRadius:8,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:d.jsx(vV,{size:15,color:ic})}),
-    ]}),
-    d.jsx('button',{onClick:function(e){e.stopPropagation();setShowPageMenu(function(v){return !v;});},style:{width:32,height:32,borderRadius:8,border:'none',background:showPageMenu?nbColor+'1a':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:d.jsx(iV,{size:15,color:showPageMenu?nbColor:ic})}),
-  ]}),
-  // Canvas — 3 capas (bg+dry+wet)
-  d.jsxs('div',{ref:wrapRef,style:{flex:1,position:'relative',overflow:'hidden'},children:[
-    props.scrollMode==='scroll'?d.jsx('div',{ref:railRef,onScroll:function(){const ctrl=getCtrl();ctrl.scrollTop=railRef.current.scrollTop;if(rafId.current)cancelAnimationFrame(rafId.current);rafId.current=requestAnimationFrame(function(){ctrl.drawDry();});},style:{position:'absolute',inset:0,overflowY:'auto',overflowX:'hidden',zIndex:1},children:d.jsx('div',{style:{height:(notebook.pages.length*1250+100)+'px'}})}):null,
-    d.jsx('canvas',{ref:bgRef,style:{position:'absolute',top:0,left:0,zIndex:2}}),
-    d.jsx('canvas',{ref:dryRef,style:{position:'absolute',top:0,left:0,zIndex:3}}),
-    d.jsx('canvas',{ref:wetRef,onPointerDown:onDown,onPointerMove:onMove,onPointerUp:onUp,onPointerLeave:onUp,onPointerCancel:onUp,onContextMenu:function(e){e.preventDefault();},style:{position:'absolute',top:0,left:0,zIndex:4,touchAction:'none',cursor:props.tool==='eraser'?'cell':'crosshair'}}),
-    // Page menu
-    showPageMenu?d.jsx('div',{onClick:function(e){e.stopPropagation();},style:{position:'absolute',top:8,right:8,background:barBg,backdropFilter:'blur(20px)',borderRadius:14,boxShadow:'0 12px 32px rgba(0,0,0,0.12)',border:'1px solid '+barBorder,padding:8,zIndex:10,minWidth:200},children:d.jsxs('div',{style:{display:'flex',flexDirection:'column',gap:1},children:[
-      d.jsx('p',{style:{fontSize:10,fontWeight:700,color:nbColor,padding:'4px 8px',letterSpacing:'0.06em',textTransform:'uppercase'},children:'Plantilla'}),
-      [['lined','Pautado'],['grid','Cuadrícula'],['dotted','Puntos'],['blank','En blanco']].map(function(t){return d.jsx('button',{onClick:function(){props.onSetTemplate(t[0]);setShowPageMenu(false);const ctrl=getCtrl();ctrl.bgCache=null;ctrl.redrawAll();},style:{padding:'8px 12px',borderRadius:8,border:'none',background:'transparent',textAlign:'left',fontSize:13,cursor:'pointer',color:currentPage&&currentPage.template===t[0]?nbColor:(isDark?'#cbd5e1':'#374151'),fontWeight:currentPage&&currentPage.template===t[0]?700:400},children:t[1]},t[0]);}),
-      d.jsx('div',{style:{height:1,background:barBorder,margin:'4px 0'}}),
-      d.jsx('p',{style:{fontSize:10,fontWeight:700,color:nbColor,padding:'4px 8px',letterSpacing:'0.06em',textTransform:'uppercase'},children:'Fondo'}),
-      d.jsx('div',{style:{display:'flex',gap:6,padding:'4px 8px',flexWrap:'wrap'},children:props._BG_COLORS.map(function(c){return d.jsx('button',{onClick:function(){props.onSetBg(c.bg);setShowPageMenu(false);const ctrl=getCtrl();ctrl.bgCache=null;ctrl.redrawAll();},style:{width:26,height:26,borderRadius:6,background:c.bg,border:currentPage&&currentPage.bg===c.bg?'2px solid '+nbColor:'1.5px solid rgba(0,0,0,0.12)',cursor:'pointer'},title:c.label},c.bg);})}),
-      d.jsx('div',{style:{height:1,background:barBorder,margin:'4px 0'}}),
-      d.jsx('button',{onClick:function(){props.onAddPage();setShowPageMenu(false);},style:{padding:'8px 12px',borderRadius:8,border:'none',background:'transparent',textAlign:'left',fontSize:13,cursor:'pointer',color:nbColor,fontWeight:600},children:'+ Nueva página'}),
-      d.jsx('button',{onClick:function(){props.onDeletePage();setShowPageMenu(false);},style:{padding:'8px 12px',borderRadius:8,border:'none',background:'transparent',textAlign:'left',fontSize:13,cursor:'pointer',color:'#dc2626'},children:'Eliminar página'}),
-      d.jsx('button',{onClick:function(){props.onClearPage();setShowPageMenu(false);},style:{padding:'8px 12px',borderRadius:8,border:'none',background:'transparent',textAlign:'left',fontSize:13,cursor:'pointer',color:'#dc2626'},children:'Borrar contenido'}),
-      d.jsx('div',{style:{height:1,background:barBorder,margin:'4px 0'}}),
-      d.jsx('button',{onClick:function(){exportCurrentPage();setShowPageMenu(false);},style:{padding:'8px 12px',borderRadius:8,border:'none',background:'transparent',textAlign:'left',fontSize:13,cursor:'pointer',color:nbColor,fontWeight:600},children:'Exportar página (PNG)'}),
-      d.jsx('button',{onClick:function(){exportToPDF();setShowPageMenu(false);},style:{padding:'8px 12px',borderRadius:8,border:'none',background:'transparent',textAlign:'left',fontSize:13,cursor:'pointer',color:nbColor,fontWeight:600},children:'Exportar cuaderno (PDF)'}),
-    ]})}):null,
-    // Tool panel
-    props.showToolPanel?d.jsx('div',{onClick:function(e){e.stopPropagation();},style:{position:'absolute',bottom:62,left:8,right:8,background:barBg,backdropFilter:'blur(20px)',borderRadius:14,boxShadow:'0 12px 32px rgba(0,0,0,0.12)',border:'1px solid '+barBorder,padding:12,zIndex:10,maxWidth:500,margin:'0 auto'},children:ToolPanel({panel:props.showToolPanel,props:props,isDark:isDark})}):null,
-    // ── Zoom Window ──────────────────────────────────────────────────────────
-    showZoomWin?d.jsxs('div',{
-      style:{position:'absolute',bottom:70,left:'50%',transform:'translateX(-50%)',
-        width:'min(360px, 92vw)',height:130,
-        borderRadius:14,overflow:'hidden',
-        boxShadow:'0 8px 32px rgba(0,0,0,0.18)',
-        border:'1.5px solid rgba(37,99,235,0.18)',
-        background:'#fff',zIndex:15,
-        display:'flex',flexDirection:'column',
-      },
-      children:[
-        d.jsxs('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 10px',background:'rgba(37,99,235,0.06)',borderBottom:'1px solid rgba(37,99,235,0.08)',flexShrink:0},children:[
-          d.jsx('span',{style:{fontSize:10,fontWeight:700,color:'#2563eb',letterSpacing:'0.05em',textTransform:'uppercase'},children:'Zoom 3×'}),
-          d.jsxs('div',{style:{display:'flex',gap:6},children:[
-            d.jsx('button',{onClick:function(){zoomWinOffsetRef.current=Math.max(0,zoomWinOffsetRef.current-60);renderZoomWindow();},style:{width:22,height:22,borderRadius:6,border:'none',background:'rgba(37,99,235,0.1)',color:'#2563eb',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(vh,{size:11,color:'#2563eb'})}),
-            d.jsx('button',{onClick:function(){
-              const ctrl=getCtrl();
-              zoomWinOffsetRef.current=Math.max(0,zoomWinOffsetRef.current-ctrl.PAGE_W*0.2);
-              zoomWinYRef.current=0;
-              renderZoomWindow();
-            },style:{width:22,height:22,borderRadius:6,border:'none',background:'rgba(37,99,235,0.1)',color:'#2563eb',fontSize:9,cursor:'pointer',fontWeight:700},children:'↖'}),
-            d.jsx('button',{onClick:function(){setShowZoomWin(false);},style:{width:22,height:22,borderRadius:6,border:'none',background:'transparent',color:'#94a3b8',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(er,{size:11})}),
-          ]}),
-        ]}),
-        d.jsx('canvas',{
-          ref:function(cv){
-            zoomWinCanvasRef.current=cv;
-            if(!cv)return;
-            const ctrl=getCtrl();
-            const dpr=ctrl.dpr||1;
-            let W=340;
-            try{ if(cv.parentElement)W=Math.floor(cv.parentElement.getBoundingClientRect().width)||340; }catch(e){}
-            const H=100;
-            cv.width=W*dpr; cv.height=H*dpr;
-            cv.style.width=W+'px'; cv.style.height=H+'px';
-            setTimeout(renderZoomWindow,80);
-          },
-          style:{display:'block',width:'100%',flex:1},
-        }),
-      ]
-    }):null,
-
-    // Thumbnails con canvas reales
-    showThumbs?d.jsxs(d.Fragment,{children:[
-      d.jsx('div',{onClick:function(){setShowThumbs(false);},style:{position:'absolute',inset:0,background:'rgba(0,0,0,0.5)',zIndex:20}}),
-      d.jsxs('div',{style:{position:'absolute',left:12,right:12,top:60,bottom:70,background:barBg,backdropFilter:'blur(20px)',borderRadius:16,boxShadow:'0 16px 40px rgba(0,0,0,0.15)',padding:14,zIndex:21,overflowY:'auto'},children:[
-        d.jsx('p',{style:{fontSize:13,fontWeight:700,color:nbColor,marginBottom:12},children:'Páginas'}),
-        d.jsx('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8},children:notebook.pages.map(function(pg,i){
-          const ctrl=getCtrl();
-          return d.jsxs('button',{
-            onClick:function(){props.onJumpPage(i);setShowThumbs(false);},
-            style:{borderRadius:9,overflow:'hidden',border:i===props.pageIdx?'2px solid '+nbColor:'1.5px solid rgba(0,0,0,0.08)',cursor:'pointer',background:pg.bg||'#fffef8',aspectRatio:'0.707',position:'relative',boxShadow:'0 2px 8px rgba(0,0,0,0.06)',padding:0,display:'block'},
-            children:[
-              d.jsx('canvas',{ref:function(cv){if(!cv)return;const TW=120,TH=Math.round(TW*1154/816);cv.width=TW;cv.height=TH;cv.style.width='100%';cv.style.height='100%';const tc=cv.getContext('2d');const sc=TW/816;tc.save();tc.scale(sc,sc);ctrl.drawPageBg(tc,816,1154,pg);(pg.strokes||[]).forEach(function(s){ctrl.drawStroke(tc,s,true);});tc.restore();},style:{display:'block',width:'100%',height:'100%'}}),
-              d.jsx('span',{style:{position:'absolute',bottom:3,right:5,fontSize:9,color:'rgba(100,116,139,0.7)',fontWeight:600},children:i+1}),
-            ]
-          },i);
-        })})
-      ]})
-    ]}):null,
-  ]}),
-  // Barra de audio (solo cuando hay audio o se está grabando)
-  (audioRec||audioUrlRef.current)?d.jsxs('div',{
-    style:{display:'flex',alignItems:'center',gap:8,padding:'6px 14px',background:audioRec?'rgba(220,38,38,0.06)':'rgba(37,99,235,0.05)',borderTop:'1px solid '+(audioRec?'rgba(220,38,38,0.15)':barBorder),flexShrink:0},
-    children:[
-      d.jsx('div',{style:{width:8,height:8,borderRadius:'50%',background:audioRec?'#dc2626':'#94a3b8',flexShrink:0,animation:audioRec?'pulse 1s infinite':undefined}}),
-      d.jsx('span',{style:{fontSize:12,fontWeight:600,color:audioRec?'#dc2626':'#64748b',flex:1},children:audioRec?('● REC '+fmtTime(audioTime)):'Audio grabado'}),
-      audioRec
-        ?d.jsx('button',{onClick:stopRecording,style:{height:28,padding:'0 12px',borderRadius:8,border:'none',background:'#dc2626',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer'},children:'Detener'})
-        :d.jsxs(d.Fragment,{children:[
-          d.jsx('button',{onClick:function(){playAudioAt(0);},style:{height:28,padding:'0 10px',borderRadius:8,border:'none',background:nbColor+'18',color:nbColor,fontSize:12,fontWeight:600,cursor:'pointer'},children:'▶ Reproducir'}),
-          d.jsx('button',{onClick:function(){audioUrlRef.current=null;audioElRef.current=null;setAudioTime(0);},style:{height:28,padding:'0 8px',borderRadius:8,border:'none',background:'transparent',color:'#94a3b8',fontSize:11,cursor:'pointer'},children:'✕'}),
-        ]}),
-    ]
-  }):null,
-
-  // Bottom toolbar
-  d.jsxs('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',gap:2,padding:'5px 8px',background:barBg,backdropFilter:'blur(20px)',borderTop:'1px solid '+barBorder,flexShrink:0,overflowX:'auto'},children:[
-    toolBtn('pen',Av,'Boli'),toolBtn('marker',rV,'Rotul.'),toolBtn('highlighter',eV,'Resal.'),toolBtn('eraser',a2,'Goma'),
-    d.jsx('div',{style:{width:1,height:24,background:barBorder,margin:'0 4px'}}),
-    props.scrollMode==='paged'?d.jsxs(d.Fragment,{children:[
-      d.jsx('button',{onClick:function(){if(!props.zoomLocked){const z=Math.max(0.5,zoomRef.current-0.25);zoomRef.current=z;getCtrl().zoom=z;setZoom(z);getCtrl().bgCache=null;getCtrl().redrawAll();}},style:{width:30,height:30,borderRadius:8,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',opacity:props.zoomLocked?0.3:1},children:d.jsx(rV,{size:13,color:ic})}),
-      d.jsx('button',{onClick:function(){zoomRef.current=1;setZoom(1);panRef.current={x:0,y:0};setPan({x:0,y:0});const ctrl=getCtrl();ctrl.zoom=1;ctrl.pan={x:0,y:0};ctrl.bgCache=null;ctrl.redrawAll();},style:{height:30,padding:'0 8px',borderRadius:8,border:'none',background:nbColor+'18',fontSize:11,fontWeight:700,color:nbColor,cursor:'pointer'},children:Math.round(zoom*100)+'%'}),
-      d.jsx('button',{onClick:function(){if(!props.zoomLocked){const z=Math.min(4,zoomRef.current+0.25);zoomRef.current=z;getCtrl().zoom=z;setZoom(z);getCtrl().bgCache=null;getCtrl().redrawAll();}},style:{width:30,height:30,borderRadius:8,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',opacity:props.zoomLocked?0.3:1},children:d.jsx(pt,{size:13,color:ic})}),
-      d.jsx('div',{style:{width:1,height:24,background:barBorder,margin:'0 4px'}}),
-    ]}):null,
-    props.scrollMode==='paged'?d.jsxs(d.Fragment,{children:[
-      d.jsx('button',{onClick:props.onPrevPage,disabled:props.pageIdx===0,style:{width:30,height:30,borderRadius:8,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:props.pageIdx>0?'pointer':'default',opacity:props.pageIdx>0?1:0.3},children:d.jsx(vh,{size:13,color:ic})}),
-      d.jsx('button',{onClick:function(){setShowThumbs(function(v){return !v;});},style:{height:30,padding:'0 10px',borderRadius:8,border:'none',background:nbColor+'18',fontSize:12,fontWeight:700,color:nbColor,cursor:'pointer'},children:(props.pageIdx+1)+'/'+notebook.pages.length}),
-      d.jsx('button',{onClick:props.pageIdx<notebook.pages.length-1?props.onNextPage:props.onAddPage,style:{width:30,height:30,borderRadius:8,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:props.pageIdx<notebook.pages.length-1?d.jsx(G5,{size:13,color:ic}):d.jsx(pt,{size:13,color:nbColor})}),
-    ]}):d.jsx('button',{onClick:props.onAddPage,style:{height:30,padding:'0 10px',borderRadius:8,border:'none',background:nbColor+'18',fontSize:11,fontWeight:700,color:nbColor,cursor:'pointer',display:'flex',alignItems:'center',gap:4},children:[d.jsx(pt,{size:12}),'Página']}),
-    d.jsx('div',{style:{width:1,height:24,background:barBorder,margin:'0 4px'}}),
-    d.jsx('button',{onClick:props.onToggleScroll,style:{width:30,height:30,borderRadius:8,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},title:props.scrollMode==='scroll'?'Paginado':'Scroll',children:d.jsx(props.scrollMode==='scroll'?aV:oV,{size:14,color:ic})}),
-    d.jsx('button',{
-      onClick:function(){
-        if(audioRec)stopRecording();
-        else startRecording();
-      },
-      style:{width:30,height:30,borderRadius:8,border:'none',
-        background:audioRec?'rgba(220,38,38,0.12)':'transparent',
-        display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},
-      title:audioRec?'Detener grabación':'Grabar audio',
-      children:audioRec?d.jsx(K5,{size:10,color:'#dc2626',fill:'#dc2626'}):d.jsx(xV,{size:14,color:ic}),
-    }),
-    d.jsx('button',{
-      onClick:function(){
-        setShowZoomWin(function(v){
-          const next=!v;
-          if(next){
-            // Inicializar offset en posición actual de la página
-            const ctrl=getCtrl();
-            zoomWinOffsetRef.current=Math.max(0,(ctrl.PAGE_W/2)-60);
-            zoomWinYRef.current=0;
-            setTimeout(renderZoomWindow,80);
-          }
-          return next;
+    if (p.scrollMode === 'scroll') {
+      const h = ctrl.scrollHit(cx, cy);
+      if (!h) { drawing.current = false; return; }
+      ctrl._activePgIdx = h.idx;
+      if (toolRef.current === 'eraser') {
+        rPts.forEach(re => {
+          const h2 = ctrl.scrollHit(re.clientX - rect.left, re.clientY - rect.top);
+          if (h2 && ctrl.applyEraser(h2.x, h2.y, h2.idx, getSize())) ctrl.drawDry();
         });
+        return;
+      }
+      const pt = { x: h.x, y: h.y, pressure: pres };
+      stroke.current  = { tool: toolRef.current, color: getColor(), size: getSize(), points: [pt], _pg: h.idx };
+      ptsBuf.current  = [pt];
+    } else {
+      const pt = ctrl.screenToPage(cx, cy);
+      pt.pressure = pres;
+      if (toolRef.current === 'eraser') {
+        rPts.forEach(re => {
+          const rp = ctrl.screenToPage(re.clientX - rect.left, re.clientY - rect.top);
+          if (ctrl.applyEraser(rp.x, rp.y, p.pageIdx, getSize())) ctrl.drawDry();
+        });
+        return;
+      }
+      stroke.current  = { tool: toolRef.current, color: getColor(), size: getSize(), points: [pt] };
+      ptsBuf.current  = [pt];
+    }
+  }, [getCtrl]);
+
+  const onMove = b.useCallback(e => {
+    ptrs.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const p    = propsRef.current;
+    const ctrl = getCtrl();
+
+    // Pinch zoom
+    if (ptrs.current.size === 2 && pinchRef.current && p.scrollMode !== 'scroll') {
+      const pp  = Array.from(ptrs.current.values());
+      const nz  = Math.min(4, Math.max(0.5,
+        pinchRef.current.zoom * Math.hypot(pp[1].x - pp[0].x, pp[1].y - pp[0].y) / pinchRef.current.dist
+      ));
+      zoomRef.current = nz;
+      ctrl.zoom = nz;
+      setZoom(nz);
+      ctrl.drawDry();
+      return;
+    }
+
+    if (!drawing.current) return;
+    if (e.pointerType === 'touch' && (penLive.current || !p.fingerWrites)) return;
+
+    const rect = e.target.getBoundingClientRect();
+    const rPts = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+
+    rPts.forEach(re => {
+      const cx   = re.clientX - rect.left;
+      const cy   = re.clientY - rect.top;
+      const pres = re.pressure != null ? re.pressure : 0.5;
+      if (p.scrollMode === 'scroll') {
+        if (toolRef.current === 'eraser') {
+          const h = ctrl.scrollHit(cx, cy);
+          if (h && ctrl.applyEraser(h.x, h.y, h.idx, getSize())) ctrl.drawDry();
+          return;
+        }
+        if (!stroke.current) return;
+        const h = ctrl.scrollHit(cx, cy);
+        if (h && h.idx === stroke.current._pg) ptsBuf.current.push({ x: h.x, y: h.y, pressure: pres });
+      } else {
+        if (toolRef.current === 'eraser') {
+          const rp = ctrl.screenToPage(cx, cy);
+          if (ctrl.applyEraser(rp.x, rp.y, p.pageIdx, getSize())) ctrl.drawDry();
+          return;
+        }
+        if (!stroke.current) return;
+        const pt = ctrl.screenToPage(cx, cy);
+        pt.pressure = pres;
+        // Timestamp de audio si se está grabando
+        if (audioRecRef.current && audioStartRef.current) {
+          pt.audioT = performance.now() - audioStartRef.current;
+        }
+        ptsBuf.current.push(pt);
+      }
+    });
+
+    if (!stroke.current) return;
+    stroke.current = Object.assign({}, stroke.current, { points: ptsBuf.current.slice() });
+
+    // Predicted events (Chrome) — tinta que sale antes del lápiz
+    let predPts = [];
+    if (e.getPredictedEvents && p.scrollMode !== 'scroll') {
+      e.getPredictedEvents().forEach(pe => {
+        const pt = ctrl.screenToPage(pe.clientX - rect.left, pe.clientY - rect.top);
+        pt.pressure = pe.pressure || 0.5;
+        predPts.push(pt);
+      });
+    }
+
+    const s    = stroke.current;
+    const pred = predPts.length ? predPts : null;
+    const col  = getColor();
+    const sz   = getSize();
+    if (rafId.current) cancelAnimationFrame(rafId.current);
+    rafId.current = requestAnimationFrame(() => ctrl.drawWet(s, pred, e, col, sz));
+  }, [getCtrl]);
+
+  const onUp = b.useCallback(e => {
+    ptrs.current.delete(e.pointerId);
+    pinchRef.current = null;
+    const p    = propsRef.current;
+    const ctrl = getCtrl();
+
+    // Barrel button → restaurar herramienta
+    if (e.pointerType === 'pen' && !(e.buttons & 2) && prevTool.current && toolRef.current === 'eraser') {
+      p.onSetTool(prevTool.current);
+      toolRef.current  = prevTool.current;
+      prevTool.current = null;
+    }
+    // Palm rejection timeout
+    if (e.pointerType === 'pen') {
+      clearTimeout(penTimer.current);
+      penTimer.current = setTimeout(() => { penLive.current = false; }, 500);
+    }
+
+    if (!drawing.current) return;
+    drawing.current = false;
+    ctrl.clearWet();
+
+    const s       = stroke.current;
+    const rawPts  = ptsBuf.current.slice();
+    stroke.current   = null;
+    ptsBuf.current   = [];
+
+    if (!s || !rawPts.length || s.tool === 'eraser') { ctrl.drawDry(); return; }
+
+    const pgi = (p.scrollMode === 'scroll' && s._pg != null) ? s._pg : p.pageIdx;
+    ctrl.commitStroke(rawPts, s.tool, s.color, s.size, pgi);
+  }, [getCtrl]);
+
+  // ── Import imagen/PDF ───────────────────────────────────────────────────
+  const handleImport = e => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      propsRef.current.onAddImagePage && propsRef.current.onAddImagePage(
+        ev.target.result,
+        file.type === 'application/pdf' ? 'pdf' : 'image'
+      );
+    };
+    reader.readAsDataURL(file);
+    if (importRef.current) importRef.current.value = '';
+  };
+
+  // ── Export ──────────────────────────────────────────────────────────────
+  const exportPage = b.useCallback(() => {
+    const ctrl = getCtrl();
+    const pg   = propsRef.current.currentPage;
+    if (!ctrl || !pg) return;
+    const SCALE = 2;
+    const ofc   = document.createElement('canvas');
+    ofc.width   = ctrl.PAGE_W * SCALE;
+    ofc.height  = ctrl.PAGE_H * SCALE;
+    const ctx   = ofc.getContext('2d');
+    ctx.scale(SCALE, SCALE);
+    ctrl.drawPageBg(ctx, ctrl.PAGE_W, ctrl.PAGE_H, pg);
+    (pg.strokes || []).forEach(s => ctrl.drawStroke(ctx, s));
+    ofc.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement('a');
+      a.href    = url;
+      a.download = (propsRef.current.notebook.name || 'apuntes') + '-p' + (propsRef.current.pageIdx + 1) + '.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }, 'image/png');
+  }, [getCtrl]);
+
+  const exportPDF = b.useCallback(() => {
+    const ctrl = getCtrl();
+    const nb   = propsRef.current.notebook;
+    if (!ctrl || !nb) return;
+    const doExport = () => {
+      const { jsPDF } = window.jspdf || {};
+      if (!jsPDF) { alert('Exportar como imagen (PNG) con el botón anterior.'); return; }
+      const doc  = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pdfW = doc.internal.pageSize.getWidth();
+      const pdfH = doc.internal.pageSize.getHeight();
+      nb.pages.forEach((pg, i) => {
+        if (i > 0) doc.addPage();
+        const ofc   = document.createElement('canvas');
+        ofc.width   = ctrl.PAGE_W * 2;
+        ofc.height  = ctrl.PAGE_H * 2;
+        const ctx   = ofc.getContext('2d');
+        ctx.scale(2, 2);
+        ctrl.drawPageBg(ctx, ctrl.PAGE_W, ctrl.PAGE_H, pg);
+        (pg.strokes || []).forEach(s => ctrl.drawStroke(ctx, s));
+        doc.addImage(ofc.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pdfW, pdfH);
+      });
+      doc.save((nb.name || 'apuntes') + '.pdf');
+    };
+    if (window.jspdf) { doExport(); return; }
+    const script    = document.createElement('script');
+    script.src      = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script.onload   = doExport;
+    script.onerror  = () => alert('No se pudo cargar jsPDF.');
+    document.head.appendChild(script);
+  }, [getCtrl]);
+
+  // ── Audio ───────────────────────────────────────────────────────────────
+  const startRecording = b.useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec    = new window.MediaRecorder(stream);
+      audioChunksRef.current = [];
+      rec.ondataavailable = e => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      rec.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+        audioUrlRef.current = URL.createObjectURL(blob);
+        audioElRef.current  = new window.Audio(audioUrlRef.current);
+        stream.getTracks().forEach(t => t.stop());
+      };
+      rec.start(100);
+      mediaRecRef.current   = rec;
+      audioStartRef.current = performance.now();
+      setAudioRec(true);
+      audioTimerRef.current = setInterval(() => {
+        setAudioTime(Math.floor((performance.now() - audioStartRef.current) / 1000));
+      }, 1000);
+    } catch (_) { alert('No se pudo acceder al micrófono.'); }
+  }, []);
+
+  const stopRecording = b.useCallback(() => {
+    if (mediaRecRef.current && mediaRecRef.current.state !== 'inactive') {
+      mediaRecRef.current.stop();
+    }
+    clearInterval(audioTimerRef.current);
+    setAudioRec(false);
+  }, []);
+
+  const fmtTime = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+
+  // ── UI ──────────────────────────────────────────────────────────────────
+  const nbColor   = notebook.color || '#2563eb';
+  const isDark    = currentPage && currentPage.bg === '#0f172a';
+  const barBg     = isDark ? 'rgba(15,23,42,0.96)' : 'rgba(255,255,255,0.93)';
+  const barBorder = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(37,99,235,0.09)';
+  const ic        = isDark ? '#94a3b8' : '#475569';
+
+  const toolBtn = (toolName, icon, label) => {
+    const isActive = props.tool === toolName;
+    const col = toolName === 'pen' ? props.penColor
+      : toolName === 'marker' ? props.markerColor
+      : toolName === 'highlighter' ? props.hlColor
+      : '#64748b';
+    return d.jsxs('button', {
+      onClick: () => {
+        if (props.tool === toolName) {
+          props.onSetShowToolPanel(props.showToolPanel === toolName ? null : toolName);
+        } else {
+          props.onSetTool(toolName);
+          props.onSetShowToolPanel(null);
+        }
       },
-      style:{width:30,height:30,borderRadius:8,border:'none',background:showZoomWin?nbColor+'1a':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},
-      title:'Ventana de zoom',
-      children:d.jsx(X5,{size:14,color:showZoomWin?nbColor:ic}),
-    }),
-    d.jsx('button',{onClick:props.onToggleFinger,style:{width:30,height:30,borderRadius:8,border:'none',background:props.fingerWrites?nbColor+'1a':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:d.jsx(props.fingerWrites?wV:Av,{size:14,color:props.fingerWrites?nbColor:ic})}),
-    d.jsx('button',{onClick:props.onToggleZoomLock,style:{width:30,height:30,borderRadius:8,border:'none',background:props.zoomLocked?nbColor+'1a':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:d.jsx(props.zoomLocked?q5:Y5,{size:13,color:props.zoomLocked?nbColor:ic})}),
-  ]}),
-  ]
-});
+      style: {
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+        padding: '5px 9px', borderRadius: 10, border: 'none',
+        background: isActive ? col + '1a' : 'transparent',
+        cursor: 'pointer', minWidth: 42, position: 'relative',
+      },
+      children: [
+        d.jsx(icon, { size: 18, color: isActive ? col : ic }),
+        d.jsx('span', { style: { fontSize: 9, fontWeight: 600, color: isActive ? col : ic, letterSpacing: '0.04em', textTransform: 'uppercase' }, children: label }),
+        isActive ? d.jsx('div', { style: { position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50%)', width: 4, height: 4, borderRadius: 2, background: col } }) : null,
+      ],
+    }, toolName);
+  };
+
+  return d.jsxs('div', {
+    style: { position: 'fixed', inset: 0, zIndex: 60, display: 'flex', flexDirection: 'column', background: isDark ? '#0f172a' : '#dde3ed' },
+    onClick: () => setShowPageMenu(false),
+    children: [
+
+      // ── Top bar ──────────────────────────────────────────────────────────
+      d.jsxs('div', {
+        style: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: barBg, backdropFilter: 'blur(20px)', borderBottom: '1px solid ' + barBorder, flexShrink: 0 },
+        children: [
+          d.jsx('button', { onClick: props.onBack, style: { width: 34, height: 34, borderRadius: 10, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }, children: d.jsx(vh, { size: 16, color: ic }) }),
+          d.jsxs('div', { style: { flex: 1, minWidth: 0 }, children: [
+            d.jsx('p', { style: { fontSize: 14, fontWeight: 700, color: isDark ? '#f1f5f9' : '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }, children: notebook.name }),
+            d.jsx('p', { style: { fontSize: 11, color: nbColor, fontWeight: 500 }, children: notebook.subject + (props.scrollMode === 'paged' ? ' · Pág. ' + (props.pageIdx + 1) + '/' + notebook.pages.length : ' · ' + notebook.pages.length + ' pág.') }),
+          ] }),
+          d.jsx('button', { onClick: props.onUndo, style: { width: 32, height: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: props.undoStack.length > 0 ? 1 : 0.3 }, children: d.jsx(yV, { size: 15, color: ic }) }),
+          d.jsx('button', { onClick: props.onRedo, style: { width: 32, height: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: props.redoStack.length > 0 ? 1 : 0.3 }, children: d.jsx(cV, { size: 15, color: ic }) }),
+          d.jsxs(d.Fragment, { children: [
+            d.jsx('input', { ref: importRef, type: 'file', accept: 'image/*,application/pdf', style: { display: 'none' }, onChange: handleImport }),
+            d.jsx('button', { onClick: () => importRef.current && importRef.current.click(), style: { width: 32, height: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }, children: d.jsx(vV, { size: 15, color: ic }) }),
+          ] }),
+          d.jsx('button', { onClick: e => { e.stopPropagation(); setShowPageMenu(v => !v); }, style: { width: 32, height: 32, borderRadius: 8, border: 'none', background: showPageMenu ? nbColor + '1a' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }, children: d.jsx(iV, { size: 15, color: showPageMenu ? nbColor : ic }) }),
+        ],
+      }),
+
+      // ── Canvas ───────────────────────────────────────────────────────────
+      d.jsxs('div', {
+        ref: wrapRef,
+        style: { flex: 1, position: 'relative', overflow: 'hidden' },
+        children: [
+          // Scroll rail
+          props.scrollMode === 'scroll' ? d.jsx('div', {
+            ref: railRef,
+            onScroll: () => {
+              const ctrl = getCtrl();
+              ctrl.scrollTop = railRef.current ? railRef.current.scrollTop : 0;
+              if (rafId.current) cancelAnimationFrame(rafId.current);
+              rafId.current = requestAnimationFrame(() => ctrl.drawDry());
+            },
+            style: { position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', zIndex: 1 },
+            children: d.jsx('div', { style: { height: (notebook.pages.length * 1250 + 100) + 'px', pointerEvents: 'none' } }),
+          }) : null,
+
+          // Dry canvas
+          d.jsx('canvas', { ref: dryRef, style: { position: 'absolute', top: 0, left: 0, zIndex: 2 } }),
+
+          // Wet canvas (recibe todos los eventos de puntero)
+          d.jsx('canvas', {
+            ref: wetRef,
+            onPointerDown: onDown, onPointerMove: onMove, onPointerUp: onUp,
+            onPointerLeave: onUp, onPointerCancel: onUp,
+            onContextMenu: e => e.preventDefault(),
+            style: { position: 'absolute', top: 0, left: 0, zIndex: 3, touchAction: 'none', cursor: props.tool === 'eraser' ? 'cell' : 'crosshair' },
+          }),
+
+          // Menú de página
+          showPageMenu ? d.jsx('div', {
+            onClick: e => e.stopPropagation(),
+            style: { position: 'absolute', top: 8, right: 8, background: barBg, backdropFilter: 'blur(20px)', borderRadius: 14, boxShadow: '0 12px 32px rgba(0,0,0,0.12)', border: '1px solid ' + barBorder, padding: 8, zIndex: 10, minWidth: 200 },
+            children: d.jsxs('div', { style: { display: 'flex', flexDirection: 'column', gap: 1 }, children: [
+              d.jsx('p', { style: { fontSize: 10, fontWeight: 700, color: nbColor, padding: '4px 8px', letterSpacing: '0.06em', textTransform: 'uppercase' }, children: 'Plantilla' }),
+              [['lined','Pautado'],['grid','Cuadrícula'],['dotted','Puntos'],['blank','En blanco']].map(t =>
+                d.jsx('button', { onClick: () => { props.onSetTemplate(t[0]); setShowPageMenu(false); getCtrl().drawDry(); }, style: { padding: '8px 12px', borderRadius: 8, border: 'none', background: 'transparent', textAlign: 'left', fontSize: 13, cursor: 'pointer', color: currentPage && currentPage.template === t[0] ? nbColor : (isDark ? '#cbd5e1' : '#374151'), fontWeight: currentPage && currentPage.template === t[0] ? 700 : 400 }, children: t[1] }, t[0])
+              ),
+              d.jsx('div', { style: { height: 1, background: barBorder, margin: '4px 0' } }),
+              d.jsx('p', { style: { fontSize: 10, fontWeight: 700, color: nbColor, padding: '4px 8px', letterSpacing: '0.06em', textTransform: 'uppercase' }, children: 'Fondo' }),
+              d.jsx('div', { style: { display: 'flex', gap: 6, padding: '4px 8px', flexWrap: 'wrap' }, children: props._BG_COLORS.map(c => d.jsx('button', { onClick: () => { props.onSetBg(c.bg); setShowPageMenu(false); getCtrl().drawDry(); }, style: { width: 26, height: 26, borderRadius: 6, background: c.bg, border: currentPage && currentPage.bg === c.bg ? '2px solid ' + nbColor : '1.5px solid rgba(0,0,0,0.12)', cursor: 'pointer' }, title: c.label }, c.bg)) }),
+              d.jsx('div', { style: { height: 1, background: barBorder, margin: '4px 0' } }),
+              d.jsx('button', { onClick: () => { props.onAddPage(); setShowPageMenu(false); }, style: { padding: '8px 12px', borderRadius: 8, border: 'none', background: 'transparent', textAlign: 'left', fontSize: 13, cursor: 'pointer', color: nbColor, fontWeight: 600 }, children: '+ Nueva página' }),
+              d.jsx('button', { onClick: () => { props.onDeletePage(); setShowPageMenu(false); }, style: { padding: '8px 12px', borderRadius: 8, border: 'none', background: 'transparent', textAlign: 'left', fontSize: 13, cursor: 'pointer', color: '#dc2626' }, children: 'Eliminar página' }),
+              d.jsx('button', { onClick: () => { props.onClearPage(); setShowPageMenu(false); }, style: { padding: '8px 12px', borderRadius: 8, border: 'none', background: 'transparent', textAlign: 'left', fontSize: 13, cursor: 'pointer', color: '#dc2626' }, children: 'Borrar contenido' }),
+              d.jsx('div', { style: { height: 1, background: barBorder, margin: '4px 0' } }),
+              d.jsx('button', { onClick: () => { exportPage(); setShowPageMenu(false); }, style: { padding: '8px 12px', borderRadius: 8, border: 'none', background: 'transparent', textAlign: 'left', fontSize: 13, cursor: 'pointer', color: nbColor, fontWeight: 600 }, children: 'Exportar página (PNG)' }),
+              d.jsx('button', { onClick: () => { exportPDF(); setShowPageMenu(false); }, style: { padding: '8px 12px', borderRadius: 8, border: 'none', background: 'transparent', textAlign: 'left', fontSize: 13, cursor: 'pointer', color: nbColor, fontWeight: 600 }, children: 'Exportar cuaderno (PDF)' }),
+            ] }),
+          }) : null,
+
+          // Tool panel
+          props.showToolPanel ? d.jsx('div', {
+            onClick: e => e.stopPropagation(),
+            style: { position: 'absolute', bottom: 62, left: 8, right: 8, background: barBg, backdropFilter: 'blur(20px)', borderRadius: 14, boxShadow: '0 12px 32px rgba(0,0,0,0.12)', border: '1px solid ' + barBorder, padding: 12, zIndex: 10, maxWidth: 500, margin: '0 auto' },
+            children: ToolPanel({ panel: props.showToolPanel, props, isDark }),
+          }) : null,
+
+          // Miniaturas de páginas
+          showThumbs ? d.jsxs(d.Fragment, { children: [
+            d.jsx('div', { onClick: () => setShowThumbs(false), style: { position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 20 } }),
+            d.jsxs('div', { style: { position: 'absolute', left: 12, right: 12, top: 60, bottom: 70, background: barBg, backdropFilter: 'blur(20px)', borderRadius: 16, boxShadow: '0 16px 40px rgba(0,0,0,0.15)', padding: 14, zIndex: 21, overflowY: 'auto' }, children: [
+              d.jsx('p', { style: { fontSize: 13, fontWeight: 700, color: nbColor, marginBottom: 12 }, children: 'Páginas' }),
+              d.jsx('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }, children: notebook.pages.map((pg, i) => {
+                const ctrl = getCtrl();
+                return d.jsxs('button', {
+                  onClick: () => { props.onJumpPage(i); setShowThumbs(false); },
+                  style: { borderRadius: 9, overflow: 'hidden', border: i === props.pageIdx ? '2px solid ' + nbColor : '1.5px solid rgba(0,0,0,0.08)', cursor: 'pointer', background: pg.bg || '#fffef8', aspectRatio: '0.707', position: 'relative', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', padding: 0, display: 'block' },
+                  children: [
+                    d.jsx('canvas', {
+                      ref: cv => {
+                        if (!cv) return;
+                        const TW = 120, TH = Math.round(TW * 1154 / 816);
+                        cv.width = TW; cv.height = TH;
+                        cv.style.width = '100%'; cv.style.height = '100%';
+                        const tc = cv.getContext('2d');
+                        const sc = TW / 816;
+                        tc.save(); tc.scale(sc, sc);
+                        ctrl.drawPageBg(tc, 816, 1154, pg);
+                        (pg.strokes || []).forEach(s => ctrl.drawStroke(tc, s, true));
+                        tc.restore();
+                      },
+                      style: { display: 'block', width: '100%', height: '100%' },
+                    }),
+                    d.jsx('span', { style: { position: 'absolute', bottom: 3, right: 5, fontSize: 9, color: 'rgba(100,116,139,0.7)', fontWeight: 600 }, children: i + 1 }),
+                  ],
+                }, i);
+              }) }),
+            ] }),
+          ] }) : null,
+        ],
+      }),
+
+      // ── Barra de audio ───────────────────────────────────────────────────
+      (audioRec || audioUrlRef.current) ? d.jsxs('div', {
+        style: { display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: audioRec ? 'rgba(220,38,38,0.06)' : 'rgba(37,99,235,0.05)', borderTop: '1px solid ' + (audioRec ? 'rgba(220,38,38,0.15)' : barBorder), flexShrink: 0 },
+        children: [
+          d.jsx('div', { style: { width: 8, height: 8, borderRadius: '50%', background: audioRec ? '#dc2626' : '#94a3b8', flexShrink: 0 } }),
+          d.jsx('span', { style: { fontSize: 12, fontWeight: 600, color: audioRec ? '#dc2626' : '#64748b', flex: 1 }, children: audioRec ? ('REC ' + fmtTime(audioTime)) : 'Audio grabado' }),
+          audioRec
+            ? d.jsx('button', { onClick: stopRecording, style: { height: 28, padding: '0 12px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }, children: 'Detener' })
+            : d.jsxs(d.Fragment, { children: [
+                d.jsx('button', { onClick: () => { const el = audioElRef.current; if (el) { el.currentTime = 0; el.play(); } }, style: { height: 28, padding: '0 10px', borderRadius: 8, border: 'none', background: nbColor + '18', color: nbColor, fontSize: 12, fontWeight: 600, cursor: 'pointer' }, children: '▶ Reproducir' }),
+                d.jsx('button', { onClick: () => { audioUrlRef.current = null; audioElRef.current = null; setAudioTime(0); }, style: { height: 28, padding: '0 8px', borderRadius: 8, border: 'none', background: 'transparent', color: '#94a3b8', fontSize: 11, cursor: 'pointer' }, children: '✕' }),
+              ] }),
+        ],
+      }) : null,
+
+      // ── Toolbar inferior ─────────────────────────────────────────────────
+      d.jsxs('div', {
+        style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, padding: '5px 8px', background: barBg, backdropFilter: 'blur(20px)', borderTop: '1px solid ' + barBorder, flexShrink: 0, overflowX: 'auto' },
+        children: [
+          toolBtn('pen',         Av,  'Boli'),
+          toolBtn('marker',      rV,  'Rotul.'),
+          toolBtn('highlighter', eV,  'Resal.'),
+          toolBtn('eraser',      a2,  'Goma'),
+          d.jsx('div', { style: { width: 1, height: 24, background: barBorder, margin: '0 4px' } }),
+          // Zoom (solo modo paginado)
+          props.scrollMode === 'paged' ? d.jsxs(d.Fragment, { children: [
+            d.jsx('button', { onClick: () => { if (!props.zoomLocked) { const z = Math.max(0.5, zoomRef.current - 0.25); zoomRef.current = z; getCtrl().zoom = z; setZoom(z); getCtrl().drawDry(); } }, style: { width: 30, height: 30, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: props.zoomLocked ? 0.3 : 1 }, children: d.jsx(rV, { size: 13, color: ic }) }),
+            d.jsx('button', { onClick: () => { zoomRef.current = 1; panRef.current = { x: 0, y: 0 }; const ctrl = getCtrl(); ctrl.zoom = 1; ctrl.pan = { x: 0, y: 0 }; setZoom(1); ctrl.drawDry(); }, style: { height: 30, padding: '0 8px', borderRadius: 8, border: 'none', background: nbColor + '18', fontSize: 11, fontWeight: 700, color: nbColor, cursor: 'pointer' }, children: Math.round(zoom * 100) + '%' }),
+            d.jsx('button', { onClick: () => { if (!props.zoomLocked) { const z = Math.min(4, zoomRef.current + 0.25); zoomRef.current = z; getCtrl().zoom = z; setZoom(z); getCtrl().drawDry(); } }, style: { width: 30, height: 30, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: props.zoomLocked ? 0.3 : 1 }, children: d.jsx(pt, { size: 13, color: ic }) }),
+            d.jsx('div', { style: { width: 1, height: 24, background: barBorder, margin: '0 4px' } }),
+          ] }) : null,
+          // Navegación de páginas
+          props.scrollMode === 'paged' ? d.jsxs(d.Fragment, { children: [
+            d.jsx('button', { onClick: props.onPrevPage, disabled: props.pageIdx === 0, style: { width: 30, height: 30, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: props.pageIdx > 0 ? 'pointer' : 'default', opacity: props.pageIdx > 0 ? 1 : 0.3 }, children: d.jsx(vh, { size: 13, color: ic }) }),
+            d.jsx('button', { onClick: () => setShowThumbs(v => !v), style: { height: 30, padding: '0 10px', borderRadius: 8, border: 'none', background: nbColor + '18', fontSize: 12, fontWeight: 700, color: nbColor, cursor: 'pointer' }, children: (props.pageIdx + 1) + '/' + notebook.pages.length }),
+            d.jsx('button', { onClick: props.pageIdx < notebook.pages.length - 1 ? props.onNextPage : props.onAddPage, style: { width: 30, height: 30, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }, children: props.pageIdx < notebook.pages.length - 1 ? d.jsx(G5, { size: 13, color: ic }) : d.jsx(pt, { size: 13, color: nbColor }) }),
+          ] }) : d.jsx('button', { onClick: props.onAddPage, style: { height: 30, padding: '0 10px', borderRadius: 8, border: 'none', background: nbColor + '18', fontSize: 11, fontWeight: 700, color: nbColor, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }, children: [d.jsx(pt, { size: 12 }), 'Página'] }),
+          d.jsx('div', { style: { width: 1, height: 24, background: barBorder, margin: '0 4px' } }),
+          // Modo scroll/paginado
+          d.jsx('button', { onClick: props.onToggleScroll, style: { width: 30, height: 30, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }, title: props.scrollMode === 'scroll' ? 'Paginado' : 'Scroll', children: d.jsx(props.scrollMode === 'scroll' ? aV : oV, { size: 14, color: ic }) }),
+          // Audio
+          d.jsx('button', { onClick: () => audioRec ? stopRecording() : startRecording(), style: { width: 30, height: 30, borderRadius: 8, border: 'none', background: audioRec ? 'rgba(220,38,38,0.12)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }, title: audioRec ? 'Detener grabación' : 'Grabar audio', children: audioRec ? d.jsx(K5, { size: 10, color: '#dc2626', fill: '#dc2626' }) : d.jsx(xV, { size: 14, color: ic }) }),
+          // Dedo/lápiz
+          d.jsx('button', { onClick: props.onToggleFinger, style: { width: 30, height: 30, borderRadius: 8, border: 'none', background: props.fingerWrites ? nbColor + '1a' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }, children: d.jsx(props.fingerWrites ? wV : Av, { size: 14, color: props.fingerWrites ? nbColor : ic }) }),
+          // Bloqueo de zoom
+          d.jsx('button', { onClick: props.onToggleZoomLock, style: { width: 30, height: 30, borderRadius: 8, border: 'none', background: props.zoomLocked ? nbColor + '1a' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }, children: d.jsx(props.zoomLocked ? q5 : Y5, { size: 13, color: props.zoomLocked ? nbColor : ic }) }),
+        ],
+      }),
+
+    ],
+  });
 }
+
 
 const toolBarBtnStyle = {
 padding: "6px 10px", borderRadius: 8, border: "none",
