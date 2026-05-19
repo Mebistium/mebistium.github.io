@@ -12105,6 +12105,7 @@ const containerRef = b.useRef(null);
 const dragStateRef = b.useRef(null);
 const autoRotateRef = b.useRef(0);
 const [centerPos, setCenterPos] = b.useState({ x: 0, y: 0 });
+const GymRadialIcon=function(p){return d.jsxs("svg",{width:p.size||24,height:p.size||24,viewBox:"0 0 24 24",fill:"none",stroke:p.color||"white",strokeWidth:p.strokeWidth||2.2,strokeLinecap:"round",children:[d.jsx("rect",{x:"2",y:"9",width:"4",height:"6",rx:"1",fill:p.color||"white",stroke:"none"}),d.jsx("rect",{x:"18",y:"9",width:"4",height:"6",rx:"1",fill:p.color||"white",stroke:"none"}),d.jsx("line",{x1:"6",y1:"12",x2:"18",y2:"12"}),d.jsx("line",{x1:"6",y1:"5",x2:"6",y2:"19"}),d.jsx("line",{x1:"18",y1:"5",x2:"18",y2:"19"})]})};
 const activeModules = [
 {
 id: "clases",
@@ -12121,6 +12122,14 @@ icon: mV,
 color: "#059669",
 gradient: "linear-gradient(135deg, #10b981, #047857)",
 path: "/finanzas",
+},
+{
+id: "gimnasio",
+label: "Gimnasio",
+icon: GymRadialIcon,
+color: "#dc2626",
+gradient: "linear-gradient(135deg, #ef4444, #b91c1c)",
+path: "/gimnasio",
 },
 ];
 const ORBIT_RADIUS = 130;
@@ -12508,7 +12517,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v27.12",
+children: "v27.13",
 }),
 ],
 }),
@@ -12535,7 +12544,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v27.12",
+children: "v27.13",
 });
 }
 
