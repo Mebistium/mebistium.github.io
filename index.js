@@ -3586,8 +3586,8 @@ function GimnasioModule() {
       d.jsx('div', {
         className: 'flex gap-1 glass-card p-1 mb-4',
         style: { borderRadius: '0.875rem' },
-        children: ['inicio', 'rutinas', 'progreso'].map(function(t) {
-          const labels = { inicio: 'Inicio', rutinas: 'Rutinas', progreso: 'Progreso' };
+        children: ['inicio', 'rutinas', 'progreso', 'ia'].map(function(t) {
+          const labels = { inicio: 'Inicio', rutinas: 'Rutinas', progreso: 'Progreso', ia: 'Entrenador' };
           const active = tab === t;
           return d.jsx('button', {
             key: t,
@@ -3609,6 +3609,7 @@ function GimnasioModule() {
         children: tab === 'inicio'   ? d.jsx(GymInicio,   { routines, logs, uid, onStart: setActiveWorkout, onNewRoutine: function() { setTab('rutinas'); } })
                : tab === 'rutinas'   ? d.jsx(GymRutinas,  { routines, uid, onStart: setActiveWorkout })
                : tab === 'progreso'  ? d.jsx(GymProgreso, { logs, routines })
+               : tab === 'ia'        ? d.jsx(GymIA,       { logs, routines })
                : null,
       }),
 
@@ -4704,6 +4705,213 @@ function GymProgreso({ logs, routines }) {
       }),
       d.jsx('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))', opacity: 0.7, textAlign: 'center', marginTop: 4 }, children: 'Basado en la tendencia de tu 1RM estimado. Solo indicativo.' }),
     ] }),
+
+  ] });
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymIA v28.3 — Entrenador personal con Gemini
+// ════════════════════════════════════════════════════════════════════════════
+function GymIA({ logs, routines }) {
+  const [messages, setMessages] = b.useState([{
+    role: 'assistant',
+    text: 'Soy tu entrenador personal. Tengo acceso completo a tu historial de entrenos, rutinas y progreso. Puedes preguntarme sobre tu evolución, pedirme que analice tu rendimiento, o que diseñe ajustes a tu plan.',
+  }]);
+  const [input, setInput]   = b.useState('');
+  const [loading, setLoading] = b.useState(false);
+  const bottomRef = b.useRef(null);
+
+  b.useEffect(function() {
+    if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Construir contexto real del historial
+  const buildContext = function() {
+    const totalSessions = logs.length;
+    const totalMin = logs.reduce(function(a, l) { return a + (l.durationMin || 0); }, 0);
+    const totalVol = logs.reduce(function(a, l) {
+      return a + (l.sets || []).reduce(function(b, s) { return b + (s.weight || 0) * (s.reps || 0); }, 0);
+    }, 0);
+    const recent = logs.slice(0, 10).map(function(l) {
+      const vol = (l.sets || []).reduce(function(a, s) { return a + (s.weight||0)*(s.reps||0); }, 0);
+      return l.date + ' — ' + (l.routineName || 'Entreno') + ' (' + (l.durationMin || 0) + ' min, ' + Math.round(vol/100)/10 + ' ton)';
+    }).join('\n');
+
+    const muscleFreq = {};
+    logs.forEach(function(l) {
+      (l.sets || []).forEach(function(s) {
+        if (s.muscleGroup) muscleFreq[s.muscleGroup] = (muscleFreq[s.muscleGroup] || 0) + 1;
+      });
+    });
+    const topMuscles = Object.entries(muscleFreq)
+      .sort(function(a, b) { return b[1] - a[1]; })
+      .slice(0, 5)
+      .map(function(e) { return e[0] + ' (' + e[1] + ' series)'; })
+      .join(', ');
+
+    const routineNames = routines.map(function(r) { return r.name + ' (' + (r.exercises || []).length + ' ejercicios)'; }).join(', ');
+
+    return 'DATOS DEL ATLETA:\n' +
+      '- Sesiones totales: ' + totalSessions + '\n' +
+      '- Tiempo total: ' + Math.round(totalMin / 60) + ' horas\n' +
+      '- Volumen total: ' + Math.round(totalVol / 1000) + ' toneladas\n' +
+      '- Grupos más trabajados: ' + (topMuscles || 'Sin datos') + '\n' +
+      '- Rutinas guardadas: ' + (routineNames || 'Ninguna') + '\n' +
+      '- Últimos 10 entrenos:\n' + (recent || 'Sin historial');
+  };
+
+  const send = async function() {
+    if (!input.trim() || loading) return;
+    const userText = input.trim();
+    setInput('');
+    setMessages(function(prev) { return prev.concat([{ role: 'user', text: userText }]); });
+    setLoading(true);
+
+    try {
+      const apiKey = await getGeminiKey();
+      if (!apiKey) throw new Error('No se pudo obtener la clave de Gemini');
+
+      const systemPrompt = 'Eres un entrenador personal experto integrado en Mebistium. ' +
+        'Eres directo, técnico y motivador. Respondes siempre en español. Sin emojis. ' +
+        'Usas los datos reales del atleta para dar consejos específicos y personalizados.\n\n' +
+        buildContext();
+
+      const history = messages.filter(function(m, i) {
+        return i > 0; // omitir el mensaje inicial del asistente
+      }).map(function(m) {
+        return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.text }] };
+      });
+
+      history.push({ role: 'user', parts: [{ text: userText }] });
+
+      const body = {
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: history,
+        generationConfig: { temperature: 0.5, maxOutputTokens: 1024 },
+      };
+
+      const res = await fetch(
+        'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + apiKey,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ? err.error.message : 'Error Gemini ' + res.status);
+      }
+
+      const data = await res.json();
+      const text = data.candidates &&
+                   data.candidates[0] &&
+                   data.candidates[0].content &&
+                   data.candidates[0].content.parts &&
+                   data.candidates[0].content.parts[0]
+                   ? data.candidates[0].content.parts[0].text
+                   : 'Sin respuesta';
+
+      setMessages(function(prev) { return prev.concat([{ role: 'assistant', text }]); });
+    } catch (e) {
+      setMessages(function(prev) {
+        return prev.concat([{ role: 'assistant', text: 'Error: ' + (e.message || 'Inténtalo de nuevo.') }]);
+      });
+    }
+    setLoading(false);
+  };
+
+  const suggestions = [
+    'Analiza mi progreso del último mes',
+    'Qué músculos debo trabajar más',
+    'Diseña un plan para las próximas 4 semanas',
+    'Cómo puedo mejorar mi volumen de entrenamiento',
+  ];
+
+  return d.jsxs('div', { style: { display: 'flex', flexDirection: 'column', height: 'calc(100vh - 220px)', minHeight: 400 }, children: [
+
+    // Mensajes
+    d.jsxs('div', {
+      style: { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, paddingBottom: 8 },
+      children: [
+        messages.map(function(msg, i) {
+          const isAI = msg.role === 'assistant';
+          return d.jsx('div', {
+            key: i,
+            style: {
+              alignSelf: isAI ? 'flex-start' : 'flex-end',
+              maxWidth: '88%',
+              background: isAI ? 'var(--glass-bg)' : GYM_RED,
+              color: isAI ? 'hsl(var(--foreground))' : '#fff',
+              border: isAI ? '1px solid var(--glass-border)' : 'none',
+              borderRadius: isAI ? '4px 16px 16px 16px' : '16px 16px 4px 16px',
+              padding: '10px 14px',
+              fontSize: 13,
+              lineHeight: 1.55,
+              backdropFilter: isAI ? 'blur(16px)' : 'none',
+              boxShadow: isAI ? 'var(--shadow-card)' : '0 2px 10px rgba(220,38,38,0.25)',
+              whiteSpace: 'pre-wrap',
+            },
+            children: msg.text,
+          });
+        }),
+
+        // Indicador de escritura
+        loading && d.jsx('div', {
+          style: { alignSelf: 'flex-start', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '4px 16px 16px 16px', padding: '10px 14px', backdropFilter: 'blur(16px)' },
+          children: d.jsx('div', {
+            style: { display: 'flex', gap: 4, alignItems: 'center' },
+            children: [0, 1, 2].map(function(i) {
+              return d.jsx('div', {
+                key: i,
+                style: { width: 6, height: 6, borderRadius: '50%', background: GYM_RED, opacity: 0.7, animation: 'pulse ' + (0.8 + i * 0.15) + 's ease-in-out infinite' },
+              });
+            }),
+          }),
+        }),
+
+        d.jsx('div', { ref: bottomRef }),
+      ],
+    }),
+
+    // Sugerencias (solo al inicio)
+    messages.length <= 1 && d.jsx('div', {
+      style: { display: 'flex', gap: 6, flexWrap: 'wrap', paddingBottom: 8 },
+      children: suggestions.map(function(s, i) {
+        return d.jsx('button', {
+          key: i,
+          onClick: function() { setInput(s); },
+          className: 'glass-card',
+          style: { padding: '5px 10px', fontSize: 11, fontWeight: 500, color: GYM_RED, border: '1px solid ' + GYM_RED_SOFT, background: GYM_RED_SOFT, borderRadius: 8, cursor: 'pointer' },
+          children: s,
+        });
+      }),
+    }),
+
+    // Input
+    d.jsxs('div', {
+      style: { display: 'flex', gap: 8, paddingTop: 6 },
+      children: [
+        d.jsx('input', {
+          className: 'input-premium',
+          value: input,
+          onChange: function(e) { setInput(e.target.value); },
+          onKeyDown: function(e) { if (e.key === 'Enter' && !e.shiftKey) send(); },
+          placeholder: 'Pregunta a tu entrenador...',
+          style: { flex: 1 },
+        }),
+        d.jsx('button', {
+          onClick: send,
+          disabled: loading || !input.trim(),
+          style: {
+            width: 44, height: 44, borderRadius: 12, border: 'none', flexShrink: 0,
+            background: input.trim() && !loading ? GYM_RED : 'hsl(var(--muted))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: input.trim() && !loading ? 'pointer' : 'default',
+            transition: 'background 0.2s',
+          },
+          children: d.jsx(G5, { size: 16, color: input.trim() && !loading ? '#fff' : 'hsl(var(--muted-foreground))' }),
+        }),
+      ],
+    }),
 
   ] });
 }
@@ -13007,7 +13215,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v28.2",
+children: "v28.3",
 }),
 ],
 }),
@@ -13034,7 +13242,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v28.2",
+children: "v28.3",
 });
 }
 
