@@ -3470,8 +3470,10 @@ This typically indicates that your device does not have a healthy Internet conne
       d.jsx('line', { key: 'e', x1: '18', y1: '8', x2: '18', y2: '16' }),
     ],
   });
+};
 const GymNavIcon = function(props) {
   return d.jsx(GymDumbbellIcon, { size: props.size || 20, color: props.color || 'currentColor', strokeWidth: props.strokeWidth || 2 });
+};
 const CW=[{path:"/dashboard",icon:tV,label:"Inicio"},{path:"/tasks",icon:wf,label:"Tareas"},{path:"/calendar",icon:yh,label:"Agenda"},{path:"/schedule",icon:Iv,label:"Horario"}];const RE=[{path:"/gimnasio",icon:GymNavIcon,label:"Gimnasio"},{path:"/grades",icon:W5,label:"Calculadora"},{path:"/courses",icon:Sv,label:"Cursos"},{path:"/organizer",icon:na,label:"Organizador"},{path:"/selectividad",icon:ta,label:"Selectividad"},{path:"/pizarra",icon:Av,label:"Pizarra"},{path:"/notes",icon:oV,label:"Apuntes"},{path:"/flashcards",icon:wV,label:"Flashcards"},{path:"/classroom",icon:dV,label:"Clases"}];
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -3509,11 +3511,9 @@ const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 // ── Icono mancuerna SVG ──────────────────────────────────────────────────────
 // GymDumbbellIcon — definida antes de RE[] (ver arriba)
-};
 
 // ── Icono para el radial (acepta size/color como Lucide) ─────────────────────
 // GymNavIcon — definida antes de RE[] (ver arriba)
-};
 
 // ════════════════════════════════════════════════════════════════════════════
 // GimnasioModule — Raíz del módulo
