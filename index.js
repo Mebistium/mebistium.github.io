@@ -3584,10 +3584,10 @@ function GimnasioModule() {
 
       // ── Tabs ────────────────────────────────────────────────────────────
       d.jsx('div', {
-        className: 'flex gap-1 glass-card p-1 mb-4',
-        style: { borderRadius: '0.875rem' },
-        children: ['inicio', 'rutinas', 'progreso', 'ia'].map(function(t) {
-          const labels = { inicio: 'Inicio', rutinas: 'Rutinas', progreso: 'Progreso', ia: 'Entrenador' };
+        className: 'glass-card p-1 mb-4',
+        style: { borderRadius: '0.875rem', overflowX: 'auto', display: 'flex', gap: 4, scrollbarWidth: 'none' },
+        children: ['inicio', 'planificador', 'historial', 'rutinas', 'progreso', 'ia', 'ajustes'].map(function(t) {
+          const labels = { inicio: 'Inicio', planificador: 'Plan', historial: 'Historial', rutinas: 'Rutinas', progreso: 'Progreso', ia: 'IA', ajustes: 'Ajustes' };
           const active = tab === t;
           return d.jsx('button', {
             key: t,
@@ -3609,7 +3609,10 @@ function GimnasioModule() {
         children: tab === 'inicio'   ? d.jsx(GymInicio,   { routines, logs, uid, onStart: setActiveWorkout, onNewRoutine: function() { setTab('rutinas'); } })
                : tab === 'rutinas'   ? d.jsx(GymRutinas,  { routines, uid, onStart: setActiveWorkout })
                : tab === 'progreso'  ? d.jsx(GymProgreso, { logs, routines })
-               : tab === 'ia'        ? d.jsx(GymIA,       { logs, routines })
+               : tab === 'ia'        ? d.jsx(GymIA,         { logs, routines })
+               : tab === 'planificador' ? d.jsx(GymPlanificador, { routines, logs, onStart: setActiveWorkout })
+               : tab === 'historial'   ? d.jsx(GymHistorial,   { logs, routines })
+               : tab === 'ajustes'   ? d.jsx(GymConfig,     { logs, uid })
                : null,
       }),
 
@@ -3665,11 +3668,12 @@ function GymInicio({ routines, logs, uid, onStart, onNewRoutine }) {
 
     // ── Stats strip ────────────────────────────────────────────────────────
     d.jsx('div', {
-      className: 'grid grid-cols-3 gap-3',
+      className: 'grid grid-cols-4 gap-2',
       children: [
         { label: 'Racha', value: streak + 'd', accent: GYM_RED },
-        { label: 'Esta semana', value: weekCount + ' ent.', accent: '#7c3aed' },
+        { label: 'Semana', value: weekCount + ' ent.', accent: '#7c3aed' },
         { label: 'Volumen', value: weekVolume >= 1000 ? (weekVolume / 1000).toFixed(1) + 'k' : weekVolume + '', suffix: 'kg', accent: '#0891b2' },
+        { label: 'Total', value: logs.length + '', suffix: 'ses.', accent: '#d97706' },
       ].map(function(stat, i) {
         return d.jsxs('div', {
           key: i,
@@ -3733,6 +3737,11 @@ function GymInicio({ routines, logs, uid, onStart, onNewRoutine }) {
     }),
 
     // ── Últimos entrenos ───────────────────────────────────────────────────
+    d.jsx(GymCalendario, { logs }),
+
+    // ── Planificador inline ───────────────────────────────────────────────────
+    routines.some(function(r){ return (r.days||[]).length > 0; }) && d.jsx(GymPlanificador, { routines, logs, onStart }),
+
     recentLogs.length > 0 && d.jsxs('div', { className: 'space-y-2', children: [
       d.jsx('p', { className: 'section-label px-1', children: 'Historial reciente' }),
       ...recentLogs.map(function(log, i) {
@@ -3890,11 +3899,25 @@ function GymRutinas({ routines, uid, onStart }) {
                 d.jsx('p', { style: { fontSize: 13, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: ex.name }),
                 d.jsxs('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: [(mg ? mg.label : ex.muscleGroup), ' · ', ex.sets, '×', ex.reps, ex.note ? ' · ' + ex.note : ''] }),
               ] }),
-              d.jsx('button', {
-                onClick: function() { removeExercise(ex.id); },
-                className: 'p-1.5 rounded-lg text-muted-foreground hover:text-destructive transition-colors',
-                children: d.jsx(Zn, { className: 'w-4 h-4' }),
-              }),
+              d.jsxs('div', { className: 'flex gap-1 items-center', children: [
+                d.jsx('button', {
+                  onClick: function() { setExercises(function(p) { if(i===0) return p; const a=p.slice(); const t=a[i-1]; a[i-1]=a[i]; a[i]=t; return a; }); },
+                  disabled: i===0,
+                  className: 'p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30',
+                  children: d.jsx(vh, { className: 'w-3.5 h-3.5' }),
+                }),
+                d.jsx('button', {
+                  onClick: function() { setExercises(function(p) { if(i===p.length-1) return p; const a=p.slice(); const t=a[i+1]; a[i+1]=a[i]; a[i]=t; return a; }); },
+                  disabled: i===exercises.length-1,
+                  className: 'p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30',
+                  children: d.jsx(na, { className: 'w-3.5 h-3.5' }),
+                }),
+                d.jsx('button', {
+                  onClick: function() { removeExercise(ex.id); },
+                  className: 'p-1.5 rounded-lg text-muted-foreground hover:text-destructive transition-colors',
+                  children: d.jsx(Zn, { className: 'w-4 h-4' }),
+                }),
+              ] }),
             ],
           }, ex.id);
         }),
@@ -4055,14 +4078,22 @@ function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
   const [restTime, setRestTime] = b.useState(null); // segundos de descanso
   const [sets, setSets]         = b.useState(function() {
     return exercises.map(function(ex) {
-      // Pre-cargar peso/reps del último log de esta rutina
+      // Pre-cargar el último peso/reps registrado para este ejercicio
+      let lastWeight = 0, lastReps = ex.reps || 10;
+      for (let li = 0; li < logs.length; li++) {
+        const found = (logs[li].sets || []).find(function(s) { return s.exerciseName === ex.name && s.done; });
+        if (found) { lastWeight = found.weight || 0; lastReps = found.reps || ex.reps || 10; break; }
+      }
       return Array.from({ length: ex.sets || 3 }, function() {
-        return { reps: ex.reps || 10, weight: 0, done: false };
+        return { reps: lastReps, weight: lastWeight, done: false };
       });
     });
   });
 
   const startRef = b.useRef(Date.now());
+  const DEFAULT_REST = b.useMemo(function() {
+    try { return parseInt(localStorage.getItem('gym-rest-duration')) || 90; } catch(e) { return 90; }
+  }, []);
 
   // Timer global
   b.useEffect(function() {
@@ -4097,12 +4128,14 @@ function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
         if (ei !== exIdx) return exSets;
         return exSets.map(function(s, i) {
           if (i !== si) return s;
-          if (!s.done) setRestTime(90); // iniciar descanso al completar
+          if (!s.done) setRestTime(DEFAULT_REST); // iniciar descanso al completar
           return Object.assign({}, s, { done: !s.done });
         });
       });
     });
   };
+
+  const [sessionNote, setSessionNote] = b.useState('');
 
   const finish = function() {
     const durationMin = Math.round((Date.now() - startRef.current) / 60000);
@@ -4126,6 +4159,7 @@ function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
       routineName: routine.name,
       durationMin: durationMin,
       sets: allSets,
+      note: sessionNote.trim(),
       createdAt: Date.now(),
     };
     onFinish(log);
@@ -4255,6 +4289,35 @@ function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
               }),
             }),
 
+            // Nota de sesión
+            d.jsx('textarea', {
+              value: sessionNote,
+              onChange: function(e) { setSessionNote(e.target.value); },
+              placeholder: 'Nota de sesión (sensaciones, peso nuevo, técnica...)',
+              rows: 2,
+              style: {
+                width: '100%', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.04)', color: '#f1f5f9', fontSize: 12,
+                padding: '8px 12px', resize: 'none', outline: 'none', marginTop: 12,
+                fontFamily: 'var(--font-sans)', lineHeight: 1.4, boxSizing: 'border-box',
+              },
+            }),
+
+            // Añadir serie extra
+            d.jsx('button', {
+              onClick: function() {
+                setSets(function(prev) {
+                  return prev.map(function(exSets, ei) {
+                    if (ei !== exIdx) return exSets;
+                    const last = exSets[exSets.length - 1];
+                    return exSets.concat([{ reps: last ? last.reps : 10, weight: last ? last.weight : 0, done: false }]);
+                  });
+                });
+              },
+              style: { width: '100%', height: 36, borderRadius: 10, border: '1px dashed rgba(255,255,255,0.12)', background: 'transparent', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginTop: 8 },
+              children: '+ Serie extra',
+            }),
+
             // Siguiente ejercicio
             d.jsx('button', {
               onClick: function() {
@@ -4293,6 +4356,24 @@ function GymProgreso({ logs, routines }) {
   const totalVol      = logs.reduce(function(a, l) {
     return a + (l.sets || []).reduce(function(b, s) { return b + (s.weight || 0) * (s.reps || 0); }, 0);
   }, 0);
+
+  // ── Volumen mensual (últimos 6 meses) ───────────────────────────────────────
+  const monthlyData = b.useMemo(function() {
+    const months = [];
+    const now = new Date();
+    for (let m = 5; m >= 0; m--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - m, 1);
+      const monthStr = d.toISOString().slice(0, 7);
+      const label = d.toLocaleDateString('es-ES', { month: 'short' });
+      const mLogs = logs.filter(function(l) { return l.date.startsWith(monthStr); });
+      const vol = mLogs.reduce(function(a, l) {
+        return a + (l.sets||[]).reduce(function(b,s){ return b+(s.weight||0)*(s.reps||0); }, 0);
+      }, 0);
+      months.push({ label, vol: Math.round(vol/100)/10, sessions: mLogs.length });
+    }
+    return months;
+  }, [logs]);
+  const maxMonthVol = Math.max.apply(null, monthlyData.map(function(m){ return m.vol; }).concat([0.1]));
 
   const cutoff = b.useMemo(function() {
     const d = new Date(); d.setDate(d.getDate() - timeRange);
@@ -4492,6 +4573,24 @@ function GymProgreso({ logs, routines }) {
             ] }, i);
           }),
         ],
+      }),
+    ] }),
+
+    // ── Volumen mensual (últimos 6 meses) ──────────────────────────────────
+    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
+      d.jsx('p', { className: 'section-label', children: 'Volumen mensual (toneladas)' }),
+      d.jsxs('svg', {
+        width: '100%', height: 72, viewBox: '0 0 288 72', preserveAspectRatio: 'none',
+        children: monthlyData.map(function(m, i) {
+          const x = i * 48 + 2;
+          const barH = Math.max(2, m.vol / maxMonthVol * 52);
+          const barY = 58 - barH;
+          return d.jsxs('g', { key: i, children: [
+            d.jsx('rect', { x, y: barY, width: 44, height: barH, rx: 4, fill: m.sessions > 0 ? GYM_RED : 'rgba(220,38,38,0.15)' }),
+            d.jsx('text', { x: x+22, y: 70, textAnchor: 'middle', style: { fontSize: 8, fill: 'hsl(var(--muted-foreground))', fontFamily: 'var(--font-sans)' }, children: m.label }),
+            m.sessions > 0 ? d.jsx('text', { x: x+22, y: barY-3, textAnchor: 'middle', style: { fontSize: 7, fill: GYM_RED, fontFamily: 'var(--font-sans)', fontWeight: 700 }, children: m.vol+'t' }) : null,
+          ] }, i);
+        }),
       }),
     ] }),
 
@@ -4912,6 +5011,446 @@ function GymIA({ logs, routines }) {
         }),
       ],
     }),
+
+  ] });
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymConfig — Ajustes, salud y récords personales
+// ════════════════════════════════════════════════════════════════════════════
+function GymConfig({ logs, uid }) {
+  const [weightLog, setWeightLog] = b.useState([]);
+  const [newWeight, setNewWeight] = b.useState('');
+  const [restDuration, setRestDuration] = b.useState(function() {
+    try { return parseInt(localStorage.getItem('gym-rest-duration')) || 90; } catch(e) { return 90; }
+  });
+
+  // Suscribir peso corporal de Firebase
+  b.useEffect(function() {
+    if (!uid) return;
+    const u = gymSub(uid, 'gym_weight', function(data) {
+      setWeightLog(Array.isArray(data) ? data.slice().sort(function(a,b) { return b.date.localeCompare(a.date); }) : []);
+    });
+    return u;
+  }, [uid]);
+
+  const saveWeight = function() {
+    const val = parseFloat(newWeight.replace(',', '.'));
+    if (!val || val < 20 || val > 300 || !uid) return;
+    gymSet(uid, 'gym_weight', { id: Date.now().toString(36), date: new Date().toISOString().slice(0,10), weight: val, createdAt: Date.now() });
+    setNewWeight('');
+  };
+
+  const saveRest = function(val) {
+    setRestDuration(val);
+    try { localStorage.setItem('gym-rest-duration', val); } catch(e) {}
+  };
+
+  // Récords personales (1RM máximo por ejercicio de todos los logs)
+  const records = b.useMemo(function() {
+    const map = {};
+    logs.forEach(function(l) {
+      (l.sets || []).forEach(function(s) {
+        if (!s.exerciseName || !s.done) return;
+        const e1rm = s.weight * (1 + s.reps / 30);
+        if (!map[s.exerciseName] || e1rm > map[s.exerciseName].e1rm) {
+          map[s.exerciseName] = { name: s.exerciseName, weight: s.weight, reps: s.reps, e1rm: Math.round(e1rm * 10) / 10, date: l.date };
+        }
+      });
+    });
+    return Object.values(map).sort(function(a,b) { return b.e1rm - a.e1rm; }).slice(0, 10);
+  }, [logs]);
+
+  // Tendencia de peso
+  const weightTrend = b.useMemo(function() {
+    if (weightLog.length < 2) return null;
+    const recent = weightLog.slice(0, 7);
+    const delta = recent[0].weight - recent[recent.length-1].weight;
+    return { current: recent[0].weight, delta: Math.round(delta * 10) / 10 };
+  }, [weightLog]);
+
+  return d.jsxs('div', { className: 'space-y-5', children: [
+
+    // ── Peso corporal ───────────────────────────────────────────────────
+    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
+      d.jsxs('div', { className: 'flex items-center justify-between', children: [
+        d.jsx('p', { className: 'section-label', children: 'Peso corporal' }),
+        weightTrend && d.jsxs('span', {
+          style: { fontSize: 11, fontWeight: 700, color: weightTrend.delta <= 0 ? '#16a34a' : GYM_RED, background: weightTrend.delta <= 0 ? 'rgba(22,163,74,0.1)' : GYM_RED_SOFT, padding: '2px 8px', borderRadius: 999 },
+          children: [(weightTrend.delta > 0 ? '+' : ''), weightTrend.delta, ' kg últimos registros'],
+        }),
+      ] }),
+      weightTrend && d.jsxs('p', { style: { fontSize: 22, fontWeight: 800, color: 'hsl(var(--foreground))' }, children: [weightTrend.current, ' ', d.jsx('span', { style: { fontSize: 13, fontWeight: 500, color: 'hsl(var(--muted-foreground))' }, children: 'kg' })] }),
+      d.jsxs('div', { className: 'flex gap-2', children: [
+        d.jsx('input', {
+          className: 'input-premium flex-1',
+          type: 'number', step: '0.1', min: '20', max: '300',
+          placeholder: 'Añadir peso (kg)',
+          value: newWeight,
+          onChange: function(e) { setNewWeight(e.target.value); },
+          onKeyDown: function(e) { if (e.key === 'Enter') saveWeight(); },
+        }),
+        d.jsx('button', {
+          onClick: saveWeight,
+          disabled: !newWeight.trim(),
+          className: 'py-2.5 px-4 rounded-xl text-sm font-bold text-white transition-all',
+          style: { background: newWeight.trim() ? GYM_RED : 'hsl(var(--muted))', minWidth: 80 },
+          children: 'Guardar',
+        }),
+      ] }),
+      weightLog.length > 0 && d.jsx('div', {
+        style: { display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 },
+        children: weightLog.slice(0, 8).map(function(w, i) {
+          return d.jsxs('div', {
+            key: w.id || i,
+            style: { flexShrink: 0, textAlign: 'center', padding: '6px 10px', background: i === 0 ? GYM_RED_SOFT : 'var(--glass-bg)', border: '1px solid ' + (i === 0 ? GYM_RED_MID : 'var(--glass-border)'), borderRadius: 10 },
+            children: [
+              d.jsx('p', { style: { fontSize: 14, fontWeight: 700, color: i === 0 ? GYM_RED : 'hsl(var(--foreground))' }, children: w.weight + ' kg' }),
+              d.jsx('p', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))' }, children: GymFormatDate(w.date) }),
+            ],
+          });
+        }),
+      }),
+    ] }),
+
+    // ── Timer de descanso ───────────────────────────────────────────────
+    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
+      d.jsxs('div', { className: 'flex items-center justify-between', children: [
+        d.jsx('p', { className: 'section-label', children: 'Descanso entre series' }),
+        d.jsxs('span', { style: { fontSize: 14, fontWeight: 700, color: GYM_RED }, children: [restDuration, 's'] }),
+      ] }),
+      d.jsx('input', {
+        type: 'range', min: 30, max: 300, step: 15, value: restDuration,
+        onChange: function(e) { saveRest(parseInt(e.target.value)); },
+        style: { width: '100%', accentColor: GYM_RED },
+      }),
+      d.jsx('div', {
+        className: 'flex justify-between',
+        children: [30, 60, 90, 120, 180, 240, 300].map(function(v) {
+          return d.jsx('span', {
+            key: v,
+            onClick: function() { saveRest(v); },
+            style: { fontSize: 10, color: restDuration === v ? GYM_RED : 'hsl(var(--muted-foreground))', fontWeight: restDuration === v ? 700 : 400, cursor: 'pointer' },
+            children: v + 's',
+          });
+        }),
+      }),
+    ] }),
+
+    // ── Récords personales ──────────────────────────────────────────────
+    records.length > 0 && d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
+      d.jsx('p', { className: 'section-label', children: 'Récords personales (1RM estimado)' }),
+      d.jsx('div', { className: 'space-y-2', children:
+        records.map(function(r, i) {
+          return d.jsxs('div', {
+            key: r.name,
+            className: 'flex items-center justify-between',
+            style: { padding: '8px 10px', borderRadius: 10, background: i === 0 ? GYM_RED_SOFT : 'var(--glass-bg)', border: '1px solid ' + (i === 0 ? GYM_RED_MID : 'var(--glass-border)') },
+            children: [
+              d.jsxs('div', { children: [
+                d.jsx('p', { style: { fontSize: 13, fontWeight: 700, color: 'hsl(var(--foreground))' }, children: r.name }),
+                d.jsxs('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: [r.weight, ' kg × ', r.reps, ' reps · ', GymFormatDate(r.date)] }),
+              ] }),
+              d.jsxs('span', { style: { fontSize: 16, fontWeight: 800, color: GYM_RED }, children: [r.e1rm, ' kg'] }),
+            ],
+          });
+        }),
+      }),
+    ] }),
+
+    // ── Integración salud (infraestructura para futuras APIs) ────────────
+    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
+      d.jsx('p', { className: 'section-label', children: 'Datos de salud' }),
+      [
+        { name: 'Samsung Health', desc: 'Pasos, sueño, frecuencia cardíaca', ready: false, key: 'samsung_health_token' },
+        { name: 'Apple Health', desc: 'Pasos, sueño, frecuencia cardíaca', ready: false, key: 'apple_health_token' },
+      ].map(function(source) {
+        const connected = false; // TODO: leer de Firebase cuando estén las APIs
+        return d.jsxs('div', {
+          key: source.name,
+          style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 10, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' },
+          children: [
+            d.jsxs('div', { children: [
+              d.jsx('p', { style: { fontSize: 13, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: source.name }),
+              d.jsx('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: source.desc }),
+            ] }),
+            d.jsx('span', {
+              style: { fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: 'rgba(100,116,139,0.1)', color: 'hsl(var(--muted-foreground))' },
+              children: 'Próximamente',
+            }),
+          ],
+        }, source.name);
+      }),
+    ] }),
+
+  ] });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymCalendario — Racha visual (últimas 10 semanas)
+// ════════════════════════════════════════════════════════════════════════════
+function GymCalendario({ logs }) {
+  const weeks = b.useMemo(function() {
+    const result = [];
+    const today = new Date();
+    for (let w = 9; w >= 0; w--) {
+      const week = [];
+      for (let d = 6; d >= 0; d--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - w * 7 - d);
+        const ds = date.toISOString().slice(0, 10);
+        const trained = logs.some(function(l) { return l.date === ds; });
+        const isToday = ds === today.toISOString().slice(0, 10);
+        const isFuture = date > today;
+        week.push({ ds, trained, isToday, isFuture });
+      }
+      result.push(week);
+    }
+    return result;
+  }, [logs]);
+
+  return d.jsxs('div', { className: 'glass-card p-4 space-y-2', children: [
+    d.jsxs('div', { className: 'flex items-center justify-between mb-1', children: [
+      d.jsx('p', { className: 'section-label', children: 'Actividad — últimas 10 semanas' }),
+      d.jsxs('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))' }, children: ['Lu', String.fromCharCode(160), 'Ma', String.fromCharCode(160), 'Mi', String.fromCharCode(160), 'Ju', String.fromCharCode(160), 'Vi', String.fromCharCode(160), 'Sa', String.fromCharCode(160), 'Do'] }),
+    ] }),
+    d.jsx('div', {
+      style: { display: 'flex', gap: 3 },
+      children: weeks.map(function(week, wi) {
+        return d.jsx('div', {
+          key: wi,
+          style: { display: 'flex', flexDirection: 'column', gap: 3, flex: 1 },
+          children: week.map(function(day, di) {
+            return d.jsx('div', {
+              key: di,
+              title: day.ds,
+              style: {
+                aspectRatio: '1',
+                borderRadius: 3,
+                background: day.isFuture ? 'transparent'
+                  : day.trained ? GYM_RED
+                  : 'var(--glass-bg)',
+                border: day.isToday ? '1.5px solid ' + GYM_RED
+                  : '1px solid var(--glass-border)',
+                opacity: day.isFuture ? 0 : 1,
+              },
+            });
+          }),
+        });
+      }),
+    }),
+    d.jsxs('div', { style: { display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }, children: [
+      d.jsx('div', { style: { width: 10, height: 10, borderRadius: 2, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' } }),
+      d.jsx('span', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))' }, children: 'Sin entrenar' }),
+      d.jsx('div', { style: { width: 10, height: 10, borderRadius: 2, background: GYM_RED, marginLeft: 8 } }),
+      d.jsx('span', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))' }, children: 'Entrenado' }),
+    ] }),
+  ] });
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymPlanificador — Vista semanal de qué toca cada día
+// ════════════════════════════════════════════════════════════════════════════
+function GymPlanificador({ routines, logs, onStart }) {
+  const today = new Date();
+  const todayIdx = (today.getDay() + 6) % 7; // 0=Lun ... 6=Dom
+  const thisWeekDates = Array.from({ length: 7 }, function(_, i) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - todayIdx + i);
+    return d.toISOString().slice(0, 10);
+  });
+
+  // Para cada día de la semana: qué rutinas le corresponden
+  const weekPlan = DAYS.map(function(dayLabel, dayIdx) {
+    const date = thisWeekDates[dayIdx];
+    const assigned = routines.filter(function(r) { return (r.days || []).includes(dayIdx); });
+    const done = logs.some(function(l) { return l.date === date; });
+    const isToday = dayIdx === todayIdx;
+    const isPast = date < today.toISOString().slice(0, 10);
+    return { dayLabel, date, assigned, done, isToday, isPast };
+  });
+
+  return d.jsxs('div', { className: 'space-y-2', children: [
+    d.jsx('p', { className: 'section-label px-1', children: 'Plan de la semana' }),
+    d.jsx('div', { className: 'space-y-2', children:
+      weekPlan.map(function(day) {
+        const hasPlan = day.assigned.length > 0;
+        return d.jsxs('div', {
+          key: day.date,
+          style: {
+            borderRadius: 12,
+            border: day.isToday ? '1.5px solid ' + GYM_RED : '1px solid var(--glass-border)',
+            background: day.isToday ? GYM_RED_SOFT : day.done ? 'rgba(22,163,74,0.06)' : 'var(--glass-bg)',
+            padding: '10px 14px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+          },
+          children: [
+            // Día y fecha
+            d.jsxs('div', { style: { width: 52, flexShrink: 0 }, children: [
+              d.jsx('p', { style: { fontSize: 12, fontWeight: 700, color: day.isToday ? GYM_RED : 'hsl(var(--foreground))' }, children: day.dayLabel }),
+              d.jsx('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))' }, children: day.date.slice(5).replace('-', '/') }),
+            ] }),
+            // Contenido
+            d.jsx('div', { style: { flex: 1 }, children:
+              hasPlan ? d.jsxs('div', { children: [
+                d.jsx('p', { style: { fontSize: 12, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: day.assigned.map(function(r) { return r.name; }).join(', ') }),
+                d.jsx('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))' }, children:
+                  day.assigned.reduce(function(a, r) { return a + (r.exercises || []).length; }, 0) + ' ejercicios · ' +
+                  Array.from(new Set(day.assigned.flatMap(function(r) { return (r.exercises||[]).map(function(e){ return e.muscleGroup; }); }))).slice(0,3).map(function(g){ const mg=MUSCLE_GROUPS.find(function(m){ return m.id===g; }); return mg?mg.short:g; }).join(', '),
+                }),
+              ] }) : d.jsx('p', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))', opacity: 0.6 }, children: 'Descanso' }),
+            }),
+            // Estado / acción
+            day.done ? d.jsx('span', {
+              style: { fontSize: 10, fontWeight: 700, color: '#16a34a', background: 'rgba(22,163,74,0.12)', padding: '2px 8px', borderRadius: 999, flexShrink: 0 },
+              children: 'Hecho',
+            }) : day.isToday && hasPlan ? d.jsx('button', {
+              onClick: function() { onStart(day.assigned[0]); },
+              style: { height: 30, padding: '0 12px', borderRadius: 8, border: 'none', background: GYM_RED, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0 },
+              children: 'Empezar',
+            }) : hasPlan && !day.isPast ? d.jsx('span', {
+              style: { fontSize: 10, fontWeight: 600, color: 'hsl(var(--muted-foreground))', flexShrink: 0 },
+              children: 'Pendiente',
+            }) : null,
+          ],
+        });
+      }),
+    }),
+  ] });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymHistorial — Historial detallado de sesiones
+// ════════════════════════════════════════════════════════════════════════════
+function GymHistorial({ logs, routines }) {
+  const [expanded, setExpanded] = b.useState(null);
+  const [page, setPage] = b.useState(0);
+  const PER_PAGE = 10;
+
+  const paged = logs.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
+  const totalPages = Math.ceil(logs.length / PER_PAGE);
+
+  if (!logs.length) return d.jsxs('div', {
+    className: 'glass-card p-8 text-center space-y-2',
+    children: [
+      d.jsx('p', { style: { fontSize: 14, fontWeight: 600, color: 'hsl(var(--muted-foreground))', marginTop: 8 }, children: 'Sin sesiones registradas' }),
+      d.jsx('p', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))', opacity: 0.7 }, children: 'Completa tu primer entreno para verlo aquí' }),
+    ],
+  });
+
+  return d.jsxs('div', { className: 'space-y-2', children: [
+
+    d.jsx('p', { className: 'section-label px-1', children: logs.length + ' sesiones registradas' }),
+
+    d.jsx('div', { className: 'space-y-2', children:
+      paged.map(function(log) {
+        const isExp = expanded === log.id;
+        const vol = (log.sets || []).reduce(function(a, s) { return a + (s.weight||0)*(s.reps||0); }, 0);
+        const totalSets = (log.sets || []).length;
+        const muscles = Array.from(new Set((log.sets||[]).map(function(s){ return s.muscleGroup; }).filter(Boolean)));
+
+        return d.jsxs(Y.div, {
+          key: log.id,
+          initial: { opacity: 0 }, animate: { opacity: 1 },
+          className: 'glass-card overflow-hidden',
+          children: [
+            // Cabecera
+            d.jsxs('div', {
+              onClick: function() { setExpanded(isExp ? null : log.id); },
+              style: { padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', gap: 10 },
+              children: [
+                d.jsxs('div', { style: { flex: 1, minWidth: 0 }, children: [
+                  d.jsx('p', { style: { fontSize: 14, fontWeight: 700, color: 'hsl(var(--foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, children: log.routineName || 'Entreno libre' }),
+                  d.jsxs('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: [GymFormatDate(log.date), ' · ', log.durationMin || 0, ' min · ', totalSets, ' series'] }),
+                ] }),
+                d.jsxs('div', { style: { display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }, children: [
+                  d.jsxs('div', { style: { textAlign: 'right' }, children: [
+                    d.jsx('p', { style: { fontSize: 13, fontWeight: 700, color: GYM_RED }, children: vol >= 1000 ? (vol/1000).toFixed(1)+'t' : vol+'kg' }),
+                    d.jsx('p', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))' }, children: 'vol.' }),
+                  ] }),
+                  d.jsx(isExp ? vh : G5, { size: 14, color: 'hsl(var(--muted-foreground))' }),
+                ] }),
+              ],
+            }),
+
+            // Detalle expandido
+            isExp && d.jsxs('div', {
+              style: { borderTop: '1px solid var(--glass-border)', padding: '12px 16px', background: 'rgba(0,0,0,0.02)' },
+              children: [
+                // Grupos musculares
+                muscles.length > 0 && d.jsx('div', {
+                  style: { display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 },
+                  children: muscles.map(function(g) {
+                    const mg = MUSCLE_GROUPS.find(function(m){ return m.id===g; });
+                    return d.jsx('span', {
+                      key: g,
+                      style: { fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 6, background: GYM_RED_SOFT, color: GYM_RED },
+                      children: mg ? mg.label : g,
+                    });
+                  }),
+                }),
+
+                // Ejercicios y sets
+                d.jsx('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 }, children:
+                  (function() {
+                    const byEx = {};
+                    (log.sets||[]).forEach(function(s) {
+                      const key = s.exerciseName || 'Ejercicio';
+                      if (!byEx[key]) byEx[key] = [];
+                      byEx[key].push(s);
+                    });
+                    return Object.entries(byEx).map(function(entry) {
+                      const exName = entry[0], sets = entry[1];
+                      const best = sets.reduce(function(a, s) { return (s.weight||0)*(1+(s.reps||0)/30) > (a.weight||0)*(1+(a.reps||0)/30) ? s : a; }, sets[0]);
+                      return d.jsxs('div', { key: exName, children: [
+                        d.jsxs('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }, children: [
+                          d.jsx('p', { style: { fontSize: 12, fontWeight: 700, color: 'hsl(var(--foreground))' }, children: exName }),
+                          d.jsxs('p', { style: { fontSize: 10, color: GYM_RED, fontWeight: 600 }, children: ['Mejor: ', best.weight, 'kg × ', best.reps] }),
+                        ] }),
+                        d.jsx('div', { style: { display: 'flex', gap: 4, flexWrap: 'wrap' }, children:
+                          sets.map(function(s, si) {
+                            return d.jsxs('span', {
+                              key: si,
+                              style: { fontSize: 11, padding: '2px 8px', borderRadius: 6, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: 'hsl(var(--muted-foreground))', fontVariantNumeric: 'tabular-nums' },
+                              children: [s.weight, 'kg × ', s.reps],
+                            });
+                          }),
+                        }),
+                      ] });
+                    });
+                  })(),
+                }),
+
+                // Nota de sesión
+                log.note && d.jsx('p', {
+                  style: { fontSize: 12, color: 'hsl(var(--muted-foreground))', fontStyle: 'italic', marginTop: 10, padding: '8px 10px', borderRadius: 8, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' },
+                  children: log.note,
+                }),
+              ],
+            }),
+          ],
+        }, log.id);
+      }),
+    }),
+
+    // Paginación
+    totalPages > 1 && d.jsxs('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, paddingTop: 4 }, children: [
+      d.jsx('button', {
+        onClick: function() { setPage(function(p) { return Math.max(0, p-1); }); },
+        disabled: page === 0,
+        style: { width: 32, height: 32, borderRadius: 8, border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', cursor: page===0 ? 'default' : 'pointer', opacity: page===0 ? 0.4 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+        children: d.jsx(vh, { size: 14, color: 'hsl(var(--foreground))' }),
+      }),
+      d.jsxs('span', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))' }, children: [page+1, ' / ', totalPages] }),
+      d.jsx('button', {
+        onClick: function() { setPage(function(p) { return Math.min(totalPages-1, p+1); }); },
+        disabled: page === totalPages-1,
+        style: { width: 32, height: 32, borderRadius: 8, border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', cursor: page===totalPages-1 ? 'default' : 'pointer', opacity: page===totalPages-1 ? 0.4 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+        children: d.jsx(G5, { size: 14, color: 'hsl(var(--foreground))' }),
+      }),
+    ] }),
 
   ] });
 }
@@ -9011,6 +9550,7 @@ const envelopes = o.envelopes || [];
 const goals = o.goals || [];
 const accounts = o.accounts || [];
 const symbol = getCurrencySymbol(o.currency);
+const [loading, setLoading] = b.useState(false);
 const [messages, setMessages] = b.useState(function() {
 try {
 const raw = localStorage.getItem("mb-finance-chat");
@@ -9146,272 +9686,37 @@ accounts: accountsBalances,
 const fmt = function(cents) {
 return formatAmountES(cents) + " " + symbol;
 };
-const analyze = function(question) {
-const q = question.toLowerCase().trim();
-const ctx = buildContext();
-const matchAfford = q.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:€|euros?|eur|usd|\$|gbp|libras?|mad|dirham|dh)?/);
-const wantsAfford = /(?:permitir|comprar|gastar|alcanza|llega|tengo)/i.test(q) && matchAfford;
-if (wantsAfford) {
-const amountEur = parseFloat(matchAfford[1].replace(",", "."));
-const amountCents = Math.round(amountEur * 100);
-const allCats = EXPENSE_CATEGORIES.concat(INCOME_CATEGORIES);
-let mentionedCat = null;
-allCats.forEach(function(cc) {
-if (q.indexOf(cc.name.toLowerCase()) >= 0) mentionedCat = cc;
-});
-const sobre = mentionedCat ? ctx.sobresNormales.find(function(s) { return s.categoryId === mentionedCat.id; }) : null;
-let lines = [];
-lines.push("Vas a gastar **" + fmt(amountCents) + "**.");
-lines.push("");
-if (sobre) {
-lines.push("📦 Tu sobre **" + sobre.name + "** tiene " + fmt(sobre.remaining) + " disponibles este mes.");
-if (sobre.remaining >= amountCents) {
-lines.push("✅ **Sí puedes permitírtelo** sin tocar el amortiguador.");
-lines.push("Te quedarían **" + fmt(sobre.remaining - amountCents) + "** en este sobre para los " + ctx.daysLeft + " días que quedan del mes.");
-} else if (ctx.buffer) {
-const deficit = amountCents - sobre.remaining;
-if (ctx.buffer.remaining >= deficit) {
-lines.push("⚠️ El sobre **se quedaría corto en " + fmt(deficit) + "**, pero tu amortiguador (" + fmt(ctx.buffer.remaining) + ") puede cubrirlo.");
-lines.push("Despues del gasto, te quedaría: " + fmt(0) + " en " + sobre.name + ", " + fmt(ctx.buffer.remaining - deficit) + " en amortiguador.");
-} else {
-lines.push("❌ **No alcanza**. Te faltarían " + fmt(deficit - ctx.buffer.remaining) + " incluso usando el amortiguador.");
-}
-} else {
-lines.push("❌ **No te alcanza** este mes. Te faltarían " + fmt(amountCents - sobre.remaining) + " y no tienes amortiguador para cubrir el déficit.");
-lines.push("Sugerencia: marca uno de tus sobres como amortiguador o reduce el gasto.");
-}
-} else {
-lines.push("📊 Tu situación actual:");
-lines.push("- Saldo: " + fmt(ctx.totalSaldo));
-lines.push("- Quedan " + ctx.daysLeft + " días del mes");
-if (ctx.totalSaldo >= amountCents) {
-const after = ctx.totalSaldo - amountCents;
-const dailyBudget = ctx.daysLeft > 0 ? after / ctx.daysLeft : after;
-lines.push("");
-lines.push("✅ **Tienes saldo de sobra** para gastarlo.");
-lines.push("Después te quedarían " + fmt(after) + " (≈ " + fmt(Math.round(dailyBudget)) + "/día durante el resto del mes).");
-if (dailyBudget < 1000) {
-lines.push("⚠️ Pero ojo: te quedaría poco margen diario.");
-}
-} else {
-lines.push("");
-lines.push("❌ **No tienes saldo suficiente.**");
-}
-if (ctx.sobresNormales.length > 0) {
-lines.push("");
-lines.push("💡 Si dices la categoría (ej: \"¿puedo gastar " + amountEur + "€ en comida?\"), te doy análisis del sobre concreto.");
-}
-}
-return lines.join("\n");
-}
-if (/(?:gasto m[aá]s|gasto demasiado|en qu[eé] gasto|top categor|m[aá]s gasto|donde gasto)/i.test(q)) {
-if (ctx.topCats.length === 0) {
-return "Aún no tienes gastos este mes. Cuando registres algunos, te puedo decir dónde gastas más.";
-}
-let lines = [];
-lines.push("📊 Tus 3 categorías con más gasto este mes:");
-lines.push("");
-ctx.topCats.slice(0, 3).forEach(function(cat, i) {
-const pctOfTotal = (cat.amount / ctx.monthExpense) * 100;
-lines.push((i + 1) + ". **" + cat.cat.name + "**: " + fmt(cat.amount) + " (" + Math.round(pctOfTotal) + "% del total)");
-});
-const last3Total = ctx.last3Months.reduce(function(acc, m) { return acc + m.expense; }, 0);
-const last3Avg = last3Total / 3;
-if (last3Avg > 0) {
-lines.push("");
-const diff = ctx.monthExpense - last3Avg;
-const diffPct = Math.round((diff / last3Avg) * 100);
-if (Math.abs(diffPct) >= 10) {
-if (diff > 0) {
-lines.push("📈 Este mes gastas " + diffPct + "% más que tu media de los 3 meses anteriores.");
-} else {
-lines.push("📉 Este mes gastas " + Math.abs(diffPct) + "% menos que tu media de los 3 meses anteriores. ¡Bien!");
-}
-}
-}
-return lines.join("\n");
-}
-if (/(?:cu[aá]nto.*ahorr|puedo ahorrar|debo ahorrar|deber[ií]a ahorrar|me renta ahorrar)/i.test(q)) {
-if (ctx.monthIncome === 0) {
-return "Aún no tienes ingresos registrados este mes. Registra tu paga primero y te puedo decir cuánto puedes ahorrar.";
-}
-let lines = [];
-lines.push("💎 **Análisis de ahorro:**");
-lines.push("");
-lines.push("- Ingresos del mes: " + fmt(ctx.monthIncome));
-lines.push("- Gastos del mes: " + fmt(ctx.monthExpense));
-lines.push("- Diferencia actual: " + fmt(ctx.monthSaving) + " (" + (ctx.monthIncome > 0 ? Math.round((ctx.monthSaving / ctx.monthIncome) * 100) : 0) + "%)");
-lines.push("");
-const dayOfMonth = ctx.now.getDate();
-const daysElapsed = dayOfMonth;
-const dailyRate = daysElapsed > 0 ? ctx.monthExpense / daysElapsed : 0;
-const projectedExpense = dailyRate * ctx.lastDay;
-const projectedSaving = ctx.monthIncome - projectedExpense;
-lines.push("Al ritmo actual, **acabarías el mes con un ahorro de " + fmt(Math.round(projectedSaving)) + "**.");
-lines.push("");
-const recommendedSaving = Math.round(ctx.monthIncome * 0.2);
-if (projectedSaving >= recommendedSaving) {
-lines.push("✅ Vas bien. Lo recomendable es ahorrar al menos el 20% de los ingresos (≈ " + fmt(recommendedSaving) + ") y vas por encima.");
-} else if (projectedSaving > 0) {
-lines.push("⚠️ Vas a ahorrar algo, pero por debajo del 20% recomendado (" + fmt(recommendedSaving) + ").");
-lines.push("Para llegar al 20% deberías reducir " + fmt(recommendedSaving - Math.round(projectedSaving)) + " de gastos.");
-} else {
-lines.push("❌ Al ritmo actual, **gastarás más de lo que ingresas**. Revisa categorías.");
-}
-return lines.join("\n");
-}
-if (/(?:fin de mes|llegar.*fin|proyecci|c[oó]mo voy|voy bien|sigo bien|estoy bien)/i.test(q)) {
-let lines = [];
-lines.push("📈 **Proyección a fin de mes:**");
-lines.push("");
-lines.push("Día " + ctx.now.getDate() + " de " + ctx.lastDay + " (quedan " + ctx.daysLeft + " días).");
-lines.push("");
-const dayOfMonth = ctx.now.getDate();
-const dailyRate = dayOfMonth > 0 ? ctx.monthExpense / dayOfMonth : 0;
-const projectedExpense = dailyRate * ctx.lastDay;
-lines.push("- Gasto actual: " + fmt(ctx.monthExpense));
-lines.push("- Gasto proyectado fin de mes: ~" + fmt(Math.round(projectedExpense)));
-const sobresRiesgo = ctx.sobresNormales.filter(function(s) {
-const sDailyRate = dayOfMonth > 0 ? s.spent / dayOfMonth : 0;
-const sProjected = sDailyRate * ctx.lastDay;
-return sProjected > s.assigned * 1.05;
-});
-if (sobresRiesgo.length > 0) {
-lines.push("");
-lines.push("⚠️ **Sobres en riesgo de excederse:**");
-sobresRiesgo.forEach(function(s) {
-const sDailyRate = dayOfMonth > 0 ? s.spent / dayOfMonth : 0;
-const sProjected = sDailyRate * ctx.lastDay;
-const exceso = sProjected - s.assigned;
-lines.push("- " + s.name + ": gastarás ~" + fmt(Math.round(sProjected)) + " (excedido en " + fmt(Math.round(exceso)) + ")");
-});
-} else if (ctx.sobresNormales.length > 0) {
-lines.push("");
-lines.push("✅ Todos tus sobres van bien al ritmo actual.");
-}
-return lines.join("\n");
-}
-if (/(?:mes pasado|mes anterior|compara|antes|hace un mes)/i.test(q)) {
-if (ctx.last3Months.length === 0 || ctx.last3Months[0].expense === 0) {
-return "No tengo datos suficientes del mes pasado para comparar.";
-}
-const prev = ctx.last3Months[0];
-let lines = [];
-lines.push("📊 **Mes actual vs mes anterior:**");
-lines.push("");
-lines.push("Gastos:");
-lines.push("- Este mes: " + fmt(ctx.monthExpense));
-lines.push("- Mes anterior: " + fmt(prev.expense));
-const diffExp = ctx.monthExpense - prev.expense;
-const diffExpPct = prev.expense > 0 ? Math.round((diffExp / prev.expense) * 100) : 0;
-if (Math.abs(diffExpPct) >= 5) {
-lines.push("- Diferencia: " + (diffExp > 0 ? "+" : "") + fmt(diffExp) + " (" + (diffExp > 0 ? "+" : "") + diffExpPct + "%)");
-} else {
-lines.push("- Variación mínima.");
-}
-lines.push("");
-lines.push("Ingresos:");
-lines.push("- Este mes: " + fmt(ctx.monthIncome));
-lines.push("- Mes anterior: " + fmt(prev.income));
-lines.push("");
-lines.push("Ahorro:");
-lines.push("- Este mes: " + fmt(ctx.monthSaving));
-lines.push("- Mes anterior: " + fmt(prev.saving));
-return lines.join("\n");
-}
-if (/(?:saldo|cu[aá]nto tengo|cu[aá]nto me queda|disponible|cuanta plata|cu[aá]nto dinero)/i.test(q)) {
-let lines = [];
-lines.push("💰 **Tu situación ahora mismo:**");
-lines.push("");
-lines.push("Saldo total: **" + fmt(ctx.totalSaldo) + "**");
-lines.push("");
-if (ctx.sobresNormales.length > 0) {
-lines.push("Disponible por sobre este mes:");
-ctx.sobresNormales.slice(0, 5).forEach(function(s) {
-const status = s.remaining < 0 ? "❌" : s.pct > 80 ? "⚠️" : "✅";
-lines.push("- " + status + " " + s.name + ": " + fmt(s.remaining) + " de " + fmt(s.assigned));
-});
-if (ctx.buffer) {
-lines.push("");
-lines.push("🛡️ Amortiguador: " + fmt(ctx.buffer.remaining));
-}
-}
-lines.push("");
-lines.push("Quedan " + ctx.daysLeft + " días para fin de mes.");
-return lines.join("\n");
-}
-if (/(?:meta|metas|objetivo|ahorr[oa] para|para qu[eé] ahorro|cu[aá]nto falta|cu[aá]nto me queda para)/i.test(q)) {
-if (ctx.goals.length === 0) {
-return "Aún no tienes metas creadas. Ve a Más → Metas de ahorro para crear una.";
-}
-let mentionedGoal = null;
-ctx.goals.forEach(function(g) {
-if (q.toLowerCase().indexOf(g.name.toLowerCase()) >= 0) mentionedGoal = g;
-});
-let lines = [];
-if (mentionedGoal) {
-lines.push("🎯 **" + mentionedGoal.name + "**");
-lines.push("");
-lines.push("- Aportado: " + fmt(mentionedGoal.current) + " de " + fmt(mentionedGoal.target));
-lines.push("- Progreso: " + mentionedGoal.pct + "%");
-if (mentionedGoal.completed) {
-lines.push("- ✅ ¡Meta alcanzada!");
-} else {
-lines.push("- Faltan: " + fmt(mentionedGoal.remaining));
-if (mentionedGoal.daysToDeadline !== null) {
-if (mentionedGoal.daysToDeadline <= 0) {
-lines.push("- ⚠️ Plazo vencido");
-} else {
-const dailyNeed = mentionedGoal.remaining / mentionedGoal.daysToDeadline;
-lines.push("- Quedan " + mentionedGoal.daysToDeadline + " días → necesitas ahorrar " + fmt(Math.round(dailyNeed)) + "/día");
-}
-}
-}
-} else {
-lines.push("🎯 **Tus metas (" + ctx.goals.length + "):**");
-lines.push("");
-ctx.goals.forEach(function(g) {
-const status = g.completed ? "✅" : (g.pct >= 75 ? "🟢" : g.pct >= 40 ? "🟡" : "🔴");
-lines.push(status + " **" + g.name + "**: " + fmt(g.current) + " / " + fmt(g.target) + " (" + g.pct + "%)");
-});
-}
-return lines.join("\n");
-}
-
-if (/(?:cuenta|banco|efectivo|ahorros|saldo del|saldo de la)/i.test(q) && ctx.accounts.length >= 2) {
-let mentionedAcc = null;
-ctx.accounts.forEach(function(a) {
-if (q.toLowerCase().indexOf(a.name.toLowerCase()) >= 0) mentionedAcc = a;
-});
-let lines = [];
-if (mentionedAcc) {
-lines.push("💳 **Cuenta " + mentionedAcc.name + "**: " + fmt(mentionedAcc.balance));
-} else {
-lines.push("💳 **Tus cuentas:**");
-lines.push("");
-ctx.accounts.forEach(function(a) {
-const sign = a.balance < 0 ? "❌" : "✅";
-lines.push(sign + " **" + a.name + "**" + (a.isDefault ? " (principal)" : "") + ": " + fmt(a.balance));
-});
-lines.push("");
-lines.push("Saldo total: " + fmt(ctx.totalSaldo));
-}
-return lines.join("\n");
-}
-
-if (/^(hola|hey|holi|buenas|hi|qu[eé] tal)/i.test(q)) {
-return "¡Hola Rayan! Soy tu asistente financiero. Te puedo ayudar con cosas como:\n\n• ¿Puedo permitirme 80€ en comida?\n• ¿En qué gasto demasiado?\n• ¿Cuánto puedo ahorrar este mes?\n• ¿Cómo voy para fin de mes?\n• ¿Cuánto saldo tengo?\n• ¿Cómo van mis metas?\n• Compárame con el mes pasado\n\nPregúntame lo que quieras 👇";
-}
-return "No estoy seguro de cómo responder eso. Pruebá con preguntas como:\n\n• \"¿Puedo permitirme [importe]€?\"\n• \"¿En qué gasto más?\"\n• \"¿Cuánto puedo ahorrar?\"\n• \"¿Cómo voy para fin de mes?\"\n• \"¿Cuánto saldo tengo?\"\n• \"Compárame con el mes pasado\"\n\nAún no tengo IA real, sólo reglas lógicas. En el futuro habrá modo IA con API key.";
-};
-const sendMessage = function() {
+;
+const sendMessage = async function() {
 const q = input.trim();
-if (!q) return;
+if (!q || loading) return;
 const userMsg = { role: "user", text: q, ts: Date.now() };
-const reply = analyze(q);
-const botMsg = { role: "assistant", text: reply, ts: Date.now() + 1 };
-setMessages(messages.concat([userMsg, botMsg]));
+setMessages(function(prev) { return prev.concat([userMsg]); });
 setInput("");
+setLoading(true);
+try {
+  const apiKey = await getGeminiKey();
+  if (!apiKey) throw new Error("Sin clave Gemini");
+  const ctx = buildContext();
+  const systemPrompt = "Eres el asistente financiero de Mebistium. Eres conciso, directo y práctico. " +
+    "Respondes siempre en español. Sin emojis. Analizas los datos reales del usuario y das consejos específicos.\n\n" + ctx;
+  const history = messages.slice(1).map(function(m) {
+    return { role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.text }] };
+  });
+  history.push({ role: "user", parts: [{ text: q }] });
+  const res = await fetch(
+    "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + apiKey,
+    { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ system_instruction: { parts: [{ text: systemPrompt }] }, contents: history, generationConfig: { temperature: 0.4, maxOutputTokens: 1024 } }) }
+  );
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error ? e.error.message : "Error " + res.status); }
+  const data = await res.json();
+  const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : "Sin respuesta";
+  setMessages(function(prev) { return prev.concat([{ role: "assistant", text, ts: Date.now() }]); });
+} catch(e) {
+  setMessages(function(prev) { return prev.concat([{ role: "assistant", text: "Error: " + (e.message || "Inténtalo de nuevo"), ts: Date.now() }]); });
+}
+setLoading(false);
 };
 const clearChat = function() {
 if (!confirm("¿Borrar el historial de chat?")) return;
@@ -13215,7 +13520,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v28.3",
+children: "v28.5",
 }),
 ],
 }),
@@ -13242,7 +13547,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v28.3",
+children: "v28.5",
 });
 }
 

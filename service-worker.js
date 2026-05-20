@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mebistium-v28-3';
+const CACHE_NAME = 'mebistium-v28-5';
 
 const urlsToCache = [
   './',
