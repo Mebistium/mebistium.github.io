@@ -23,3 +23,5 @@ html[style*="--app-font"] .page-header,
 html[style*="--app-font"] .font-serif {
   font-family: var(--app-font) !important;
 }
+
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
