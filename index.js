@@ -3885,26 +3885,19 @@ function GymInicio({ routines, logs, uid, onStart, setTab }) {
     return d.jsxs('svg', {
       viewBox: '0 0 180 200', width: '100%', style: { maxWidth: 220, margin: '0 auto', display: 'block' },
       children: [
-        // Silueta base (cuerpo completo)
-        d.jsxs('g', { opacity: 0.12, children: [
-          // Cabeza
-          d.jsx('circle', { cx: 90, cy: 24, r: 14, fill: '#fff' }),
-          // Cuello
-          d.jsx('rect', { x: 85, y: 36, width: 10, height: 8, rx: 3, fill: '#fff' }),
-          // Torso
-          d.jsx('path', { d: 'M 66 44 Q 60 70 62 112 Q 90 120 118 112 Q 120 70 114 44 Z', fill: '#fff' }),
-          // Brazos
-          d.jsx('path', { d: 'M 66 44 Q 55 50 50 90 Q 52 100 58 98 Q 68 60 78 58 Z', fill: '#fff' }),
-          d.jsx('path', { d: 'M 114 44 Q 125 50 130 90 Q 128 100 122 98 Q 112 60 102 58 Z', fill: '#fff' }),
-          // Manos
-          d.jsx('ellipse', { cx: 52, cy: 100, rx: 6, ry: 8, fill: '#fff' }),
-          d.jsx('ellipse', { cx: 128, cy: 100, rx: 6, ry: 8, fill: '#fff' }),
-          // Piernas
-          d.jsx('path', { d: 'M 62 112 Q 60 150 62 182 Q 68 188 76 186 Q 80 150 82 118 Z', fill: '#fff' }),
-          d.jsx('path', { d: 'M 118 112 Q 120 150 118 182 Q 112 188 104 186 Q 100 150 98 118 Z', fill: '#fff' }),
-          // Pies
-          d.jsx('ellipse', { cx: 69, cy: 185, rx: 9, ry: 5, fill: '#fff' }),
-          d.jsx('ellipse', { cx: 111, cy: 185, rx: 9, ry: 5, fill: '#fff' }),
+        // Silueta base — contorno visible en cualquier tema
+        d.jsxs('g', { fill: 'none', stroke: GYM_RED, strokeWidth: 0.8, strokeOpacity: 0.25, children: [
+          d.jsx('circle', { cx: 90, cy: 24, r: 14, fill: 'rgba(100,116,139,0.08)', strokeOpacity: 0.3 }),
+          d.jsx('rect', { x: 85, y: 36, width: 10, height: 8, rx: 3, fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('path', { d: 'M 66 44 Q 60 70 62 112 Q 90 120 118 112 Q 120 70 114 44 Z', fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('path', { d: 'M 66 44 Q 55 50 50 90 Q 52 100 58 98 Q 68 60 78 58 Z', fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('path', { d: 'M 114 44 Q 125 50 130 90 Q 128 100 122 98 Q 112 60 102 58 Z', fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('ellipse', { cx: 52, cy: 100, rx: 6, ry: 8, fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('ellipse', { cx: 128, cy: 100, rx: 6, ry: 8, fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('path', { d: 'M 62 112 Q 60 150 62 182 Q 68 188 76 186 Q 80 150 82 118 Z', fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('path', { d: 'M 118 112 Q 120 150 118 182 Q 112 188 104 186 Q 100 150 98 118 Z', fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('ellipse', { cx: 69, cy: 185, rx: 9, ry: 5, fill: 'rgba(100,116,139,0.08)' }),
+          d.jsx('ellipse', { cx: 111, cy: 185, rx: 9, ry: 5, fill: 'rgba(100,116,139,0.08)' }),
         ] }),
 
         // Músculos con intensidad
@@ -4762,7 +4755,7 @@ function GymIA({ logs, routines }) {
       const sys='Eres un entrenador personal experto integrado en Mebistium. Directo, técnico, motivador. Español siempre. Sin emojis.\n\n'+buildCtx();
       const hist=messages.slice(1).map(function(m){return {role:m.role==='assistant'?'model':'user',parts:[{text:m.text}]};});
       hist.push({role:'user',parts:[{text:q}]});
-      const res=await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sys}]},contents:hist,generationConfig:{temperature:0.5,maxOutputTokens:1024}})});
+      const res=await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:hist,generationConfig:{temperature:0.5,maxOutputTokens:1024}})});
       if(!res.ok){const e=await res.json();throw new Error(e.error?e.error.message:'Error '+res.status);}
       const data=await res.json();
       const text=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]?data.candidates[0].content.parts[0].text:'Sin respuesta';
@@ -12158,7 +12151,7 @@ try {
   const res = await fetch(
     "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + apiKey,
     { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ system_instruction: { parts: [{ text: systemPrompt }] }, contents: history, generationConfig: { temperature: 0.4, maxOutputTokens: 1024 } }) }
+      body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents: history, generationConfig: { temperature: 0.4, maxOutputTokens: 1024 } }) }
   );
   if (!res.ok) { const e = await res.json(); throw new Error(e.error ? e.error.message : "Error " + res.status); }
   const data = await res.json();
@@ -17812,14 +17805,15 @@ function NotebookEditor(props) {
       // ── Canvas ───────────────────────────────────────────────────────────
       d.jsxs('div', {
         ref: wrapRef,
-        style: { flex: 1, position: 'relative', overflow: 'hidden' },
+        style: { flex: 1, position: 'relative', overflow: 'hidden', background: isDark ? '#0f172a' : '#dde3ed' },
         children: [
           // Dry canvas
-          d.jsx('canvas', { ref: dryRef, style: { position: 'absolute', top: 0, left: 0, zIndex: 2 } }),
+          d.jsx('canvas', { ref: dryRef, style: { position: 'absolute', top: 0, left: 0, zIndex: 2, background: 'transparent' } }),
 
           // Wet canvas (recibe todos los eventos de puntero)
           d.jsx('canvas', {
             ref: wetRef,
+            style: { position: 'absolute', top: 0, left: 0, zIndex: 3, background: 'transparent', touchAction: 'none' },
             onPointerDown: onDown, onPointerMove: onMove, onPointerUp: onUp,
             onPointerLeave: onUp, onPointerCancel: onUp,
             onContextMenu: e => e.preventDefault(),
@@ -18508,7 +18502,7 @@ d.jsx("div",{className:"glass-card overflow-hidden !p-0 rounded-2xl",children:
 d.jsx("canvas",{
 ref:canvasRef,
 className:"w-full touch-none block",
-style:{height:canvasHeight,cursor:tool==="eraser"?"cell":"crosshair",display:"block"},
+style:{height:canvasHeight,cursor:tool==="eraser"?"cell":"crosshair",display:"block",background:"#ffffff",borderRadius:8},
 onMouseDown:startDraw,onMouseMove:draw,onMouseUp:stopDraw,onMouseLeave:stopDraw,
 onTouchStart:startDraw,onTouchMove:draw,onTouchEnd:stopDraw,
 }),
