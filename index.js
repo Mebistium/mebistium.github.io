@@ -3473,6 +3473,66 @@ const GymNavIcon = function(props) {
 const CW=[{path:"/dashboard",icon:tV,label:"Inicio"},{path:"/tasks",icon:wf,label:"Tareas"},{path:"/calendar",icon:yh,label:"Agenda"},{path:"/schedule",icon:Iv,label:"Horario"}];const RE=[{path:"/grades",icon:W5,label:"Calculadora"},{path:"/courses",icon:Sv,label:"Cursos"},{path:"/organizer",icon:na,label:"Organizador"},{path:"/selectividad",icon:ta,label:"Selectividad"},{path:"/pizarra",icon:Av,label:"Pizarra"},{path:"/notes",icon:oV,label:"Apuntes"},{path:"/flashcards",icon:wV,label:"Flashcards"},{path:"/classroom",icon:dV,label:"Clases"}];
 
 // ════════════════════════════════════════════════════════════════════════════
+// REDISEÑO v28.13 — Sistema visual completo
+// Principios: consistencia con el resto de la app, glassmorphism, tipografía
+// Instrument Serif para títulos, Inter para datos, sin colores hardcoded
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Tokens de diseño del módulo ──────────────────────────────────────────────
+// Reutilizamos variables CSS del sistema en lugar de hardcodear
+
+const GYM_SURFACE   = 'var(--glass-bg)';
+const GYM_BORDER    = 'var(--glass-border)';
+const GYM_SHADOW    = 'var(--shadow-glass)';
+const GYM_SHADOW_SM = '0 2px 8px rgba(0,0,0,0.06)';
+const GYM_RADIUS    = '1rem';
+const GYM_RADIUS_SM = '0.75rem';
+
+// ── GymCard — contenedor glassmorphism consistente con el sistema ─────────────
+const GymCard = function(props) {
+  return d.jsx('div', {
+    className: props.className || '',
+    style: Object.assign({
+      background: GYM_SURFACE,
+      border: '1px solid ' + GYM_BORDER,
+      borderRadius: GYM_RADIUS,
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      boxShadow: GYM_SHADOW,
+      overflow: 'hidden',
+    }, props.style),
+    children: props.children,
+  });
+};
+
+// ── GymStatPill — stat individual con acento de color ─────────────────────────
+const GymStatPill = function({ label, value, unit, color, sub }) {
+  return d.jsxs('div', {
+    style: {
+      background: GYM_SURFACE,
+      border: '1px solid ' + GYM_BORDER,
+      borderRadius: GYM_RADIUS,
+      backdropFilter: 'blur(16px)',
+      padding: '12px 10px',
+      textAlign: 'center',
+      position: 'relative',
+      overflow: 'hidden',
+    },
+    children: [
+      // Acento de color en la parte superior
+      d.jsx('div', { style: { position: 'absolute', top: 0, left: '20%', right: '20%', height: 2, borderRadius: '0 0 2px 2px', background: color } }),
+      d.jsxs('p', {
+        style: { fontSize: 22, fontWeight: 800, color: color, lineHeight: 1, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' },
+        children: [value, unit && d.jsx('span', { style: { fontSize: 11, fontWeight: 500, marginLeft: 1, opacity: 0.75 }, children: unit })],
+      }),
+      sub && d.jsx('p', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))', fontWeight: 600, marginTop: 1, lineHeight: 1 }, children: sub }),
+      d.jsx('p', { style: { fontSize: 8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'hsl(var(--muted-foreground))', marginTop: 3 }, children: label }),
+    ],
+  });
+};
+
+
+// ════════════════════════════════════════════════════════════════════════════
 // GIMNASIO v28.6 — Rediseño completo
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -3568,10 +3628,12 @@ function GymBottomNav({ tab, setTab }) {
   return d.jsx('nav', {
     style: {
       position: 'fixed', bottom: 0, left: 0, right: 0,
-      background: 'rgba(15,23,42,0.96)',
-      backdropFilter: 'blur(20px)',
-      borderTop: '1px solid rgba(225,29,72,0.15)',
-      padding: '6px 0 10px',
+      background: 'var(--glass-bg)',
+      backdropFilter: 'blur(24px)',
+      WebkitBackdropFilter: 'blur(24px)',
+      borderTop: '1px solid var(--glass-border)',
+      boxShadow: '0 -4px 24px rgba(0,0,0,0.08)',
+      padding: '6px 4px 10px',
       display: 'flex', justifyContent: 'space-around',
       zIndex: 50,
     },
@@ -3583,22 +3645,30 @@ function GymBottomNav({ tab, setTab }) {
         style: {
           flex: 1, background: 'none', border: 'none', cursor: 'pointer',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-          padding: '4px 2px',
+          padding: '4px 2px', transition: 'transform 0.15s',
         },
         children: [
-          d.jsx('div', {
+          d.jsxs('div', {
             style: {
-              width: 38, height: 30, borderRadius: 10,
-              background: active ? GYM_RED_SOFT : 'transparent',
+              width: 40, height: 28, borderRadius: 10, position: 'relative',
+              background: active ? GYM_RED + '18' : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
+              transition: 'background 0.2s',
             },
-            children: d.jsx(GymIcon, { icon: it.icon, size: 20, color: active ? GYM_RED : '#475569', sw: active ? 2.5 : 1.8 }),
+            children: [
+              d.jsx(GymIcon, { icon: it.icon, size: 19, color: active ? GYM_RED : 'hsl(var(--muted-foreground))', sw: active ? 2.5 : 1.8 }),
+              // Dot indicator
+              active && d.jsx('div', {
+                style: { position:'absolute', bottom: -3, left:'50%', transform:'translateX(-50%)', width: 4, height: 4, borderRadius: '50%', background: GYM_RED },
+              }),
+            ],
           }),
           d.jsx('span', {
             style: {
-              fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em',
-              color: active ? GYM_RED : '#475569',
+              fontSize: 8.5, fontWeight: active ? 700 : 500,
+              letterSpacing: '0.03em',
+              color: active ? GYM_RED : 'hsl(var(--muted-foreground))',
+              transition: 'color 0.2s',
             },
             children: it.label,
           }),
@@ -3774,39 +3844,33 @@ function GymInicio({ routines, logs, uid, onStart, setTab }) {
       ],
     }),
 
-    // ── Stats 4 columnas ────────────────────────────────────────────────
+    // ── Stats ─────────────────────────────────────────────────────────
     d.jsx('div', {
       style: { display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 6 },
       children: [
-        { label: streak>=30?'RACHA ':streak>=7?'Racha ':streak>=3?'Racha':'Racha',
-          value: streak,
-          unit: 'd',
-          color: streak>=30?'#f59e0b':streak>=7?GYM_RED:streak>=3?GYM_RED:'hsl(var(--muted-foreground))',
-          extra: streak>=30?'🔥🔥🔥':streak>=14?'🔥🔥':streak>=7?'🔥':'',
-        },
-        { label: 'Semana',  value: weekLogs.length,    unit: 'ses',  color: '#7c3aed' },
-        { label: 'Volumen', value: weekVol>=1000?(weekVol/1000).toFixed(1)+'k':weekVol, unit: 'kg', color: '#0891b2' },
-        { label: 'Total',    value: logs.length,  unit: 'ses',  color: '#d97706' },
-        { label: 'Racha max', value: maxStreak,   unit: 'd',    color: '#0891b2' },
-      ].map(function(s, i) {
-        return d.jsxs('div', {
-          key: i,
-          className: 'glass-card p-3',
-          style: { textAlign: 'center' },
-          children: [
-            d.jsxs('p', { style: { fontSize: 20, fontWeight: 800, color: s.color, lineHeight: 1, letterSpacing: '-0.02em' }, children: [s.value, s.extra?d.jsx('span',{style:{fontSize:10,marginLeft:2},children:s.extra}):null] }),
-            d.jsx('p', { style: { fontSize: 9, fontWeight: 700, color: 'hsl(var(--muted-foreground))', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }, children: s.label }),
-          ],
-        });
-      }),
+        d.jsx(GymStatPill, { key:0, label:'Racha', value:streak, unit:'d',
+          color: streak>=30?'#f59e0b':streak>=7?GYM_RED:'hsl(var(--muted-foreground))',
+          sub: streak>=30?'🔥🔥🔥':streak>=14?'🔥🔥':streak>=7?'🔥':null,
+        }),
+        d.jsx(GymStatPill, { key:1, label:'Semana', value:weekLogs.length, unit:'ses', color:'#7c3aed' }),
+        d.jsx(GymStatPill, { key:2, label:'Vol.sem', value:weekVol>=1000?(weekVol/1000).toFixed(1)+'k':weekVol, unit:'kg', color:'hsl(var(--primary))' }),
+        d.jsx(GymStatPill, { key:3, label:'Total', value:logs.length, unit:'ses', color:'#d97706' }),
+        d.jsx(GymStatPill, { key:4, label:'Máx.racha', value:maxStreak, unit:'d', color:'hsl(var(--accent))' }),
+      ],
     }),
 
     // ── Músculo pendiente esta semana ──────────────────────────────────────
     weakMuscleToday && !trainedToday && d.jsxs('div',{
-      style:{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',borderRadius:12,background:weakMuscleToday.color+'14',border:'1px solid '+weakMuscleToday.color+'33'},
+      className:'glass-card',
+      style:{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',borderLeft:'3px solid '+weakMuscleToday.color},
       children:[
-        d.jsx('div',{style:{width:8,height:8,borderRadius:'50%',background:weakMuscleToday.color,flexShrink:0}}),
-        d.jsxs('p',{style:{fontSize:12,fontWeight:600,color:'hsl(var(--foreground))'},children:[weakMuscleToday.label+' — menos trabajado esta semana']}),
+        d.jsx('div',{style:{width:28,height:28,borderRadius:8,background:weakMuscleToday.color+'18',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0},children:
+          d.jsx(GymIcon,{icon:'target',size:14,color:weakMuscleToday.color}),
+        }),
+        d.jsxs('div',{children:[
+          d.jsx('p',{style:{fontSize:11,fontWeight:700,color:weakMuscleToday.color,textTransform:'uppercase',letterSpacing:'0.06em'},children:'Trabajo pendiente'}),
+          d.jsxs('p',{style:{fontSize:12,fontWeight:600,color:'hsl(var(--foreground))'},children:[weakMuscleToday.label,' — el menos trabajado esta semana']}),
+        ]}),
       ],
     }),
 
@@ -3829,7 +3893,7 @@ function GymInicio({ routines, logs, uid, onStart, setTab }) {
         ] }),
         !trainedToday && d.jsx('button', {
           onClick: function(){ onStart(todayRoutine); },
-          style: { width:'100%', padding:'12px 18px', background:'rgba(0,0,0,0.2)', border:'none', borderTop:'1px solid rgba(255,255,255,0.12)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', textAlign:'left', display:'flex', alignItems:'center', justifyContent:'space-between' },
+          style: { width:'100%', padding:'14px 18px', background:'rgba(0,0,0,0.15)', border:'none', borderTop:'1px solid rgba(255,255,255,0.1)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', textAlign:'left', display:'flex', alignItems:'center', justifyContent:'space-between', letterSpacing:'0.01em' },
           children: [
             'Empezar ahora',
             d.jsx(GymIcon, { icon:'back', size:16, color:'#fff', sw:2.5, style:{transform:'rotate(180deg)'} }),
@@ -3870,7 +3934,8 @@ function GymInicio({ routines, logs, uid, onStart, setTab }) {
       if(!top)return null;
       return d.jsxs(Y.div,{
         initial:{opacity:0,scale:0.96},animate:{opacity:1,scale:1},transition:{delay:0.15},
-        style:{borderRadius:16,padding:'16px 18px',background:'linear-gradient(135deg,rgba(251,191,36,0.08),rgba(245,158,11,0.04))',border:'1px solid rgba(251,191,36,0.2)',display:'flex',alignItems:'center',justifyContent:'space-between'},
+        className:'glass-card',
+      style:{padding:'16px 18px',borderLeft:'3px solid #f59e0b',display:'flex',alignItems:'center',justifyContent:'space-between'},
         children:[
           d.jsxs('div',{children:[
             d.jsx('p',{style:{fontSize:10,fontWeight:700,color:'#f59e0b',textTransform:'uppercase',letterSpacing:'0.1em'},children:'Tu mejor récord'}),
@@ -3933,7 +3998,7 @@ function GymInicio({ routines, logs, uid, onStart, setTab }) {
           const vol=(log.sets||[]).reduce(function(a,s){return a+(s.weight||0)*(s.reps||0);},0);
           return d.jsxs(Y.div,{
             key:log.id||i, initial:{opacity:0,x:-6}, animate:{opacity:1,x:0}, transition:{delay:i*0.05},
-            className:'glass-card px-4 py-3',
+            className:'glass-card',
             style:{display:'flex',alignItems:'center',justifyContent:'space-between'},
             children:[
               d.jsxs('div',{children:[
@@ -3997,7 +4062,7 @@ function GymPlan({ routines, logs, onStart }) {
               // Día
               d.jsxs('div',{style:{width:44,flexShrink:0,textAlign:'center'},children:[
                 d.jsx('p',{style:{fontSize:11,fontWeight:700,color:isToday?GYM_RED:isPast?'hsl(var(--muted-foreground))':'hsl(var(--foreground))',textTransform:'uppercase',letterSpacing:'0.06em'},children:dayLabel}),
-                d.jsx('p',{style:{fontSize:18,fontWeight:800,color:isToday?GYM_RED:isPast?'hsl(var(--muted-foreground))':'hsl(var(--foreground))',lineHeight:1},children:new Date(date+'T12:00').getDate()}),
+                d.jsx('p',{style:{fontSize:isToday?22:18,fontWeight:900,color:isToday?GYM_RED:isPast?'hsl(var(--muted-foreground))':'hsl(var(--foreground))',lineHeight:1,transition:'font-size 0.2s'},children:new Date(date+'T12:00').getDate()}),
               ]}),
               // Separador
               d.jsx('div',{style:{width:1,height:36,background:'var(--glass-border)',flexShrink:0}}),
@@ -4047,9 +4112,9 @@ function GymEntrenos({ logs, routines, weightLog }) {
   const paged = logs.slice(page*PER,(page+1)*PER);
 
   return d.jsxs('div',{className:'space-y-4',children:[
-    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
+    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},style:{marginBottom:4},children:[
       d.jsx('h1',{className:'page-header',children:'Historial'}),
-      d.jsx('p',{className:'page-subtitle',children:logs.length+' sesiones registradas'}),
+      d.jsxs('p',{className:'page-subtitle',children:[logs.length,' sesiones · ',Math.round(logs.reduce(function(a,l){return a+(l.durationMin||0);},0)/60),' h totales']}),
     ]}),
 
     // Resumen rápido
@@ -4614,7 +4679,7 @@ function GymAjustes({ logs, uid, weightLog }) {
 
     d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
       d.jsx('h1',{className:'page-header',children:'Ajustes'}),
-      d.jsx('p',{className:'page-subtitle',children:'Rutinas, seguimiento y configuración'}),
+      d.jsx('p',{className:'page-subtitle',children:'Rutinas, composición corporal y herramientas'}),
     ]}),
 
     // Rutinas
@@ -4995,8 +5060,8 @@ function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
     ]}),
 
     // Barra de progreso
-    d.jsx('div',{style:{height:3,background:'rgba(255,255,255,0.06)',flexShrink:0},children:
-      d.jsx('div',{style:{height:'100%',background:GYM_RED,width:(progress*100)+'%',transition:'width 0.3s'}}),
+    d.jsx('div',{style:{height:4,background:'rgba(255,255,255,0.06)',flexShrink:0},children:
+      d.jsx('div',{style:{height:'100%',background:'linear-gradient(90deg,'+GYM_RED+',#f97316)',width:(progress*100)+'%',transition:'width 0.5s ease',borderRadius:'0 2px 2px 0'}}),
     }),
 
     // Rest timer — overlay visual
@@ -5013,7 +5078,7 @@ function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
           }),
         ]}),
         d.jsxs('div',{style:{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',textAlign:'center'},children:[
-          d.jsx('p',{style:{fontSize:52,fontWeight:900,color:'#f1f5f9',fontVariantNumeric:'tabular-nums',lineHeight:1},children:fmt(restTime)}),
+          d.jsx('p',{style:{fontSize:56,fontWeight:900,color:'#f1f5f9',fontVariantNumeric:'tabular-nums',lineHeight:1,letterSpacing:'-0.04em'},children:fmt(restTime)}),
           d.jsx('p',{style:{fontSize:11,color:'#475569',marginTop:4},children:'segundos'},),
         ]}),
         d.jsxs('div',{style:{display:'flex',gap:12,marginTop:8},children:[
@@ -5037,7 +5102,7 @@ function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
     d.jsxs('div',{style:{flex:1,overflowY:'auto',padding:'16px'},children:[
       curEx && d.jsxs('div',{children:[
         d.jsxs('div',{style:{marginBottom:12},children:[
-          d.jsx('h2',{style:{fontSize:22,fontWeight:700,color:'#f1f5f9',fontFamily:'var(--font-serif)',margin:0},children:curEx.name}),
+          d.jsx('h2',{style:{fontSize:26,fontWeight:400,color:'#f1f5f9',fontFamily:'var(--font-serif)',margin:0,letterSpacing:'-0.01em',lineHeight:1.1},children:curEx.name}),
           d.jsxs('p',{style:{fontSize:12,color:GYM_RED,fontWeight:600,marginTop:3},children:[
             (function(){const mg=MUSCLE_GROUPS.find(function(m){return m.id===curEx.muscleGroup;});return mg?mg.label:curEx.muscleGroup;})(),
             curEx.note?' · '+curEx.note:'',
@@ -5082,8 +5147,8 @@ function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
           curSets.map(function(set,si){
             return d.jsxs('div',{key:si,style:{display:'grid',gridTemplateColumns:'28px 1fr 1fr 60px 36px',gap:6,alignItems:'center',background:set.done?'rgba(22,163,74,0.1)':'rgba(255,255,255,0.04)',borderRadius:10,padding:'7px 4px',border:set.done?'1px solid rgba(22,163,74,0.2)':'1px solid rgba(255,255,255,0.05)',transition:'all 0.2s'},children:[
               d.jsx('span',{style:{fontSize:11,fontWeight:700,color:'#475569',textAlign:'center'},children:si+1}),
-              d.jsx('input',{type:'number',value:set.weight,min:0,step:0.5,onChange:function(e){updateSet(si,'weight',e.target.value);},style:{height:38,borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',background:'rgba(255,255,255,0.06)',color:'#f1f5f9',textAlign:'center',fontSize:15,fontWeight:700,outline:'none',width:'100%',fontVariantNumeric:'tabular-nums'}}),
-              d.jsx('input',{type:'number',value:set.reps,min:1,onChange:function(e){updateSet(si,'reps',e.target.value);},style:{height:38,borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',background:'rgba(255,255,255,0.06)',color:'#f1f5f9',textAlign:'center',fontSize:15,fontWeight:700,outline:'none',width:'100%',fontVariantNumeric:'tabular-nums'}}),
+              d.jsx('input',{type:'number',value:set.weight,min:0,step:0.5,onChange:function(e){updateSet(si,'weight',e.target.value);},style:{height:40,borderRadius:10,border:'1px solid rgba(255,255,255,0.10)',background:'rgba(255,255,255,0.07)',color:'#f1f5f9',textAlign:'center',fontSize:16,fontWeight:700,outline:'none',width:'100%',fontVariantNumeric:'tabular-nums',letterSpacing:'-0.01em'}}),
+              d.jsx('input',{type:'number',value:set.reps,min:1,onChange:function(e){updateSet(si,'reps',e.target.value);},style:{height:40,borderRadius:10,border:'1px solid rgba(255,255,255,0.10)',background:'rgba(255,255,255,0.07)',color:'#f1f5f9',textAlign:'center',fontSize:16,fontWeight:700,outline:'none',width:'100%',fontVariantNumeric:'tabular-nums',letterSpacing:'-0.01em'}}),
               d.jsx('select',{value:set.rpe||'',onChange:function(e){updateSet(si,'rpe',e.target.value);},style:{height:38,borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',background:'rgba(255,255,255,0.06)',color:set.rpe?'#f1f5f9':'#475569',fontSize:12,fontWeight:600,outline:'none',width:'100%',textAlign:'center'},children:[d.jsx('option',{value:'',children:'RPE'}),... [6,6.5,7,7.5,8,8.5,9,9.5,10].map(function(v){return d.jsx('option',{key:v,value:v,children:v});})]}),
               d.jsx('button',{onClick:function(){toggleDone(si);},style:{width:36,height:36,borderRadius:8,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',background:set.done?'rgba(22,163,74,0.2)':'rgba(255,255,255,0.06)',transition:'all 0.2s'},children:d.jsx(GymIcon,{icon:'check',size:16,color:set.done?'#4ade80':'#475569',sw:set.done?2.5:1.8})}),
             ]},si);
@@ -5690,7 +5755,13 @@ function GymCuerpo({ uid, weightLog }) {
               ] }),
               d.jsx('path', { d: area, fill: 'url(#wGrad)' }),
               d.jsx('path', { d: path, fill: 'none', stroke: '#3b82f6', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }),
-              weightPts.map(function(p, i) { return d.jsx('circle', { key: i, cx: gx(i), cy: gy(p.weight), r: 3, fill: '#3b82f6' }); }),
+              weightPts.map(function(p, i) {
+                const isLast=i===weightPts.length-1;
+                return d.jsxs('g',{key:i,children:[
+                  d.jsx('circle',{cx:gx(i),cy:gy(p.weight),r:isLast?4:2.5,fill:'#3b82f6',opacity:isLast?1:0.7}),
+                  isLast&&d.jsx('text',{x:gx(i)+5,y:gy(p.weight)-4,style:{fontSize:7,fill:'#3b82f6',fontFamily:'var(--font-sans)',fontWeight:700},children:p.weight+'kg'}),
+                ]});
+              }),
             ] }),
           ] });
         })(),
@@ -6865,7 +6936,7 @@ function GymOnboarding({ uid, onComplete }) {
             key:g.id, onClick:function(){setGoal(g.id);},
             style:{width:'100%',padding:'16px',borderRadius:14,border:'2px solid '+(active?GYM_RED:'var(--glass-border)'),background:active?GYM_RED_SOFT:'var(--glass-bg)',cursor:'pointer',display:'flex',alignItems:'center',gap:14,transition:'all 0.2s',textAlign:'left'},
             children:[
-              d.jsx('div',{style:{width:40,height:40,borderRadius:12,background:active?GYM_RED:'rgba(255,255,255,0.05)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0},children:
+              d.jsx('div',{style:{width:44,height:44,borderRadius:14,background:active?GYM_RED:'rgba(0,0,0,0.05)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.2s',boxShadow:active?'0 4px 12px rgba(225,29,72,0.3)':'none'},children:
                 d.jsx(GymIcon,{icon:g.icon,size:20,color:active?'#fff':'hsl(var(--muted-foreground))'}),
               }),
               d.jsxs('div',{children:[
@@ -7037,10 +7108,10 @@ function GymSessionSummary({ log, logs, onDismiss }) {
       // Header
       d.jsxs(Y.div,{initial:{opacity:0,scale:0.9},animate:{opacity:1,scale:1},transition:{delay:0.1},style:{textAlign:'center',marginBottom:32},children:[
         // Icono de trofeo animado
-        d.jsx('div',{style:{width:72,height:72,borderRadius:24,background:'linear-gradient(135deg,'+GYM_RED+',#9f1239)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',boxShadow:'0 8px 32px rgba(225,29,72,0.4)'},children:
+        d.jsx('div',{style:{width:72,height:72,borderRadius:24,background:'linear-gradient(135deg,'+GYM_RED+',#9f1239)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',boxShadow:'0 8px 32px rgba(225,29,72,0.4)',animation:'pulse 2s ease-in-out infinite'},children:
           d.jsx(GymIcon,{icon:'dumbbell',size:32,color:'#fff'}),
         }),
-        d.jsx('h1',{style:{fontSize:28,fontWeight:900,color:'#f1f5f9',fontFamily:'var(--font-serif)',marginBottom:4},children:'Entreno completado'}),
+        d.jsx('h1',{style:{fontSize:30,fontWeight:400,color:'#f1f5f9',fontFamily:'var(--font-serif)',marginBottom:4,letterSpacing:'-0.01em'},children:'Entreno completado'}),
         d.jsx('p',{style:{fontSize:14,color:'#64748b'},children:GymFormatDate(log.date)+' · '+log.routineName}),
       ]}),
 
@@ -15433,7 +15504,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v28.12",
+children: "v28.13",
 }),
 ],
 }),
@@ -15460,7 +15531,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v28.12",
+children: "v28.13",
 });
 }
 
