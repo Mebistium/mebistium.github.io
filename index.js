@@ -3458,333 +3458,1095 @@ This typically indicates that your device does not have a healthy Internet conne
             top: ${l}px !important;
             left: ${c}px !important;
           }
-        `),()=>{document.head.removeChild(h)}},[e]),d.jsx(t$,{isPresent:e,childRef:r,sizeRef:s,children:b.cloneElement(t,{ref:r})})}const r$=({children:t,initial:e,isPresent:n,onExitComplete:r,custom:s,presenceAffectsLayout:i,mode:o})=>{const a=j0(s$),l=b.useId(),c=b.useCallback(f=>{a.set(f,!0);for(const p of a.values())if(!p)return;r&&r()},[a,r]),h=b.useMemo(()=>({id:l,initial:e,isPresent:n,custom:s,onExitComplete:c,register:f=>(a.set(f,!1),()=>a.delete(f))}),i?[Math.random(),c]:[n,c]);return b.useMemo(()=>{a.forEach((f,p)=>a.set(p,!1))},[n]),b.useEffect(()=>{!n&&!a.size&&r&&r()},[n]),o==="popLayout"&&(t=d.jsx(n$,{isPresent:n,children:t})),d.jsx(Hf.Provider,{value:h,children:t})};function s$(){return new Map}function TP(t=!0){const e=b.useContext(Hf);if(e===null)return[!0,null];const{isPresent:n,onExitComplete:r,register:s}=e,i=b.useId();b.useEffect(()=>{t&&s(i)},[t]);const o=b.useCallback(()=>t&&r&&r(i),[i,r,t]);return!n&&r?[!1,o]:[!0]}const ud=t=>t.key||"";function gb(t){const e=[];return b.Children.forEach(t,n=>{b.isValidElement(n)&&e.push(n)}),e}const M0=typeof window<"u",SP=M0?b.useLayoutEffect:b.useEffect,Nr=({children:t,custom:e,initial:n=!0,onExitComplete:r,presenceAffectsLayout:s=!0,mode:i="sync",propagate:o=!1})=>{const[a,l]=TP(o),c=b.useMemo(()=>gb(t),[t]),h=o&&!a?[]:c.map(ud),f=b.useRef(!0),p=b.useRef(c),m=j0(()=>new Map),[E,w]=b.useState(c),[v,y]=b.useState(c);SP(()=>{f.current=!1,p.current=c;for(let D=0;D<v.length;D++){const j=ud(v[D]);h.includes(j)?m.delete(j):m.get(j)!==!0&&m.set(j,!1)}},[v,h.length,h.join("-")]);const x=[];if(c!==E){let D=[...c];for(let j=0;j<v.length;j++){const N=v[j],I=ud(N);h.includes(I)||(D.splice(j,0,N),x.push(N))}i==="wait"&&x.length&&(D=x),y(gb(D)),w(c);return}const{forceRender:S}=b.useContext(R0);return d.jsx(d.Fragment,{children:v.map(D=>{const j=ud(D),N=o&&!a?!1:c===v||h.includes(j),I=()=>{if(m.has(j))m.set(j,!0);else return;let T=!0;m.forEach(C=>{C||(T=!1)}),T&&(S==null||S(),y(p.current),o&&(l==null||l()),r&&r())};return d.jsx(r$,{isPresent:N,initial:!f.current||n?void 0:!1,custom:N?void 0:e,presenceAffectsLayout:s,mode:i,onExitComplete:N?void 0:I,children:D},j)})})},pn=t=>t;let sy=pn;function V0(t){let e;return()=>(e===void 0&&(e=t()),e)}const Va=(t,e,n)=>{const r=e-t;return r===0?1:(n-t)/r},qr=t=>t*1e3,Kr=t=>t/1e3,i$={skipAnimations:!1,useManualTiming:!1};function o$(t){let e=new Set,n=new Set,r=!1,s=!1;const i=new WeakSet;let o={delta:0,timestamp:0,isProcessing:!1};function a(c){i.has(c)&&(l.schedule(c),t()),c(o)}const l={schedule:(c,h=!1,f=!1)=>{const m=f&&r?e:n;return h&&i.add(c),m.has(c)||m.add(c),c},cancel:c=>{n.delete(c),i.delete(c)},process:c=>{if(o=c,r){s=!0;return}r=!0,[e,n]=[n,e],e.forEach(a),e.clear(),r=!1,s&&(s=!1,l.process(c))}};return l}const dd=["read","resolveKeyframes","update","preRender","render","postRender"],a$=40;function CP(t,e){let n=!1,r=!0;const s={delta:0,timestamp:0,isProcessing:!1},i=()=>n=!0,o=dd.reduce((y,x)=>(y[x]=o$(i),y),{}),{read:a,resolveKeyframes:l,update:c,preRender:h,render:f,postRender:p}=o,m=()=>{const y=performance.now();n=!1,s.delta=r?1e3/60:Math.max(Math.min(y-s.timestamp,a$),1),s.timestamp=y,s.isProcessing=!0,a.process(s),l.process(s),c.process(s),h.process(s),f.process(s),p.process(s),s.isProcessing=!1,n&&e&&(r=!1,t(m))},E=()=>{n=!0,r=!0,s.isProcessing||t(m)};return{schedule:dd.reduce((y,x)=>{const S=o[x];return y[x]=(D,j=!1,N=!1)=>(n||E(),S.schedule(D,j,N)),y},{}),cancel:y=>{for(let x=0;x<dd.length;x++)o[dd[x]].cancel(y)},state:s,steps:o}}const{schedule:ze,cancel:hi,state:Tt,steps:am}=CP(typeof requestAnimationFrame<"u"?requestAnimationFrame:pn,!0),IP=b.createContext({strict:!1}),yb={animation:["animate","variants","whileHover","whileTap","exit","whileInView","whileFocus","whileDrag"],exit:["exit"],drag:["drag","dragControls"],focus:["whileFocus"],hover:["whileHover","onHoverStart","onHoverEnd"],tap:["whileTap","onTap","onTapStart","onTapCancel"],pan:["onPan","onPanStart","onPanSessionStart","onPanEnd"],inView:["whileInView","onViewportEnter","onViewportLeave"],layout:["layout","layoutId"]},Oa={};for(const t in yb)Oa[t]={isEnabled:e=>yb[t].some(n=>!!e[n])};function l$(t){for(const e in t)Oa[e]={...Oa[e],...t[e]}}const c$=new Set(["animate","exit","variants","initial","style","values","variants","transition","transformTemplate","custom","inherit","onBeforeLayoutMeasure","onAnimationStart","onAnimationComplete","onUpdate","onDragStart","onDrag","onDragEnd","onMeasureDragConstraints","onDirectionLock","onDragTransitionEnd","_dragX","_dragY","onHoverStart","onHoverEnd","onViewportEnter","onViewportLeave","globalTapTarget","ignoreStrict","viewport"]);function Bh(t){return t.startsWith("while")||t.startsWith("drag")&&t!=="draggable"||t.startsWith("layout")||t.startsWith("onTap")||t.startsWith("onPan")||t.startsWith("onLayout")||c$.has(t)}let AP=t=>!Bh(t);function u$(t){t&&(AP=e=>e.startsWith("on")?!Bh(e):t(e))}try{u$(require("@emotion/is-prop-valid").default)}catch{}function d$(t,e,n){const r={};for(const s in t)s==="values"&&typeof t.values=="object"||(AP(s)||n===!0&&Bh(s)||!e&&!Bh(s)||t.draggable&&s.startsWith("onDrag"))&&(r[s]=t[s]);return r}function h$(t){if(typeof Proxy>"u")return t;const e=new Map,n=(...r)=>t(...r);return new Proxy(n,{get:(r,s)=>s==="create"?t:(e.has(s)||e.set(s,t(s)),e.get(s))})}const Gf=b.createContext({});function zc(t){return typeof t=="string"||Array.isArray(t)}function qf(t){return t!==null&&typeof t=="object"&&typeof t.start=="function"}const O0=["animate","whileInView","whileFocus","whileHover","whileTap","whileDrag","exit"],L0=["initial",...O0];function Kf(t){return qf(t.animate)||L0.some(e=>zc(t[e]))}function PP(t){return!!(Kf(t)||t.variants)}function f$(t,e){if(Kf(t)){const{initial:n,animate:r}=t;return{initial:n===!1||zc(n)?n:void 0,animate:zc(r)?r:void 0}}return t.inherit!==!1?e:{}}function p$(t){const{initial:e,animate:n}=f$(t,b.useContext(Gf));return b.useMemo(()=>({initial:e,animate:n}),[vb(e),vb(n)])}function vb(t){return Array.isArray(t)?t.join(" "):t}const m$=Symbol.for("motionComponentSymbol");function Bo(t){return t&&typeof t=="object"&&Object.prototype.hasOwnProperty.call(t,"current")}function g$(t,e,n){return b.useCallback(r=>{r&&t.onMount&&t.onMount(r),e&&(r?e.mount(r):e.unmount()),n&&(typeof n=="function"?n(r):Bo(n)&&(n.current=r))},[e])}const F0=t=>t.replace(/([a-z])([A-Z])/gu,"$1-$2").toLowerCase(),y$="framerAppearId",kP="data-"+F0(y$),{schedule:U0,cancel:MH}=CP(queueMicrotask,!1),NP=b.createContext({});function v$(t,e,n,r,s){var i,o;const{visualElement:a}=b.useContext(Gf),l=b.useContext(IP),c=b.useContext(Hf),h=b.useContext(D0).reducedMotion,f=b.useRef(null);r=r||l.renderer,!f.current&&r&&(f.current=r(t,{visualState:e,parent:a,props:n,presenceContext:c,blockInitialAnimation:c?c.initial===!1:!1,reducedMotionConfig:h}));const p=f.current,m=b.useContext(NP);p&&!p.projection&&s&&(p.type==="html"||p.type==="svg")&&x$(f.current,n,s,m);const E=b.useRef(!1);b.useInsertionEffect(()=>{p&&E.current&&p.update(n,c)});const w=n[kP],v=b.useRef(!!w&&!(!((i=window.MotionHandoffIsComplete)===null||i===void 0)&&i.call(window,w))&&((o=window.MotionHasOptimisedAnimation)===null||o===void 0?void 0:o.call(window,w)));return SP(()=>{p&&(E.current=!0,window.MotionIsMounted=!0,p.updateFeatures(),U0.render(p.render),v.current&&p.animationState&&p.animationState.animateChanges())}),b.useEffect(()=>{p&&(!v.current&&p.animationState&&p.animationState.animateChanges(),v.current&&(queueMicrotask(()=>{var y;(y=window.MotionHandoffMarkAsComplete)===null||y===void 0||y.call(window,w)}),v.current=!1))}),p}function x$(t,e,n,r){const{layoutId:s,layout:i,drag:o,dragConstraints:a,layoutScroll:l,layoutRoot:c}=e;t.projection=new n(t.latestValues,e["data-framer-portal-id"]?void 0:RP(t.parent)),t.projection.setOptions({layoutId:s,layout:i,alwaysMeasureLayout:!!o||a&&Bo(a),visualElement:t,animationType:typeof i=="string"?i:"both",initialPromotionConfig:r,layoutScroll:l,layoutRoot:c})}function RP(t){if(t)return t.options.allowProjection!==!1?t.projection:RP(t.parent)}function w$({preloadedFeatures:t,createVisualElement:e,useRender:n,useVisualState:r,Component:s}){var i,o;t&&l$(t);function a(c,h){let f;const p={...b.useContext(D0),...c,layoutId:_$(c)},{isStatic:m}=p,E=p$(c),w=r(c,m);if(!m&&M0){b$();const v=E$(p);f=v.MeasureLayout,E.visualElement=v$(s,w,p,e,v.ProjectionNode)}return d.jsxs(Gf.Provider,{value:E,children:[f&&E.visualElement?d.jsx(f,{visualElement:E.visualElement,...p}):null,n(s,c,g$(w,E.visualElement,h),w,m,E.visualElement)]})}a.displayName=`motion.${typeof s=="string"?s:`create(${(o=(i=s.displayName)!==null&&i!==void 0?i:s.name)!==null&&o!==void 0?o:""})`}`;const l=b.forwardRef(a);return l[m$]=s,l}function _$({layoutId:t}){const e=b.useContext(R0).id;return e&&t!==void 0?e+"-"+t:t}function b$(t,e){b.useContext(IP).strict}function E$(t){const{drag:e,layout:n}=Oa;if(!e&&!n)return{};const r={...e,...n};return{MeasureLayout:e!=null&&e.isEnabled(t)||n!=null&&n.isEnabled(t)?r.MeasureLayout:void 0,ProjectionNode:r.ProjectionNode}}const T$=["animate","circle","defs","desc","ellipse","g","image","line","filter","marker","mask","metadata","path","pattern","polygon","polyline","rect","stop","switch","symbol","svg","text","tspan","use","view"];function $0(t){return typeof t!="string"||t.includes("-")?!1:!!(T$.indexOf(t)>-1||/[A-Z]/u.test(t))}function xb(t){const e=[{},{}];return t==null||t.values.forEach((n,r)=>{e[0][r]=n.get(),e[1][r]=n.getVelocity()}),e}function z0(t,e,n,r){if(typeof e=="function"){const[s,i]=xb(r);e=e(n!==void 0?n:t.custom,s,i)}if(typeof e=="string"&&(e=t.variants&&t.variants[e]),typeof e=="function"){const[s,i]=xb(r);e=e(n!==void 0?n:t.custom,s,i)}return e}const iy=t=>Array.isArray(t),S$=t=>!!(t&&typeof t=="object"&&t.mix&&t.toValue),C$=t=>iy(t)?t[t.length-1]||0:t,Ft=t=>!!(t&&t.getVelocity);function zd(t){const e=Ft(t)?t.get():t;return S$(e)?e.toValue():e}function I$({scrapeMotionValuesFromProps:t,createRenderState:e,onUpdate:n},r,s,i){const o={latestValues:A$(r,s,i,t),renderState:e()};return n&&(o.onMount=a=>n({props:r,current:a,...o}),o.onUpdate=a=>n(a)),o}const jP=t=>(e,n)=>{const r=b.useContext(Gf),s=b.useContext(Hf),i=()=>I$(t,e,r,s);return n?i():j0(i)};function A$(t,e,n,r){const s={},i=r(t,{});for(const p in i)s[p]=zd(i[p]);let{initial:o,animate:a}=t;const l=Kf(t),c=PP(t);e&&c&&!l&&t.inherit!==!1&&(o===void 0&&(o=e.initial),a===void 0&&(a=e.animate));let h=n?n.initial===!1:!1;h=h||o===!1;const f=h?a:o;if(f&&typeof f!="boolean"&&!qf(f)){const p=Array.isArray(f)?f:[f];for(let m=0;m<p.length;m++){const E=z0(t,p[m]);if(E){const{transitionEnd:w,transition:v,...y}=E;for(const x in y){let S=y[x];if(Array.isArray(S)){const D=h?S.length-1:0;S=S[D]}S!==null&&(s[x]=S)}for(const x in w)s[x]=w[x]}}}return s}const Ja=["transformPerspective","x","y","z","translateX","translateY","translateZ","scale","scaleX","scaleY","rotate","rotateX","rotateY","rotateZ","skew","skewX","skewY"],wo=new Set(Ja),DP=t=>e=>typeof e=="string"&&e.startsWith(t),MP=DP("--"),P$=DP("var(--"),B0=t=>P$(t)?k$.test(t.split("/*")[0].trim()):!1,k$=/var\(--(?:[\w-]+\s*|[\w-]+\s*,(?:\s*[^)(\s]|\s*\((?:[^)(]|\([^)(]*\))*\))+\s*)\)$/iu,VP=(t,e)=>e&&typeof t=="number"?e.transform(t):t,is=(t,e,n)=>n>e?e:n<t?t:n,Za={test:t=>typeof t=="number",parse:parseFloat,transform:t=>t},Bc={...Za,transform:t=>is(0,1,t)},hd={...Za,default:1},vu=t=>({test:e=>typeof e=="string"&&e.endsWith(t)&&e.split(" ").length===1,parse:parseFloat,transform:e=>`${e}${t}`}),Es=vu("deg"),Cr=vu("%"),he=vu("px"),N$=vu("vh"),R$=vu("vw"),wb={...Cr,parse:t=>Cr.parse(t)/100,transform:t=>Cr.transform(t*100)},j$={borderWidth:he,borderTopWidth:he,borderRightWidth:he,borderBottomWidth:he,borderLeftWidth:he,borderRadius:he,radius:he,borderTopLeftRadius:he,borderTopRightRadius:he,borderBottomRightRadius:he,borderBottomLeftRadius:he,width:he,maxWidth:he,height:he,maxHeight:he,top:he,right:he,bottom:he,left:he,padding:he,paddingTop:he,paddingRight:he,paddingBottom:he,paddingLeft:he,margin:he,marginTop:he,marginRight:he,marginBottom:he,marginLeft:he,backgroundPositionX:he,backgroundPositionY:he},D$={rotate:Es,rotateX:Es,rotateY:Es,rotateZ:Es,scale:hd,scaleX:hd,scaleY:hd,scaleZ:hd,skew:Es,skewX:Es,skewY:Es,distance:he,translateX:he,translateY:he,translateZ:he,x:he,y:he,z:he,perspective:he,transformPerspective:he,opacity:Bc,originX:wb,originY:wb,originZ:he},_b={...Za,transform:Math.round},W0={...j$,...D$,zIndex:_b,size:he,fillOpacity:Bc,strokeOpacity:Bc,numOctaves:_b},M$={x:"translateX",y:"translateY",z:"translateZ",transformPerspective:"perspective"},V$=Ja.length;function O$(t,e,n){let r="",s=!0;for(let i=0;i<V$;i++){const o=Ja[i],a=t[o];if(a===void 0)continue;let l=!0;if(typeof a=="number"?l=a===(o.startsWith("scale")?1:0):l=parseFloat(a)===0,!l||n){const c=VP(a,W0[o]);if(!l){s=!1;const h=M$[o]||o;r+=`${h}(${c}) `}n&&(e[o]=c)}}return r=r.trim(),n?r=n(e,s?"":r):s&&(r="none"),r}function H0(t,e,n){const{style:r,vars:s,transformOrigin:i}=t;let o=!1,a=!1;for(const l in e){const c=e[l];if(wo.has(l)){o=!0;continue}else if(MP(l)){s[l]=c;continue}else{const h=VP(c,W0[l]);l.startsWith("origin")?(a=!0,i[l]=h):r[l]=h}}if(e.transform||(o||n?r.transform=O$(e,t.transform,n):r.transform&&(r.transform="none")),a){const{originX:l="50%",originY:c="50%",originZ:h=0}=i;r.transformOrigin=`${l} ${c} ${h}`}}const L$={offset:"stroke-dashoffset",array:"stroke-dasharray"},F$={offset:"strokeDashoffset",array:"strokeDasharray"};function U$(t,e,n=1,r=0,s=!0){t.pathLength=1;const i=s?L$:F$;t[i.offset]=he.transform(-r);const o=he.transform(e),a=he.transform(n);t[i.array]=`${o} ${a}`}function bb(t,e,n){return typeof t=="string"?t:he.transform(e+n*t)}function $$(t,e,n){const r=bb(e,t.x,t.width),s=bb(n,t.y,t.height);return`${r} ${s}`}function G0(t,{attrX:e,attrY:n,attrScale:r,originX:s,originY:i,pathLength:o,pathSpacing:a=1,pathOffset:l=0,...c},h,f){if(H0(t,c,f),h){t.style.viewBox&&(t.attrs.viewBox=t.style.viewBox);return}t.attrs=t.style,t.style={};const{attrs:p,style:m,dimensions:E}=t;p.transform&&(E&&(m.transform=p.transform),delete p.transform),E&&(s!==void 0||i!==void 0||m.transform)&&(m.transformOrigin=$$(E,s!==void 0?s:.5,i!==void 0?i:.5)),e!==void 0&&(p.x=e),n!==void 0&&(p.y=n),r!==void 0&&(p.scale=r),o!==void 0&&U$(p,o,a,l,!1)}const q0=()=>({style:{},transform:{},transformOrigin:{},vars:{}}),OP=()=>({...q0(),attrs:{}}),K0=t=>typeof t=="string"&&t.toLowerCase()==="svg";function LP(t,{style:e,vars:n},r,s){Object.assign(t.style,e,s&&s.getProjectionStyles(r));for(const i in n)t.style.setProperty(i,n[i])}const FP=new Set(["baseFrequency","diffuseConstant","kernelMatrix","kernelUnitLength","keySplines","keyTimes","limitingConeAngle","markerHeight","markerWidth","numOctaves","targetX","targetY","surfaceScale","specularConstant","specularExponent","stdDeviation","tableValues","viewBox","gradientTransform","pathLength","startOffset","textLength","lengthAdjust"]);function UP(t,e,n,r){LP(t,e,void 0,r);for(const s in e.attrs)t.setAttribute(FP.has(s)?s:F0(s),e.attrs[s])}const Wh={};function z$(t){Object.assign(Wh,t)}function $P(t,{layout:e,layoutId:n}){return wo.has(t)||t.startsWith("origin")||(e||n!==void 0)&&(!!Wh[t]||t==="opacity")}function Q0(t,e,n){var r;const{style:s}=t,i={};for(const o in s)(Ft(s[o])||e.style&&Ft(e.style[o])||$P(o,t)||((r=n==null?void 0:n.getValue(o))===null||r===void 0?void 0:r.liveStyle)!==void 0)&&(i[o]=s[o]);return i}function zP(t,e,n){const r=Q0(t,e,n);for(const s in t)if(Ft(t[s])||Ft(e[s])){const i=Ja.indexOf(s)!==-1?"attr"+s.charAt(0).toUpperCase()+s.substring(1):s;r[i]=t[s]}return r}function B$(t,e){try{e.dimensions=typeof t.getBBox=="function"?t.getBBox():t.getBoundingClientRect()}catch{e.dimensions={x:0,y:0,width:0,height:0}}}const Eb=["x","y","width","height","cx","cy","r"],W$={useVisualState:jP({scrapeMotionValuesFromProps:zP,createRenderState:OP,onUpdate:({props:t,prevProps:e,current:n,renderState:r,latestValues:s})=>{if(!n)return;let i=!!t.drag;if(!i){for(const a in s)if(wo.has(a)){i=!0;break}}if(!i)return;let o=!e;if(e)for(let a=0;a<Eb.length;a++){const l=Eb[a];t[l]!==e[l]&&(o=!0)}o&&ze.read(()=>{B$(n,r),ze.render(()=>{G0(r,s,K0(n.tagName),t.transformTemplate),UP(n,r)})})}})},H$={useVisualState:jP({scrapeMotionValuesFromProps:Q0,createRenderState:q0})};function BP(t,e,n){for(const r in e)!Ft(e[r])&&!$P(r,n)&&(t[r]=e[r])}function G$({transformTemplate:t},e){return b.useMemo(()=>{const n=q0();return H0(n,e,t),Object.assign({},n.vars,n.style)},[e])}function q$(t,e){const n=t.style||{},r={};return BP(r,n,t),Object.assign(r,G$(t,e)),r}function K$(t,e){const n={},r=q$(t,e);return t.drag&&t.dragListener!==!1&&(n.draggable=!1,r.userSelect=r.WebkitUserSelect=r.WebkitTouchCallout="none",r.touchAction=t.drag===!0?"none":`pan-${t.drag==="x"?"y":"x"}`),t.tabIndex===void 0&&(t.onTap||t.onTapStart||t.whileTap)&&(n.tabIndex=0),n.style=r,n}function Q$(t,e,n,r){const s=b.useMemo(()=>{const i=OP();return G0(i,e,K0(r),t.transformTemplate),{...i.attrs,style:{...i.style}}},[e]);if(t.style){const i={};BP(i,t.style,t),s.style={...i,...s.style}}return s}function Y$(t=!1){return(n,r,s,{latestValues:i},o)=>{const l=($0(n)?Q$:K$)(r,i,o,n),c=d$(r,typeof n=="string",t),h=n!==b.Fragment?{...c,...l,ref:s}:{},{children:f}=r,p=b.useMemo(()=>Ft(f)?f.get():f,[f]);return b.createElement(n,{...h,children:p})}}function X$(t,e){return function(r,{forwardMotionProps:s}={forwardMotionProps:!1}){const o={...$0(r)?W$:H$,preloadedFeatures:t,useRender:Y$(s),createVisualElement:e,Component:r};return w$(o)}}function WP(t,e){if(!Array.isArray(e))return!1;const n=e.length;if(n!==t.length)return!1;for(let r=0;r<n;r++)if(e[r]!==t[r])return!1;return!0}function Qf(t,e,n){const r=t.getProps();return z0(r,e,n!==void 0?n:r.custom,t)}const J$=V0(()=>window.ScrollTimeline!==void 0);class Z${constructor(e){this.stop=()=>this.runAll("stop"),this.animations=e.filter(Boolean)}get finished(){return Promise.all(this.animations.map(e=>"finished"in e?e.finished:e))}getAll(e){return this.animations[0][e]}setAll(e,n){for(let r=0;r<this.animations.length;r++)this.animations[r][e]=n}attachTimeline(e,n){const r=this.animations.map(s=>{if(J$()&&s.attachTimeline)return s.attachTimeline(e);if(typeof n=="function")return n(s)});return()=>{r.forEach((s,i)=>{s&&s(),this.animations[i].stop()})}}get time(){return this.getAll("time")}set time(e){this.setAll("time",e)}get speed(){return this.getAll("speed")}set speed(e){this.setAll("speed",e)}get startTime(){return this.getAll("startTime")}get duration(){let e=0;for(let n=0;n<this.animations.length;n++)e=Math.max(e,this.animations[n].duration);return e}runAll(e){this.animations.forEach(n=>n[e]())}flatten(){this.runAll("flatten")}play(){this.runAll("play")}pause(){this.runAll("pause")}cancel(){this.runAll("cancel")}complete(){this.runAll("complete")}}class ez extends Z${then(e,n){return Promise.all(this.animations).then(e).catch(n)}}function Y0(t,e){return t?t[e]||t.default||t:void 0}const oy=2e4;function HP(t){let e=0;const n=50;let r=t.next(e);for(;!r.done&&e<oy;)e+=n,r=t.next(e);return e>=oy?1/0:e}function X0(t){return typeof t=="function"}function Tb(t,e){t.timeline=e,t.onfinish=null}const J0=t=>Array.isArray(t)&&typeof t[0]=="number",tz={linearEasing:void 0};function nz(t,e){const n=V0(t);return()=>{var r;return(r=tz[e])!==null&&r!==void 0?r:n()}}const Hh=nz(()=>{try{document.createElement("div").animate({opacity:0},{easing:"linear(0, 1)"})}catch{return!1}return!0},"linearEasing"),GP=(t,e,n=10)=>{let r="";const s=Math.max(Math.round(e/n),2);for(let i=0;i<s;i++)r+=t(Va(0,s-1,i))+", ";return`linear(${r.substring(0,r.length-2)})`};function qP(t){return!!(typeof t=="function"&&Hh()||!t||typeof t=="string"&&(t in ay||Hh())||J0(t)||Array.isArray(t)&&t.every(qP))}const Bl=([t,e,n,r])=>`cubic-bezier(${t}, ${e}, ${n}, ${r})`,ay={linear:"linear",ease:"ease",easeIn:"ease-in",easeOut:"ease-out",easeInOut:"ease-in-out",circIn:Bl([0,.65,.55,1]),circOut:Bl([.55,0,1,.45]),backIn:Bl([.31,.01,.66,-.59]),backOut:Bl([.33,1.53,.69,.99])};function KP(t,e){if(t)return typeof t=="function"&&Hh()?GP(t,e):J0(t)?Bl(t):Array.isArray(t)?t.map(n=>KP(n,e)||ay.easeOut):ay[t]}const On={x:!1,y:!1};function QP(){return On.x||On.y}function rz(t,e,n){var r;if(t instanceof Element)return[t];if(typeof t=="string"){let s=document;const i=(r=void 0)!==null&&r!==void 0?r:s.querySelectorAll(t);return i?Array.from(i):[]}return Array.from(t)}function YP(t,e){const n=rz(t),r=new AbortController,s={passive:!0,...e,signal:r.signal};return[n,s,()=>r.abort()]}function Sb(t){return e=>{e.pointerType==="touch"||QP()||t(e)}}function sz(t,e,n={}){const[r,s,i]=YP(t,n),o=Sb(a=>{const{target:l}=a,c=e(a);if(typeof c!="function"||!l)return;const h=Sb(f=>{c(f),l.removeEventListener("pointerleave",h)});l.addEventListener("pointerleave",h,s)});return r.forEach(a=>{a.addEventListener("pointerenter",o,s)}),i}const XP=(t,e)=>e?t===e?!0:XP(t,e.parentElement):!1,Z0=t=>t.pointerType==="mouse"?typeof t.button!="number"||t.button<=0:t.isPrimary!==!1,iz=new Set(["BUTTON","INPUT","SELECT","TEXTAREA","A"]);function oz(t){return iz.has(t.tagName)||t.tabIndex!==-1}const Wl=new WeakSet;function Cb(t){return e=>{e.key==="Enter"&&t(e)}}function lm(t,e){t.dispatchEvent(new PointerEvent("pointer"+e,{isPrimary:!0,bubbles:!0}))}const az=(t,e)=>{const n=t.currentTarget;if(!n)return;const r=Cb(()=>{if(Wl.has(n))return;lm(n,"down");const s=Cb(()=>{lm(n,"up")}),i=()=>lm(n,"cancel");n.addEventListener("keyup",s,e),n.addEventListener("blur",i,e)});n.addEventListener("keydown",r,e),n.addEventListener("blur",()=>n.removeEventListener("keydown",r),e)};function Ib(t){return Z0(t)&&!QP()}function lz(t,e,n={}){const[r,s,i]=YP(t,n),o=a=>{const l=a.currentTarget;if(!Ib(a)||Wl.has(l))return;Wl.add(l);const c=e(a),h=(m,E)=>{window.removeEventListener("pointerup",f),window.removeEventListener("pointercancel",p),!(!Ib(m)||!Wl.has(l))&&(Wl.delete(l),typeof c=="function"&&c(m,{success:E}))},f=m=>{h(m,n.useGlobalTarget||XP(l,m.target))},p=m=>{h(m,!1)};window.addEventListener("pointerup",f,s),window.addEventListener("pointercancel",p,s)};return r.forEach(a=>{!oz(a)&&a.getAttribute("tabindex")===null&&(a.tabIndex=0),(n.useGlobalTarget?window:a).addEventListener("pointerdown",o,s),a.addEventListener("focus",c=>az(c,s),s)}),i}function cz(t){return t==="x"||t==="y"?On[t]?null:(On[t]=!0,()=>{On[t]=!1}):On.x||On.y?null:(On.x=On.y=!0,()=>{On.x=On.y=!1})}const JP=new Set(["width","height","top","left","right","bottom",...Ja]);let Bd;function uz(){Bd=void 0}const Ir={now:()=>(Bd===void 0&&Ir.set(Tt.isProcessing||i$.useManualTiming?Tt.timestamp:performance.now()),Bd),set:t=>{Bd=t,queueMicrotask(uz)}};function ex(t,e){t.indexOf(e)===-1&&t.push(e)}function tx(t,e){const n=t.indexOf(e);n>-1&&t.splice(n,1)}class nx{constructor(){this.subscriptions=[]}add(e){return ex(this.subscriptions,e),()=>tx(this.subscriptions,e)}notify(e,n,r){const s=this.subscriptions.length;if(s)if(s===1)this.subscriptions[0](e,n,r);else for(let i=0;i<s;i++){const o=this.subscriptions[i];o&&o(e,n,r)}}getSize(){return this.subscriptions.length}clear(){this.subscriptions.length=0}}function ZP(t,e){return e?t*(1e3/e):0}const Ab=30,dz=t=>!isNaN(parseFloat(t));class hz{constructor(e,n={}){this.version="11.18.2",this.canTrackVelocity=null,this.events={},this.updateAndNotify=(r,s=!0)=>{const i=Ir.now();this.updatedAt!==i&&this.setPrevFrameValue(),this.prev=this.current,this.setCurrent(r),this.current!==this.prev&&this.events.change&&this.events.change.notify(this.current),s&&this.events.renderRequest&&this.events.renderRequest.notify(this.current)},this.hasAnimated=!1,this.setCurrent(e),this.owner=n.owner}setCurrent(e){this.current=e,this.updatedAt=Ir.now(),this.canTrackVelocity===null&&e!==void 0&&(this.canTrackVelocity=dz(this.current))}setPrevFrameValue(e=this.current){this.prevFrameValue=e,this.prevUpdatedAt=this.updatedAt}onChange(e){return this.on("change",e)}on(e,n){this.events[e]||(this.events[e]=new nx);const r=this.events[e].add(n);return e==="change"?()=>{r(),ze.read(()=>{this.events.change.getSize()||this.stop()})}:r}clearListeners(){for(const e in this.events)this.events[e].clear()}attach(e,n){this.passiveEffect=e,this.stopPassiveEffect=n}set(e,n=!0){!n||!this.passiveEffect?this.updateAndNotify(e,n):this.passiveEffect(e,this.updateAndNotify)}setWithVelocity(e,n,r){this.set(n),this.prev=void 0,this.prevFrameValue=e,this.prevUpdatedAt=this.updatedAt-r}jump(e,n=!0){this.updateAndNotify(e),this.prev=e,this.prevUpdatedAt=this.prevFrameValue=void 0,n&&this.stop(),this.stopPassiveEffect&&this.stopPassiveEffect()}get(){return this.current}getPrevious(){return this.prev}getVelocity(){const e=Ir.now();if(!this.canTrackVelocity||this.prevFrameValue===void 0||e-this.updatedAt>Ab)return 0;const n=Math.min(this.updatedAt-this.prevUpdatedAt,Ab);return ZP(parseFloat(this.current)-parseFloat(this.prevFrameValue),n)}start(e){return this.stop(),new Promise(n=>{this.hasAnimated=!0,this.animation=e(n),this.events.animationStart&&this.events.animationStart.notify()}).then(()=>{this.events.animationComplete&&this.events.animationComplete.notify(),this.clearAnimation()})}stop(){this.animation&&(this.animation.stop(),this.events.animationCancel&&this.events.animationCancel.notify()),this.clearAnimation()}isAnimating(){return!!this.animation}clearAnimation(){delete this.animation}destroy(){this.clearListeners(),this.stop(),this.stopPassiveEffect&&this.stopPassiveEffect()}}function Wc(t,e){return new hz(t,e)}function fz(t,e,n){t.hasValue(e)?t.getValue(e).set(n):t.addValue(e,Wc(n))}function pz(t,e){const n=Qf(t,e);let{transitionEnd:r={},transition:s={},...i}=n||{};i={...i,...r};for(const o in i){const a=C$(i[o]);fz(t,o,a)}}function mz(t){return!!(Ft(t)&&t.add)}function ly(t,e){const n=t.getValue("willChange");if(mz(n))return n.add(e)}function ek(t){return t.props[kP]}const tk=(t,e,n)=>(((1-3*n+3*e)*t+(3*n-6*e))*t+3*e)*t,gz=1e-7,yz=12;function vz(t,e,n,r,s){let i,o,a=0;do o=e+(n-e)/2,i=tk(o,r,s)-t,i>0?n=o:e=o;while(Math.abs(i)>gz&&++a<yz);return o}function xu(t,e,n,r){if(t===e&&n===r)return pn;const s=i=>vz(i,0,1,t,n);return i=>i===0||i===1?i:tk(s(i),e,r)}const nk=t=>e=>e<=.5?t(2*e)/2:(2-t(2*(1-e)))/2,rk=t=>e=>1-t(1-e),sk=xu(.33,1.53,.69,.99),rx=rk(sk),ik=nk(rx),ok=t=>(t*=2)<1?.5*rx(t):.5*(2-Math.pow(2,-10*(t-1))),sx=t=>1-Math.sin(Math.acos(t)),ak=rk(sx),lk=nk(sx),ck=t=>/^0[^.\s]+$/u.test(t);function xz(t){return typeof t=="number"?t===0:t!==null?t==="none"||t==="0"||ck(t):!0}const ac=t=>Math.round(t*1e5)/1e5,ix=/-?(?:\d+(?:\.\d+)?|\.\d+)/gu;function wz(t){return t==null}const _z=/^(?:#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\))$/iu,ox=(t,e)=>n=>!!(typeof n=="string"&&_z.test(n)&&n.startsWith(t)||e&&!wz(n)&&Object.prototype.hasOwnProperty.call(n,e)),uk=(t,e,n)=>r=>{if(typeof r!="string")return r;const[s,i,o,a]=r.match(ix);return{[t]:parseFloat(s),[e]:parseFloat(i),[n]:parseFloat(o),alpha:a!==void 0?parseFloat(a):1}},bz=t=>is(0,255,t),cm={...Za,transform:t=>Math.round(bz(t))},Fi={test:ox("rgb","red"),parse:uk("red","green","blue"),transform:({red:t,green:e,blue:n,alpha:r=1})=>"rgba("+cm.transform(t)+", "+cm.transform(e)+", "+cm.transform(n)+", "+ac(Bc.transform(r))+")"};function Ez(t){let e="",n="",r="",s="";return t.length>5?(e=t.substring(1,3),n=t.substring(3,5),r=t.substring(5,7),s=t.substring(7,9)):(e=t.substring(1,2),n=t.substring(2,3),r=t.substring(3,4),s=t.substring(4,5),e+=e,n+=n,r+=r,s+=s),{red:parseInt(e,16),green:parseInt(n,16),blue:parseInt(r,16),alpha:s?parseInt(s,16)/255:1}}const cy={test:ox("#"),parse:Ez,transform:Fi.transform},Wo={test:ox("hsl","hue"),parse:uk("hue","saturation","lightness"),transform:({hue:t,saturation:e,lightness:n,alpha:r=1})=>"hsla("+Math.round(t)+", "+Cr.transform(ac(e))+", "+Cr.transform(ac(n))+", "+ac(Bc.transform(r))+")"},Mt={test:t=>Fi.test(t)||cy.test(t)||Wo.test(t),parse:t=>Fi.test(t)?Fi.parse(t):Wo.test(t)?Wo.parse(t):cy.parse(t),transform:t=>typeof t=="string"?t:t.hasOwnProperty("red")?Fi.transform(t):Wo.transform(t)},Tz=/(?:#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\))/giu;function Sz(t){var e,n;return isNaN(t)&&typeof t=="string"&&(((e=t.match(ix))===null||e===void 0?void 0:e.length)||0)+(((n=t.match(Tz))===null||n===void 0?void 0:n.length)||0)>0}const dk="number",hk="color",Cz="var",Iz="var(",Pb="${}",Az=/var\s*\(\s*--(?:[\w-]+\s*|[\w-]+\s*,(?:\s*[^)(\s]|\s*\((?:[^)(]|\([^)(]*\))*\))+\s*)\)|#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\)|-?(?:\d+(?:\.\d+)?|\.\d+)/giu;function Hc(t){const e=t.toString(),n=[],r={color:[],number:[],var:[]},s=[];let i=0;const a=e.replace(Az,l=>(Mt.test(l)?(r.color.push(i),s.push(hk),n.push(Mt.parse(l))):l.startsWith(Iz)?(r.var.push(i),s.push(Cz),n.push(l)):(r.number.push(i),s.push(dk),n.push(parseFloat(l))),++i,Pb)).split(Pb);return{values:n,split:a,indexes:r,types:s}}function fk(t){return Hc(t).values}function pk(t){const{split:e,types:n}=Hc(t),r=e.length;return s=>{let i="";for(let o=0;o<r;o++)if(i+=e[o],s[o]!==void 0){const a=n[o];a===dk?i+=ac(s[o]):a===hk?i+=Mt.transform(s[o]):i+=s[o]}return i}}const Pz=t=>typeof t=="number"?0:t;function kz(t){const e=fk(t);return pk(t)(e.map(Pz))}const fi={test:Sz,parse:fk,createTransformer:pk,getAnimatableNone:kz},Nz=new Set(["brightness","contrast","saturate","opacity"]);function Rz(t){const[e,n]=t.slice(0,-1).split("(");if(e==="drop-shadow")return t;const[r]=n.match(ix)||[];if(!r)return t;const s=n.replace(r,"");let i=Nz.has(e)?1:0;return r!==n&&(i*=100),e+"("+i+s+")"}const jz=/\b([a-z-]*)\(.*?\)/gu,uy={...fi,getAnimatableNone:t=>{const e=t.match(jz);return e?e.map(Rz).join(" "):t}},Dz={...W0,color:Mt,backgroundColor:Mt,outlineColor:Mt,fill:Mt,stroke:Mt,borderColor:Mt,borderTopColor:Mt,borderRightColor:Mt,borderBottomColor:Mt,borderLeftColor:Mt,filter:uy,WebkitFilter:uy},ax=t=>Dz[t];function mk(t,e){let n=ax(t);return n!==uy&&(n=fi),n.getAnimatableNone?n.getAnimatableNone(e):void 0}const Mz=new Set(["auto","none","0"]);function Vz(t,e,n){let r=0,s;for(;r<t.length&&!s;){const i=t[r];typeof i=="string"&&!Mz.has(i)&&Hc(i).values.length&&(s=t[r]),r++}if(s&&n)for(const i of e)t[i]=mk(n,s)}const kb=t=>t===Za||t===he,Nb=(t,e)=>parseFloat(t.split(", ")[e]),Rb=(t,e)=>(n,{transform:r})=>{if(r==="none"||!r)return 0;const s=r.match(/^matrix3d\((.+)\)$/u);if(s)return Nb(s[1],e);{const i=r.match(/^matrix\((.+)\)$/u);return i?Nb(i[1],t):0}},Oz=new Set(["x","y","z"]),Lz=Ja.filter(t=>!Oz.has(t));function Fz(t){const e=[];return Lz.forEach(n=>{const r=t.getValue(n);r!==void 0&&(e.push([n,r.get()]),r.set(n.startsWith("scale")?1:0))}),e}const La={width:({x:t},{paddingLeft:e="0",paddingRight:n="0"})=>t.max-t.min-parseFloat(e)-parseFloat(n),height:({y:t},{paddingTop:e="0",paddingBottom:n="0"})=>t.max-t.min-parseFloat(e)-parseFloat(n),top:(t,{top:e})=>parseFloat(e),left:(t,{left:e})=>parseFloat(e),bottom:({y:t},{top:e})=>parseFloat(e)+(t.max-t.min),right:({x:t},{left:e})=>parseFloat(e)+(t.max-t.min),x:Rb(4,13),y:Rb(5,14)};La.translateX=La.x;La.translateY=La.y;const Xi=new Set;let dy=!1,hy=!1;function gk(){if(hy){const t=Array.from(Xi).filter(r=>r.needsMeasurement),e=new Set(t.map(r=>r.element)),n=new Map;e.forEach(r=>{const s=Fz(r);s.length&&(n.set(r,s),r.render())}),t.forEach(r=>r.measureInitialState()),e.forEach(r=>{r.render();const s=n.get(r);s&&s.forEach(([i,o])=>{var a;(a=r.getValue(i))===null||a===void 0||a.set(o)})}),t.forEach(r=>r.measureEndState()),t.forEach(r=>{r.suspendedScrollY!==void 0&&window.scrollTo(0,r.suspendedScrollY)})}hy=!1,dy=!1,Xi.forEach(t=>t.complete()),Xi.clear()}function yk(){Xi.forEach(t=>{t.readKeyframes(),t.needsMeasurement&&(hy=!0)})}function Uz(){yk(),gk()}class lx{constructor(e,n,r,s,i,o=!1){this.isComplete=!1,this.isAsync=!1,this.needsMeasurement=!1,this.isScheduled=!1,this.unresolvedKeyframes=[...e],this.onComplete=n,this.name=r,this.motionValue=s,this.element=i,this.isAsync=o}scheduleResolve(){this.isScheduled=!0,this.isAsync?(Xi.add(this),dy||(dy=!0,ze.read(yk),ze.resolveKeyframes(gk))):(this.readKeyframes(),this.complete())}readKeyframes(){const{unresolvedKeyframes:e,name:n,element:r,motionValue:s}=this;for(let i=0;i<e.length;i++)if(e[i]===null)if(i===0){const o=s==null?void 0:s.get(),a=e[e.length-1];if(o!==void 0)e[0]=o;else if(r&&n){const l=r.readValue(n,a);l!=null&&(e[0]=l)}e[0]===void 0&&(e[0]=a),s&&o===void 0&&s.set(e[0])}else e[i]=e[i-1]}setFinalKeyframe(){}measureInitialState(){}renderEndStyles(){}measureEndState(){}complete(){this.isComplete=!0,this.onComplete(this.unresolvedKeyframes,this.finalKeyframe),Xi.delete(this)}cancel(){this.isComplete||(this.isScheduled=!1,Xi.delete(this))}resume(){this.isComplete||this.scheduleResolve()}}const vk=t=>/^-?(?:\d+(?:\.\d+)?|\.\d+)$/u.test(t),$z=/^var\(--(?:([\w-]+)|([\w-]+), ?([a-zA-Z\d ()%#.,-]+))\)/u;function zz(t){const e=$z.exec(t);if(!e)return[,];const[,n,r,s]=e;return[`--${n??r}`,s]}function xk(t,e,n=1){const[r,s]=zz(t);if(!r)return;const i=window.getComputedStyle(e).getPropertyValue(r);if(i){const o=i.trim();return vk(o)?parseFloat(o):o}return B0(s)?xk(s,e,n+1):s}const wk=t=>e=>e.test(t),Bz={test:t=>t==="auto",parse:t=>t},_k=[Za,he,Cr,Es,R$,N$,Bz],jb=t=>_k.find(wk(t));class bk extends lx{constructor(e,n,r,s,i){super(e,n,r,s,i,!0)}readKeyframes(){const{unresolvedKeyframes:e,element:n,name:r}=this;if(!n||!n.current)return;super.readKeyframes();for(let l=0;l<e.length;l++){let c=e[l];if(typeof c=="string"&&(c=c.trim(),B0(c))){const h=xk(c,n.current);h!==void 0&&(e[l]=h),l===e.length-1&&(this.finalKeyframe=c)}}if(this.resolveNoneKeyframes(),!JP.has(r)||e.length!==2)return;const[s,i]=e,o=jb(s),a=jb(i);if(o!==a)if(kb(o)&&kb(a))for(let l=0;l<e.length;l++){const c=e[l];typeof c=="string"&&(e[l]=parseFloat(c))}else this.needsMeasurement=!0}resolveNoneKeyframes(){const{unresolvedKeyframes:e,name:n}=this,r=[];for(let s=0;s<e.length;s++)xz(e[s])&&r.push(s);r.length&&Vz(e,r,n)}measureInitialState(){const{element:e,unresolvedKeyframes:n,name:r}=this;if(!e||!e.current)return;r==="height"&&(this.suspendedScrollY=window.pageYOffset),this.measuredOrigin=La[r](e.measureViewportBox(),window.getComputedStyle(e.current)),n[0]=this.measuredOrigin;const s=n[n.length-1];s!==void 0&&e.getValue(r,s).jump(s,!1)}measureEndState(){var e;const{element:n,name:r,unresolvedKeyframes:s}=this;if(!n||!n.current)return;const i=n.getValue(r);i&&i.jump(this.measuredOrigin,!1);const o=s.length-1,a=s[o];s[o]=La[r](n.measureViewportBox(),window.getComputedStyle(n.current)),a!==null&&this.finalKeyframe===void 0&&(this.finalKeyframe=a),!((e=this.removedTransforms)===null||e===void 0)&&e.length&&this.removedTransforms.forEach(([l,c])=>{n.getValue(l).set(c)}),this.resolveNoneKeyframes()}}const Db=(t,e)=>e==="zIndex"?!1:!!(typeof t=="number"||Array.isArray(t)||typeof t=="string"&&(fi.test(t)||t==="0")&&!t.startsWith("url("));function Wz(t){const e=t[0];if(t.length===1)return!0;for(let n=0;n<t.length;n++)if(t[n]!==e)return!0}function Hz(t,e,n,r){const s=t[0];if(s===null)return!1;if(e==="display"||e==="visibility")return!0;const i=t[t.length-1],o=Db(s,e),a=Db(i,e);return!o||!a?!1:Wz(t)||(n==="spring"||X0(n))&&r}const Gz=t=>t!==null;function Yf(t,{repeat:e,repeatType:n="loop"},r){const s=t.filter(Gz),i=e&&n!=="loop"&&e%2===1?0:s.length-1;return!i||r===void 0?s[i]:r}const qz=40;class Ek{constructor({autoplay:e=!0,delay:n=0,type:r="keyframes",repeat:s=0,repeatDelay:i=0,repeatType:o="loop",...a}){this.isStopped=!1,this.hasAttemptedResolve=!1,this.createdAt=Ir.now(),this.options={autoplay:e,delay:n,type:r,repeat:s,repeatDelay:i,repeatType:o,...a},this.updateFinishedPromise()}calcStartTime(){return this.resolvedAt?this.resolvedAt-this.createdAt>qz?this.resolvedAt:this.createdAt:this.createdAt}get resolved(){return!this._resolved&&!this.hasAttemptedResolve&&Uz(),this._resolved}onKeyframesResolved(e,n){this.resolvedAt=Ir.now(),this.hasAttemptedResolve=!0;const{name:r,type:s,velocity:i,delay:o,onComplete:a,onUpdate:l,isGenerator:c}=this.options;if(!c&&!Hz(e,r,s,i))if(o)this.options.duration=0;else{l&&l(Yf(e,this.options,n)),a&&a(),this.resolveFinishedPromise();return}const h=this.initPlayback(e,n);h!==!1&&(this._resolved={keyframes:e,finalKeyframe:n,...h},this.onPostResolved())}onPostResolved(){}then(e,n){return this.currentFinishedPromise.then(e,n)}flatten(){this.options.type="keyframes",this.options.ease="linear"}updateFinishedPromise(){this.currentFinishedPromise=new Promise(e=>{this.resolveFinishedPromise=e})}}const Ge=(t,e,n)=>t+(e-t)*n;function um(t,e,n){return n<0&&(n+=1),n>1&&(n-=1),n<1/6?t+(e-t)*6*n:n<1/2?e:n<2/3?t+(e-t)*(2/3-n)*6:t}function Kz({hue:t,saturation:e,lightness:n,alpha:r}){t/=360,e/=100,n/=100;let s=0,i=0,o=0;if(!e)s=i=o=n;else{const a=n<.5?n*(1+e):n+e-n*e,l=2*n-a;s=um(l,a,t+1/3),i=um(l,a,t),o=um(l,a,t-1/3)}return{red:Math.round(s*255),green:Math.round(i*255),blue:Math.round(o*255),alpha:r}}function Gh(t,e){return n=>n>0?e:t}const dm=(t,e,n)=>{const r=t*t,s=n*(e*e-r)+r;return s<0?0:Math.sqrt(s)},Qz=[cy,Fi,Wo],Yz=t=>Qz.find(e=>e.test(t));function Mb(t){const e=Yz(t);if(!e)return!1;let n=e.parse(t);return e===Wo&&(n=Kz(n)),n}const Vb=(t,e)=>{const n=Mb(t),r=Mb(e);if(!n||!r)return Gh(t,e);const s={...n};return i=>(s.red=dm(n.red,r.red,i),s.green=dm(n.green,r.green,i),s.blue=dm(n.blue,r.blue,i),s.alpha=Ge(n.alpha,r.alpha,i),Fi.transform(s))},Xz=(t,e)=>n=>e(t(n)),wu=(...t)=>t.reduce(Xz),fy=new Set(["none","hidden"]);function Jz(t,e){return fy.has(t)?n=>n<=0?t:e:n=>n>=1?e:t}function Zz(t,e){return n=>Ge(t,e,n)}function cx(t){return typeof t=="number"?Zz:typeof t=="string"?B0(t)?Gh:Mt.test(t)?Vb:nB:Array.isArray(t)?Tk:typeof t=="object"?Mt.test(t)?Vb:eB:Gh}function Tk(t,e){const n=[...t],r=n.length,s=t.map((i,o)=>cx(i)(i,e[o]));return i=>{for(let o=0;o<r;o++)n[o]=s[o](i);return n}}function eB(t,e){const n={...t,...e},r={};for(const s in n)t[s]!==void 0&&e[s]!==void 0&&(r[s]=cx(t[s])(t[s],e[s]));return s=>{for(const i in r)n[i]=r[i](s);return n}}function tB(t,e){var n;const r=[],s={color:0,var:0,number:0};for(let i=0;i<e.values.length;i++){const o=e.types[i],a=t.indexes[o][s[o]],l=(n=t.values[a])!==null&&n!==void 0?n:0;r[i]=l,s[o]++}return r}const nB=(t,e)=>{const n=fi.createTransformer(e),r=Hc(t),s=Hc(e);return r.indexes.var.length===s.indexes.var.length&&r.indexes.color.length===s.indexes.color.length&&r.indexes.number.length>=s.indexes.number.length?fy.has(t)&&!s.values.length||fy.has(e)&&!r.values.length?Jz(t,e):wu(Tk(tB(r,s),s.values),n):Gh(t,e)};function Sk(t,e,n){return typeof t=="number"&&typeof e=="number"&&typeof n=="number"?Ge(t,e,n):cx(t)(t,e)}const rB=5;function Ck(t,e,n){const r=Math.max(e-rB,0);return ZP(n-t(r),e-r)}const Je={stiffness:100,damping:10,mass:1,velocity:0,duration:800,bounce:.3,visualDuration:.3,restSpeed:{granular:.01,default:2},restDelta:{granular:.005,default:.5},minDuration:.01,maxDuration:10,minDamping:.05,maxDamping:1},hm=.001;function sB({duration:t=Je.duration,bounce:e=Je.bounce,velocity:n=Je.velocity,mass:r=Je.mass}){let s,i,o=1-e;o=is(Je.minDamping,Je.maxDamping,o),t=is(Je.minDuration,Je.maxDuration,Kr(t)),o<1?(s=c=>{const h=c*o,f=h*t,p=h-n,m=py(c,o),E=Math.exp(-f);return hm-p/m*E},i=c=>{const f=c*o*t,p=f*n+n,m=Math.pow(o,2)*Math.pow(c,2)*t,E=Math.exp(-f),w=py(Math.pow(c,2),o);return(-s(c)+hm>0?-1:1)*((p-m)*E)/w}):(s=c=>{const h=Math.exp(-c*t),f=(c-n)*t+1;return-hm+h*f},i=c=>{const h=Math.exp(-c*t),f=(n-c)*(t*t);return h*f});const a=5/t,l=oB(s,i,a);if(t=qr(t),isNaN(l))return{stiffness:Je.stiffness,damping:Je.damping,duration:t};{const c=Math.pow(l,2)*r;return{stiffness:c,damping:o*2*Math.sqrt(r*c),duration:t}}}const iB=12;function oB(t,e,n){let r=n;for(let s=1;s<iB;s++)r=r-t(r)/e(r);return r}function py(t,e){return t*Math.sqrt(1-e*e)}const aB=["duration","bounce"],lB=["stiffness","damping","mass"];function Ob(t,e){return e.some(n=>t[n]!==void 0)}function cB(t){let e={velocity:Je.velocity,stiffness:Je.stiffness,damping:Je.damping,mass:Je.mass,isResolvedFromDuration:!1,...t};if(!Ob(t,lB)&&Ob(t,aB))if(t.visualDuration){const n=t.visualDuration,r=2*Math.PI/(n*1.2),s=r*r,i=2*is(.05,1,1-(t.bounce||0))*Math.sqrt(s);e={...e,mass:Je.mass,stiffness:s,damping:i}}else{const n=sB(t);e={...e,...n,mass:Je.mass},e.isResolvedFromDuration=!0}return e}function Ik(t=Je.visualDuration,e=Je.bounce){const n=typeof t!="object"?{visualDuration:t,keyframes:[0,1],bounce:e}:t;let{restSpeed:r,restDelta:s}=n;const i=n.keyframes[0],o=n.keyframes[n.keyframes.length-1],a={done:!1,value:i},{stiffness:l,damping:c,mass:h,duration:f,velocity:p,isResolvedFromDuration:m}=cB({...n,velocity:-Kr(n.velocity||0)}),E=p||0,w=c/(2*Math.sqrt(l*h)),v=o-i,y=Kr(Math.sqrt(l/h)),x=Math.abs(v)<5;r||(r=x?Je.restSpeed.granular:Je.restSpeed.default),s||(s=x?Je.restDelta.granular:Je.restDelta.default);let S;if(w<1){const j=py(y,w);S=N=>{const I=Math.exp(-w*y*N);return o-I*((E+w*y*v)/j*Math.sin(j*N)+v*Math.cos(j*N))}}else if(w===1)S=j=>o-Math.exp(-y*j)*(v+(E+y*v)*j);else{const j=y*Math.sqrt(w*w-1);S=N=>{const I=Math.exp(-w*y*N),T=Math.min(j*N,300);return o-I*((E+w*y*v)*Math.sinh(T)+j*v*Math.cosh(T))/j}}const D={calculatedDuration:m&&f||null,next:j=>{const N=S(j);if(m)a.done=j>=f;else{let I=0;w<1&&(I=j===0?qr(E):Ck(S,j,N));const T=Math.abs(I)<=r,C=Math.abs(o-N)<=s;a.done=T&&C}return a.value=a.done?o:N,a},toString:()=>{const j=Math.min(HP(D),oy),N=GP(I=>D.next(j*I).value,j,30);return j+"ms "+N}};return D}function Lb({keyframes:t,velocity:e=0,power:n=.8,timeConstant:r=325,bounceDamping:s=10,bounceStiffness:i=500,modifyTarget:o,min:a,max:l,restDelta:c=.5,restSpeed:h}){const f=t[0],p={done:!1,value:f},m=T=>a!==void 0&&T<a||l!==void 0&&T>l,E=T=>a===void 0?l:l===void 0||Math.abs(a-T)<Math.abs(l-T)?a:l;let w=n*e;const v=f+w,y=o===void 0?v:o(v);y!==v&&(w=y-f);const x=T=>-w*Math.exp(-T/r),S=T=>y+x(T),D=T=>{const C=x(T),A=S(T);p.done=Math.abs(C)<=c,p.value=p.done?y:A};let j,N;const I=T=>{m(p.value)&&(j=T,N=Ik({keyframes:[p.value,E(p.value)],velocity:Ck(S,T,p.value),damping:s,stiffness:i,restDelta:c,restSpeed:h}))};return I(0),{calculatedDuration:null,next:T=>{let C=!1;return!N&&j===void 0&&(C=!0,D(T),I(T)),j!==void 0&&T>=j?N.next(T-j):(!C&&D(T),p)}}}const uB=xu(.42,0,1,1),dB=xu(0,0,.58,1),Ak=xu(.42,0,.58,1),hB=t=>Array.isArray(t)&&typeof t[0]!="number",Fb={linear:pn,easeIn:uB,easeInOut:Ak,easeOut:dB,circIn:sx,circInOut:lk,circOut:ak,backIn:rx,backInOut:ik,backOut:sk,anticipate:ok},Ub=t=>{if(J0(t)){sy(t.length===4);const[e,n,r,s]=t;return xu(e,n,r,s)}else if(typeof t=="string")return sy(Fb[t]!==void 0),Fb[t];return t};function fB(t,e,n){const r=[],s=n||Sk,i=t.length-1;for(let o=0;o<i;o++){let a=s(t[o],t[o+1]);if(e){const l=Array.isArray(e)?e[o]||pn:e;a=wu(l,a)}r.push(a)}return r}function pB(t,e,{clamp:n=!0,ease:r,mixer:s}={}){const i=t.length;if(sy(i===e.length),i===1)return()=>e[0];if(i===2&&e[0]===e[1])return()=>e[1];const o=t[0]===t[1];t[0]>t[i-1]&&(t=[...t].reverse(),e=[...e].reverse());const a=fB(e,r,s),l=a.length,c=h=>{if(o&&h<t[0])return e[0];let f=0;if(l>1)for(;f<t.length-2&&!(h<t[f+1]);f++);const p=Va(t[f],t[f+1],h);return a[f](p)};return n?h=>c(is(t[0],t[i-1],h)):c}function mB(t,e){const n=t[t.length-1];for(let r=1;r<=e;r++){const s=Va(0,e,r);t.push(Ge(n,1,s))}}function gB(t){const e=[0];return mB(e,t.length-1),e}function yB(t,e){return t.map(n=>n*e)}function vB(t,e){return t.map(()=>e||Ak).splice(0,t.length-1)}function qh({duration:t=300,keyframes:e,times:n,ease:r="easeInOut"}){const s=hB(r)?r.map(Ub):Ub(r),i={done:!1,value:e[0]},o=yB(n&&n.length===e.length?n:gB(e),t),a=pB(o,e,{ease:Array.isArray(s)?s:vB(e,s)});return{calculatedDuration:t,next:l=>(i.value=a(l),i.done=l>=t,i)}}const xB=t=>{const e=({timestamp:n})=>t(n);return{start:()=>ze.update(e,!0),stop:()=>hi(e),now:()=>Tt.isProcessing?Tt.timestamp:Ir.now()}},wB={decay:Lb,inertia:Lb,tween:qh,keyframes:qh,spring:Ik},_B=t=>t/100;class ux extends Ek{constructor(e){super(e),this.holdTime=null,this.cancelTime=null,this.currentTime=0,this.playbackSpeed=1,this.pendingPlayState="running",this.startTime=null,this.state="idle",this.stop=()=>{if(this.resolver.cancel(),this.isStopped=!0,this.state==="idle")return;this.teardown();const{onStop:l}=this.options;l&&l()};const{name:n,motionValue:r,element:s,keyframes:i}=this.options,o=(s==null?void 0:s.KeyframeResolver)||lx,a=(l,c)=>this.onKeyframesResolved(l,c);this.resolver=new o(i,a,n,r,s),this.resolver.scheduleResolve()}flatten(){super.flatten(),this._resolved&&Object.assign(this._resolved,this.initPlayback(this._resolved.keyframes))}initPlayback(e){const{type:n="keyframes",repeat:r=0,repeatDelay:s=0,repeatType:i,velocity:o=0}=this.options,a=X0(n)?n:wB[n]||qh;let l,c;a!==qh&&typeof e[0]!="number"&&(l=wu(_B,Sk(e[0],e[1])),e=[0,100]);const h=a({...this.options,keyframes:e});i==="mirror"&&(c=a({...this.options,keyframes:[...e].reverse(),velocity:-o})),h.calculatedDuration===null&&(h.calculatedDuration=HP(h));const{calculatedDuration:f}=h,p=f+s,m=p*(r+1)-s;return{generator:h,mirroredGenerator:c,mapPercentToKeyframes:l,calculatedDuration:f,resolvedDuration:p,totalDuration:m}}onPostResolved(){const{autoplay:e=!0}=this.options;this.play(),this.pendingPlayState==="paused"||!e?this.pause():this.state=this.pendingPlayState}tick(e,n=!1){const{resolved:r}=this;if(!r){const{keyframes:T}=this.options;return{done:!0,value:T[T.length-1]}}const{finalKeyframe:s,generator:i,mirroredGenerator:o,mapPercentToKeyframes:a,keyframes:l,calculatedDuration:c,totalDuration:h,resolvedDuration:f}=r;if(this.startTime===null)return i.next(0);const{delay:p,repeat:m,repeatType:E,repeatDelay:w,onUpdate:v}=this.options;this.speed>0?this.startTime=Math.min(this.startTime,e):this.speed<0&&(this.startTime=Math.min(e-h/this.speed,this.startTime)),n?this.currentTime=e:this.holdTime!==null?this.currentTime=this.holdTime:this.currentTime=Math.round(e-this.startTime)*this.speed;const y=this.currentTime-p*(this.speed>=0?1:-1),x=this.speed>=0?y<0:y>h;this.currentTime=Math.max(y,0),this.state==="finished"&&this.holdTime===null&&(this.currentTime=h);let S=this.currentTime,D=i;if(m){const T=Math.min(this.currentTime,h)/f;let C=Math.floor(T),A=T%1;!A&&T>=1&&(A=1),A===1&&C--,C=Math.min(C,m+1),!!(C%2)&&(E==="reverse"?(A=1-A,w&&(A-=w/f)):E==="mirror"&&(D=o)),S=is(0,1,A)*f}const j=x?{done:!1,value:l[0]}:D.next(S);a&&(j.value=a(j.value));let{done:N}=j;!x&&c!==null&&(N=this.speed>=0?this.currentTime>=h:this.currentTime<=0);const I=this.holdTime===null&&(this.state==="finished"||this.state==="running"&&N);return I&&s!==void 0&&(j.value=Yf(l,this.options,s)),v&&v(j.value),I&&this.finish(),j}get duration(){const{resolved:e}=this;return e?Kr(e.calculatedDuration):0}get time(){return Kr(this.currentTime)}set time(e){e=qr(e),this.currentTime=e,this.holdTime!==null||this.speed===0?this.holdTime=e:this.driver&&(this.startTime=this.driver.now()-e/this.speed)}get speed(){return this.playbackSpeed}set speed(e){const n=this.playbackSpeed!==e;this.playbackSpeed=e,n&&(this.time=Kr(this.currentTime))}play(){if(this.resolver.isScheduled||this.resolver.resume(),!this._resolved){this.pendingPlayState="running";return}if(this.isStopped)return;const{driver:e=xB,onPlay:n,startTime:r}=this.options;this.driver||(this.driver=e(i=>this.tick(i))),n&&n();const s=this.driver.now();this.holdTime!==null?this.startTime=s-this.holdTime:this.startTime?this.state==="finished"&&(this.startTime=s):this.startTime=r??this.calcStartTime(),this.state==="finished"&&this.updateFinishedPromise(),this.cancelTime=this.startTime,this.holdTime=null,this.state="running",this.driver.start()}pause(){var e;if(!this._resolved){this.pendingPlayState="paused";return}this.state="paused",this.holdTime=(e=this.currentTime)!==null&&e!==void 0?e:0}complete(){this.state!=="running"&&this.play(),this.pendingPlayState=this.state="finished",this.holdTime=null}finish(){this.teardown(),this.state="finished";const{onComplete:e}=this.options;e&&e()}cancel(){this.cancelTime!==null&&this.tick(this.cancelTime),this.teardown(),this.updateFinishedPromise()}teardown(){this.state="idle",this.stopDriver(),this.resolveFinishedPromise(),this.updateFinishedPromise(),this.startTime=this.cancelTime=null,this.resolver.cancel()}stopDriver(){this.driver&&(this.driver.stop(),this.driver=void 0)}sample(e){return this.startTime=0,this.tick(e,!0)}}const bB=new Set(["opacity","clipPath","filter","transform"]);function EB(t,e,n,{delay:r=0,duration:s=300,repeat:i=0,repeatType:o="loop",ease:a="easeInOut",times:l}={}){const c={[e]:n};l&&(c.offset=l);const h=KP(a,s);return Array.isArray(h)&&(c.easing=h),t.animate(c,{delay:r,duration:s,easing:Array.isArray(h)?"linear":h,fill:"both",iterations:i+1,direction:o==="reverse"?"alternate":"normal"})}const TB=V0(()=>Object.hasOwnProperty.call(Element.prototype,"animate")),Kh=10,SB=2e4;function CB(t){return X0(t.type)||t.type==="spring"||!qP(t.ease)}function IB(t,e){const n=new ux({...e,keyframes:t,repeat:0,delay:0,isGenerator:!0});let r={done:!1,value:t[0]};const s=[];let i=0;for(;!r.done&&i<SB;)r=n.sample(i),s.push(r.value),i+=Kh;return{times:void 0,keyframes:s,duration:i-Kh,ease:"linear"}}const Pk={anticipate:ok,backInOut:ik,circInOut:lk};function AB(t){return t in Pk}class $b extends Ek{constructor(e){super(e);const{name:n,motionValue:r,element:s,keyframes:i}=this.options;this.resolver=new bk(i,(o,a)=>this.onKeyframesResolved(o,a),n,r,s),this.resolver.scheduleResolve()}initPlayback(e,n){let{duration:r=300,times:s,ease:i,type:o,motionValue:a,name:l,startTime:c}=this.options;if(!a.owner||!a.owner.current)return!1;if(typeof i=="string"&&Hh()&&AB(i)&&(i=Pk[i]),CB(this.options)){const{onComplete:f,onUpdate:p,motionValue:m,element:E,...w}=this.options,v=IB(e,w);e=v.keyframes,e.length===1&&(e[1]=e[0]),r=v.duration,s=v.times,i=v.ease,o="keyframes"}const h=EB(a.owner.current,l,e,{...this.options,duration:r,times:s,ease:i});return h.startTime=c??this.calcStartTime(),this.pendingTimeline?(Tb(h,this.pendingTimeline),this.pendingTimeline=void 0):h.onfinish=()=>{const{onComplete:f}=this.options;a.set(Yf(e,this.options,n)),f&&f(),this.cancel(),this.resolveFinishedPromise()},{animation:h,duration:r,times:s,type:o,ease:i,keyframes:e}}get duration(){const{resolved:e}=this;if(!e)return 0;const{duration:n}=e;return Kr(n)}get time(){const{resolved:e}=this;if(!e)return 0;const{animation:n}=e;return Kr(n.currentTime||0)}set time(e){const{resolved:n}=this;if(!n)return;const{animation:r}=n;r.currentTime=qr(e)}get speed(){const{resolved:e}=this;if(!e)return 1;const{animation:n}=e;return n.playbackRate}set speed(e){const{resolved:n}=this;if(!n)return;const{animation:r}=n;r.playbackRate=e}get state(){const{resolved:e}=this;if(!e)return"idle";const{animation:n}=e;return n.playState}get startTime(){const{resolved:e}=this;if(!e)return null;const{animation:n}=e;return n.startTime}attachTimeline(e){if(!this._resolved)this.pendingTimeline=e;else{const{resolved:n}=this;if(!n)return pn;const{animation:r}=n;Tb(r,e)}return pn}play(){if(this.isStopped)return;const{resolved:e}=this;if(!e)return;const{animation:n}=e;n.playState==="finished"&&this.updateFinishedPromise(),n.play()}pause(){const{resolved:e}=this;if(!e)return;const{animation:n}=e;n.pause()}stop(){if(this.resolver.cancel(),this.isStopped=!0,this.state==="idle")return;this.resolveFinishedPromise(),this.updateFinishedPromise();const{resolved:e}=this;if(!e)return;const{animation:n,keyframes:r,duration:s,type:i,ease:o,times:a}=e;if(n.playState==="idle"||n.playState==="finished")return;if(this.time){const{motionValue:c,onUpdate:h,onComplete:f,element:p,...m}=this.options,E=new ux({...m,keyframes:r,duration:s,type:i,ease:o,times:a,isGenerator:!0}),w=qr(this.time);c.setWithVelocity(E.sample(w-Kh).value,E.sample(w).value,Kh)}const{onStop:l}=this.options;l&&l(),this.cancel()}complete(){const{resolved:e}=this;e&&e.animation.finish()}cancel(){const{resolved:e}=this;e&&e.animation.cancel()}static supports(e){const{motionValue:n,name:r,repeatDelay:s,repeatType:i,damping:o,type:a}=e;if(!n||!n.owner||!(n.owner.current instanceof HTMLElement))return!1;const{onUpdate:l,transformTemplate:c}=n.owner.getProps();return TB()&&r&&bB.has(r)&&!l&&!c&&!s&&i!=="mirror"&&o!==0&&a!=="inertia"}}const PB={type:"spring",stiffness:500,damping:25,restSpeed:10},kB=t=>({type:"spring",stiffness:550,damping:t===0?2*Math.sqrt(550):30,restSpeed:10}),NB={type:"keyframes",duration:.8},RB={type:"keyframes",ease:[.25,.1,.35,1],duration:.3},jB=(t,{keyframes:e})=>e.length>2?NB:wo.has(t)?t.startsWith("scale")?kB(e[1]):PB:RB;function DB({when:t,delay:e,delayChildren:n,staggerChildren:r,staggerDirection:s,repeat:i,repeatType:o,repeatDelay:a,from:l,elapsed:c,...h}){return!!Object.keys(h).length}const dx=(t,e,n,r={},s,i)=>o=>{const a=Y0(r,t)||{},l=a.delay||r.delay||0;let{elapsed:c=0}=r;c=c-qr(l);let h={keyframes:Array.isArray(n)?n:[null,n],ease:"easeOut",velocity:e.getVelocity(),...a,delay:-c,onUpdate:p=>{e.set(p),a.onUpdate&&a.onUpdate(p)},onComplete:()=>{o(),a.onComplete&&a.onComplete()},name:t,motionValue:e,element:i?void 0:s};DB(a)||(h={...h,...jB(t,h)}),h.duration&&(h.duration=qr(h.duration)),h.repeatDelay&&(h.repeatDelay=qr(h.repeatDelay)),h.from!==void 0&&(h.keyframes[0]=h.from);let f=!1;if((h.type===!1||h.duration===0&&!h.repeatDelay)&&(h.duration=0,h.delay===0&&(f=!0)),f&&!i&&e.get()!==void 0){const p=Yf(h.keyframes,a);if(p!==void 0)return ze.update(()=>{h.onUpdate(p),h.onComplete()}),new ez([])}return!i&&$b.supports(h)?new $b(h):new ux(h)};function MB({protectedKeys:t,needsAnimating:e},n){const r=t.hasOwnProperty(n)&&e[n]!==!0;return e[n]=!1,r}function kk(t,e,{delay:n=0,transitionOverride:r,type:s}={}){var i;let{transition:o=t.getDefaultTransition(),transitionEnd:a,...l}=e;r&&(o=r);const c=[],h=s&&t.animationState&&t.animationState.getState()[s];for(const f in l){const p=t.getValue(f,(i=t.latestValues[f])!==null&&i!==void 0?i:null),m=l[f];if(m===void 0||h&&MB(h,f))continue;const E={delay:n,...Y0(o||{},f)};let w=!1;if(window.MotionHandoffAnimation){const y=ek(t);if(y){const x=window.MotionHandoffAnimation(y,f,ze);x!==null&&(E.startTime=x,w=!0)}}ly(t,f),p.start(dx(f,p,m,t.shouldReduceMotion&&JP.has(f)?{type:!1}:E,t,w));const v=p.animation;v&&c.push(v)}return a&&Promise.all(c).then(()=>{ze.update(()=>{a&&pz(t,a)})}),c}function my(t,e,n={}){var r;const s=Qf(t,e,n.type==="exit"?(r=t.presenceContext)===null||r===void 0?void 0:r.custom:void 0);let{transition:i=t.getDefaultTransition()||{}}=s||{};n.transitionOverride&&(i=n.transitionOverride);const o=s?()=>Promise.all(kk(t,s,n)):()=>Promise.resolve(),a=t.variantChildren&&t.variantChildren.size?(c=0)=>{const{delayChildren:h=0,staggerChildren:f,staggerDirection:p}=i;return VB(t,e,h+c,f,p,n)}:()=>Promise.resolve(),{when:l}=i;if(l){const[c,h]=l==="beforeChildren"?[o,a]:[a,o];return c().then(()=>h())}else return Promise.all([o(),a(n.delay)])}function VB(t,e,n=0,r=0,s=1,i){const o=[],a=(t.variantChildren.size-1)*r,l=s===1?(c=0)=>c*r:(c=0)=>a-c*r;return Array.from(t.variantChildren).sort(OB).forEach((c,h)=>{c.notify("AnimationStart",e),o.push(my(c,e,{...i,delay:n+l(h)}).then(()=>c.notify("AnimationComplete",e)))}),Promise.all(o)}function OB(t,e){return t.sortNodePosition(e)}function LB(t,e,n={}){t.notify("AnimationStart",e);let r;if(Array.isArray(e)){const s=e.map(i=>my(t,i,n));r=Promise.all(s)}else if(typeof e=="string")r=my(t,e,n);else{const s=typeof e=="function"?Qf(t,e,n.custom):e;r=Promise.all(kk(t,s,n))}return r.then(()=>{t.notify("AnimationComplete",e)})}const FB=L0.length;function Nk(t){if(!t)return;if(!t.isControllingVariants){const n=t.parent?Nk(t.parent)||{}:{};return t.props.initial!==void 0&&(n.initial=t.props.initial),n}const e={};for(let n=0;n<FB;n++){const r=L0[n],s=t.props[r];(zc(s)||s===!1)&&(e[r]=s)}return e}const UB=[...O0].reverse(),$B=O0.length;function zB(t){return e=>Promise.all(e.map(({animation:n,options:r})=>LB(t,n,r)))}function BB(t){let e=zB(t),n=zb(),r=!0;const s=l=>(c,h)=>{var f;const p=Qf(t,h,l==="exit"?(f=t.presenceContext)===null||f===void 0?void 0:f.custom:void 0);if(p){const{transition:m,transitionEnd:E,...w}=p;c={...c,...w,...E}}return c};function i(l){e=l(t)}function o(l){const{props:c}=t,h=Nk(t.parent)||{},f=[],p=new Set;let m={},E=1/0;for(let v=0;v<$B;v++){const y=UB[v],x=n[y],S=c[y]!==void 0?c[y]:h[y],D=zc(S),j=y===l?x.isActive:null;j===!1&&(E=v);let N=S===h[y]&&S!==c[y]&&D;if(N&&r&&t.manuallyAnimateOnMount&&(N=!1),x.protectedKeys={...m},!x.isActive&&j===null||!S&&!x.prevProp||qf(S)||typeof S=="boolean")continue;const I=WB(x.prevProp,S);let T=I||y===l&&x.isActive&&!N&&D||v>E&&D,C=!1;const A=Array.isArray(S)?S:[S];let R=A.reduce(s(y),{});j===!1&&(R={});const{prevResolvedValues:M={}}=x,P={...M,...R},O=B=>{T=!0,p.has(B)&&(C=!0,p.delete(B)),x.needsAnimating[B]=!0;const V=t.getValue(B);V&&(V.liveStyle=!1)};for(const B in P){const V=R[B],U=M[B];if(m.hasOwnProperty(B))continue;let q=!1;iy(V)&&iy(U)?q=!WP(V,U):q=V!==U,q?V!=null?O(B):p.add(B):V!==void 0&&p.has(B)?O(B):x.protectedKeys[B]=!0}x.prevProp=S,x.prevResolvedValues=R,x.isActive&&(m={...m,...R}),r&&t.blockInitialAnimation&&(T=!1),T&&(!(N&&I)||C)&&f.push(...A.map(B=>({animation:B,options:{type:y}})))}if(p.size){const v={};p.forEach(y=>{const x=t.getBaseTarget(y),S=t.getValue(y);S&&(S.liveStyle=!0),v[y]=x??null}),f.push({animation:v})}let w=!!f.length;return r&&(c.initial===!1||c.initial===c.animate)&&!t.manuallyAnimateOnMount&&(w=!1),r=!1,w?e(f):Promise.resolve()}function a(l,c){var h;if(n[l].isActive===c)return Promise.resolve();(h=t.variantChildren)===null||h===void 0||h.forEach(p=>{var m;return(m=p.animationState)===null||m===void 0?void 0:m.setActive(l,c)}),n[l].isActive=c;const f=o(l);for(const p in n)n[p].protectedKeys={};return f}return{animateChanges:o,setActive:a,setAnimateFunction:i,getState:()=>n,reset:()=>{n=zb(),r=!0}}}function WB(t,e){return typeof e=="string"?e!==t:Array.isArray(e)?!WP(e,t):!1}function Ii(t=!1){return{isActive:t,protectedKeys:{},needsAnimating:{},prevResolvedValues:{}}}function zb(){return{animate:Ii(!0),whileInView:Ii(),whileHover:Ii(),whileTap:Ii(),whileDrag:Ii(),whileFocus:Ii(),exit:Ii()}}class vi{constructor(e){this.isMounted=!1,this.node=e}update(){}}class HB extends vi{constructor(e){super(e),e.animationState||(e.animationState=BB(e))}updateAnimationControlsSubscription(){const{animate:e}=this.node.getProps();qf(e)&&(this.unmountControls=e.subscribe(this.node))}mount(){this.updateAnimationControlsSubscription()}update(){const{animate:e}=this.node.getProps(),{animate:n}=this.node.prevProps||{};e!==n&&this.updateAnimationControlsSubscription()}unmount(){var e;this.node.animationState.reset(),(e=this.unmountControls)===null||e===void 0||e.call(this)}}let GB=0;class qB extends vi{constructor(){super(...arguments),this.id=GB++}update(){if(!this.node.presenceContext)return;const{isPresent:e,onExitComplete:n}=this.node.presenceContext,{isPresent:r}=this.node.prevPresenceContext||{};if(!this.node.animationState||e===r)return;const s=this.node.animationState.setActive("exit",!e);n&&!e&&s.then(()=>n(this.id))}mount(){const{register:e}=this.node.presenceContext||{};e&&(this.unmount=e(this.id))}unmount(){}}const KB={animation:{Feature:HB},exit:{Feature:qB}};function Gc(t,e,n,r={passive:!0}){return t.addEventListener(e,n,r),()=>t.removeEventListener(e,n)}function _u(t){return{point:{x:t.pageX,y:t.pageY}}}const QB=t=>e=>Z0(e)&&t(e,_u(e));function lc(t,e,n,r){return Gc(t,e,QB(n),r)}const Bb=(t,e)=>Math.abs(t-e);function YB(t,e){const n=Bb(t.x,e.x),r=Bb(t.y,e.y);return Math.sqrt(n**2+r**2)}class Rk{constructor(e,n,{transformPagePoint:r,contextWindow:s,dragSnapToOrigin:i=!1}={}){if(this.startEvent=null,this.lastMoveEvent=null,this.lastMoveEventInfo=null,this.handlers={},this.contextWindow=window,this.updatePoint=()=>{if(!(this.lastMoveEvent&&this.lastMoveEventInfo))return;const f=pm(this.lastMoveEventInfo,this.history),p=this.startEvent!==null,m=YB(f.offset,{x:0,y:0})>=3;if(!p&&!m)return;const{point:E}=f,{timestamp:w}=Tt;this.history.push({...E,timestamp:w});const{onStart:v,onMove:y}=this.handlers;p||(v&&v(this.lastMoveEvent,f),this.startEvent=this.lastMoveEvent),y&&y(this.lastMoveEvent,f)},this.handlePointerMove=(f,p)=>{this.lastMoveEvent=f,this.lastMoveEventInfo=fm(p,this.transformPagePoint),ze.update(this.updatePoint,!0)},this.handlePointerUp=(f,p)=>{this.end();const{onEnd:m,onSessionEnd:E,resumeAnimation:w}=this.handlers;if(this.dragSnapToOrigin&&w&&w(),!(this.lastMoveEvent&&this.lastMoveEventInfo))return;const v=pm(f.type==="pointercancel"?this.lastMoveEventInfo:fm(p,this.transformPagePoint),this.history);this.startEvent&&m&&m(f,v),E&&E(f,v)},!Z0(e))return;this.dragSnapToOrigin=i,this.handlers=n,this.transformPagePoint=r,this.contextWindow=s||window;const o=_u(e),a=fm(o,this.transformPagePoint),{point:l}=a,{timestamp:c}=Tt;this.history=[{...l,timestamp:c}];const{onSessionStart:h}=n;h&&h(e,pm(a,this.history)),this.removeListeners=wu(lc(this.contextWindow,"pointermove",this.handlePointerMove),lc(this.contextWindow,"pointerup",this.handlePointerUp),lc(this.contextWindow,"pointercancel",this.handlePointerUp))}updateHandlers(e){this.handlers=e}end(){this.removeListeners&&this.removeListeners(),hi(this.updatePoint)}}function fm(t,e){return e?{point:e(t.point)}:t}function Wb(t,e){return{x:t.x-e.x,y:t.y-e.y}}function pm({point:t},e){return{point:t,delta:Wb(t,jk(e)),offset:Wb(t,XB(e)),velocity:JB(e,.1)}}function XB(t){return t[0]}function jk(t){return t[t.length-1]}function JB(t,e){if(t.length<2)return{x:0,y:0};let n=t.length-1,r=null;const s=jk(t);for(;n>=0&&(r=t[n],!(s.timestamp-r.timestamp>qr(e)));)n--;if(!r)return{x:0,y:0};const i=Kr(s.timestamp-r.timestamp);if(i===0)return{x:0,y:0};const o={x:(s.x-r.x)/i,y:(s.y-r.y)/i};return o.x===1/0&&(o.x=0),o.y===1/0&&(o.y=0),o}const Dk=1e-4,ZB=1-Dk,e7=1+Dk,Mk=.01,t7=0-Mk,n7=0+Mk;function gn(t){return t.max-t.min}function r7(t,e,n){return Math.abs(t-e)<=n}function Hb(t,e,n,r=.5){t.origin=r,t.originPoint=Ge(e.min,e.max,t.origin),t.scale=gn(n)/gn(e),t.translate=Ge(n.min,n.max,t.origin)-t.originPoint,(t.scale>=ZB&&t.scale<=e7||isNaN(t.scale))&&(t.scale=1),(t.translate>=t7&&t.translate<=n7||isNaN(t.translate))&&(t.translate=0)}function cc(t,e,n,r){Hb(t.x,e.x,n.x,r?r.originX:void 0),Hb(t.y,e.y,n.y,r?r.originY:void 0)}function Gb(t,e,n){t.min=n.min+e.min,t.max=t.min+gn(e)}function s7(t,e,n){Gb(t.x,e.x,n.x),Gb(t.y,e.y,n.y)}function qb(t,e,n){t.min=e.min-n.min,t.max=t.min+gn(e)}function uc(t,e,n){qb(t.x,e.x,n.x),qb(t.y,e.y,n.y)}function i7(t,{min:e,max:n},r){return e!==void 0&&t<e?t=r?Ge(e,t,r.min):Math.max(t,e):n!==void 0&&t>n&&(t=r?Ge(n,t,r.max):Math.min(t,n)),t}function Kb(t,e,n){return{min:e!==void 0?t.min+e:void 0,max:n!==void 0?t.max+n-(t.max-t.min):void 0}}function o7(t,{top:e,left:n,bottom:r,right:s}){return{x:Kb(t.x,n,s),y:Kb(t.y,e,r)}}function Qb(t,e){let n=e.min-t.min,r=e.max-t.max;return e.max-e.min<t.max-t.min&&([n,r]=[r,n]),{min:n,max:r}}function a7(t,e){return{x:Qb(t.x,e.x),y:Qb(t.y,e.y)}}function l7(t,e){let n=.5;const r=gn(t),s=gn(e);return s>r?n=Va(e.min,e.max-r,t.min):r>s&&(n=Va(t.min,t.max-s,e.min)),is(0,1,n)}function c7(t,e){const n={};return e.min!==void 0&&(n.min=e.min-t.min),e.max!==void 0&&(n.max=e.max-t.min),n}const gy=.35;function u7(t=gy){return t===!1?t=0:t===!0&&(t=gy),{x:Yb(t,"left","right"),y:Yb(t,"top","bottom")}}function Yb(t,e,n){return{min:Xb(t,e),max:Xb(t,n)}}function Xb(t,e){return typeof t=="number"?t:t[e]||0}const Jb=()=>({translate:0,scale:1,origin:0,originPoint:0}),Ho=()=>({x:Jb(),y:Jb()}),Zb=()=>({min:0,max:0}),et=()=>({x:Zb(),y:Zb()});function bn(t){return[t("x"),t("y")]}function Vk({top:t,left:e,right:n,bottom:r}){return{x:{min:e,max:n},y:{min:t,max:r}}}function d7({x:t,y:e}){return{top:e.min,right:t.max,bottom:e.max,left:t.min}}function h7(t,e){if(!e)return t;const n=e({x:t.left,y:t.top}),r=e({x:t.right,y:t.bottom});return{top:n.y,left:n.x,bottom:r.y,right:r.x}}function mm(t){return t===void 0||t===1}function yy({scale:t,scaleX:e,scaleY:n}){return!mm(t)||!mm(e)||!mm(n)}function Ri(t){return yy(t)||Ok(t)||t.z||t.rotate||t.rotateX||t.rotateY||t.skewX||t.skewY}function Ok(t){return eE(t.x)||eE(t.y)}function eE(t){return t&&t!=="0%"}function Qh(t,e,n){const r=t-n,s=e*r;return n+s}function tE(t,e,n,r,s){return s!==void 0&&(t=Qh(t,s,r)),Qh(t,n,r)+e}function vy(t,e=0,n=1,r,s){t.min=tE(t.min,e,n,r,s),t.max=tE(t.max,e,n,r,s)}function Lk(t,{x:e,y:n}){vy(t.x,e.translate,e.scale,e.originPoint),vy(t.y,n.translate,n.scale,n.originPoint)}const nE=.999999999999,rE=1.0000000000001;function f7(t,e,n,r=!1){const s=n.length;if(!s)return;e.x=e.y=1;let i,o;for(let a=0;a<s;a++){i=n[a],o=i.projectionDelta;const{visualElement:l}=i.options;l&&l.props.style&&l.props.style.display==="contents"||(r&&i.options.layoutScroll&&i.scroll&&i!==i.root&&qo(t,{x:-i.scroll.offset.x,y:-i.scroll.offset.y}),o&&(e.x*=o.x.scale,e.y*=o.y.scale,Lk(t,o)),r&&Ri(i.latestValues)&&qo(t,i.latestValues))}e.x<rE&&e.x>nE&&(e.x=1),e.y<rE&&e.y>nE&&(e.y=1)}function Go(t,e){t.min=t.min+e,t.max=t.max+e}function sE(t,e,n,r,s=.5){const i=Ge(t.min,t.max,s);vy(t,e,n,i,r)}function qo(t,e){sE(t.x,e.x,e.scaleX,e.scale,e.originX),sE(t.y,e.y,e.scaleY,e.scale,e.originY)}function Fk(t,e){return Vk(h7(t.getBoundingClientRect(),e))}function p7(t,e,n){const r=Fk(t,n),{scroll:s}=e;return s&&(Go(r.x,s.offset.x),Go(r.y,s.offset.y)),r}const Uk=({current:t})=>t?t.ownerDocument.defaultView:null,m7=new WeakMap;class g7{constructor(e){this.openDragLock=null,this.isDragging=!1,this.currentDirection=null,this.originPoint={x:0,y:0},this.constraints=!1,this.hasMutatedConstraints=!1,this.elastic=et(),this.visualElement=e}start(e,{snapToCursor:n=!1}={}){const{presenceContext:r}=this.visualElement;if(r&&r.isPresent===!1)return;const s=h=>{const{dragSnapToOrigin:f}=this.getProps();f?this.pauseAnimation():this.stopAnimation(),n&&this.snapToCursor(_u(h).point)},i=(h,f)=>{const{drag:p,dragPropagation:m,onDragStart:E}=this.getProps();if(p&&!m&&(this.openDragLock&&this.openDragLock(),this.openDragLock=cz(p),!this.openDragLock))return;this.isDragging=!0,this.currentDirection=null,this.resolveConstraints(),this.visualElement.projection&&(this.visualElement.projection.isAnimationBlocked=!0,this.visualElement.projection.target=void 0),bn(v=>{let y=this.getAxisMotionValue(v).get()||0;if(Cr.test(y)){const{projection:x}=this.visualElement;if(x&&x.layout){const S=x.layout.layoutBox[v];S&&(y=gn(S)*(parseFloat(y)/100))}}this.originPoint[v]=y}),E&&ze.postRender(()=>E(h,f)),ly(this.visualElement,"transform");const{animationState:w}=this.visualElement;w&&w.setActive("whileDrag",!0)},o=(h,f)=>{const{dragPropagation:p,dragDirectionLock:m,onDirectionLock:E,onDrag:w}=this.getProps();if(!p&&!this.openDragLock)return;const{offset:v}=f;if(m&&this.currentDirection===null){this.currentDirection=y7(v),this.currentDirection!==null&&E&&E(this.currentDirection);return}this.updateAxis("x",f.point,v),this.updateAxis("y",f.point,v),this.visualElement.render(),w&&w(h,f)},a=(h,f)=>this.stop(h,f),l=()=>bn(h=>{var f;return this.getAnimationState(h)==="paused"&&((f=this.getAxisMotionValue(h).animation)===null||f===void 0?void 0:f.play())}),{dragSnapToOrigin:c}=this.getProps();this.panSession=new Rk(e,{onSessionStart:s,onStart:i,onMove:o,onSessionEnd:a,resumeAnimation:l},{transformPagePoint:this.visualElement.getTransformPagePoint(),dragSnapToOrigin:c,contextWindow:Uk(this.visualElement)})}stop(e,n){const r=this.isDragging;if(this.cancel(),!r)return;const{velocity:s}=n;this.startAnimation(s);const{onDragEnd:i}=this.getProps();i&&ze.postRender(()=>i(e,n))}cancel(){this.isDragging=!1;const{projection:e,animationState:n}=this.visualElement;e&&(e.isAnimationBlocked=!1),this.panSession&&this.panSession.end(),this.panSession=void 0;const{dragPropagation:r}=this.getProps();!r&&this.openDragLock&&(this.openDragLock(),this.openDragLock=null),n&&n.setActive("whileDrag",!1)}updateAxis(e,n,r){const{drag:s}=this.getProps();if(!r||!fd(e,s,this.currentDirection))return;const i=this.getAxisMotionValue(e);let o=this.originPoint[e]+r[e];this.constraints&&this.constraints[e]&&(o=i7(o,this.constraints[e],this.elastic[e])),i.set(o)}resolveConstraints(){var e;const{dragConstraints:n,dragElastic:r}=this.getProps(),s=this.visualElement.projection&&!this.visualElement.projection.layout?this.visualElement.projection.measure(!1):(e=this.visualElement.projection)===null||e===void 0?void 0:e.layout,i=this.constraints;n&&Bo(n)?this.constraints||(this.constraints=this.resolveRefConstraints()):n&&s?this.constraints=o7(s.layoutBox,n):this.constraints=!1,this.elastic=u7(r),i!==this.constraints&&s&&this.constraints&&!this.hasMutatedConstraints&&bn(o=>{this.constraints!==!1&&this.getAxisMotionValue(o)&&(this.constraints[o]=c7(s.layoutBox[o],this.constraints[o]))})}resolveRefConstraints(){const{dragConstraints:e,onMeasureDragConstraints:n}=this.getProps();if(!e||!Bo(e))return!1;const r=e.current,{projection:s}=this.visualElement;if(!s||!s.layout)return!1;const i=p7(r,s.root,this.visualElement.getTransformPagePoint());let o=a7(s.layout.layoutBox,i);if(n){const a=n(d7(o));this.hasMutatedConstraints=!!a,a&&(o=Vk(a))}return o}startAnimation(e){const{drag:n,dragMomentum:r,dragElastic:s,dragTransition:i,dragSnapToOrigin:o,onDragTransitionEnd:a}=this.getProps(),l=this.constraints||{},c=bn(h=>{if(!fd(h,n,this.currentDirection))return;let f=l&&l[h]||{};o&&(f={min:0,max:0});const p=s?200:1e6,m=s?40:1e7,E={type:"inertia",velocity:r?e[h]:0,bounceStiffness:p,bounceDamping:m,timeConstant:750,restDelta:1,restSpeed:10,...i,...f};return this.startAxisValueAnimation(h,E)});return Promise.all(c).then(a)}startAxisValueAnimation(e,n){const r=this.getAxisMotionValue(e);return ly(this.visualElement,e),r.start(dx(e,r,0,n,this.visualElement,!1))}stopAnimation(){bn(e=>this.getAxisMotionValue(e).stop())}pauseAnimation(){bn(e=>{var n;return(n=this.getAxisMotionValue(e).animation)===null||n===void 0?void 0:n.pause()})}getAnimationState(e){var n;return(n=this.getAxisMotionValue(e).animation)===null||n===void 0?void 0:n.state}getAxisMotionValue(e){const n=`_drag${e.toUpperCase()}`,r=this.visualElement.getProps(),s=r[n];return s||this.visualElement.getValue(e,(r.initial?r.initial[e]:void 0)||0)}snapToCursor(e){bn(n=>{const{drag:r}=this.getProps();if(!fd(n,r,this.currentDirection))return;const{projection:s}=this.visualElement,i=this.getAxisMotionValue(n);if(s&&s.layout){const{min:o,max:a}=s.layout.layoutBox[n];i.set(e[n]-Ge(o,a,.5))}})}scalePositionWithinConstraints(){if(!this.visualElement.current)return;const{drag:e,dragConstraints:n}=this.getProps(),{projection:r}=this.visualElement;if(!Bo(n)||!r||!this.constraints)return;this.stopAnimation();const s={x:0,y:0};bn(o=>{const a=this.getAxisMotionValue(o);if(a&&this.constraints!==!1){const l=a.get();s[o]=l7({min:l,max:l},this.constraints[o])}});const{transformTemplate:i}=this.visualElement.getProps();this.visualElement.current.style.transform=i?i({},""):"none",r.root&&r.root.updateScroll(),r.updateLayout(),this.resolveConstraints(),bn(o=>{if(!fd(o,e,null))return;const a=this.getAxisMotionValue(o),{min:l,max:c}=this.constraints[o];a.set(Ge(l,c,s[o]))})}addListeners(){if(!this.visualElement.current)return;m7.set(this.visualElement,this);const e=this.visualElement.current,n=lc(e,"pointerdown",l=>{const{drag:c,dragListener:h=!0}=this.getProps();c&&h&&this.start(l)}),r=()=>{const{dragConstraints:l}=this.getProps();Bo(l)&&l.current&&(this.constraints=this.resolveRefConstraints())},{projection:s}=this.visualElement,i=s.addEventListener("measure",r);s&&!s.layout&&(s.root&&s.root.updateScroll(),s.updateLayout()),ze.read(r);const o=Gc(window,"resize",()=>this.scalePositionWithinConstraints()),a=s.addEventListener("didUpdate",({delta:l,hasLayoutChanged:c})=>{this.isDragging&&c&&(bn(h=>{const f=this.getAxisMotionValue(h);f&&(this.originPoint[h]+=l[h].translate,f.set(f.get()+l[h].translate))}),this.visualElement.render())});return()=>{o(),n(),i(),a&&a()}}getProps(){const e=this.visualElement.getProps(),{drag:n=!1,dragDirectionLock:r=!1,dragPropagation:s=!1,dragConstraints:i=!1,dragElastic:o=gy,dragMomentum:a=!0}=e;return{...e,drag:n,dragDirectionLock:r,dragPropagation:s,dragConstraints:i,dragElastic:o,dragMomentum:a}}}function fd(t,e,n){return(e===!0||e===t)&&(n===null||n===t)}function y7(t,e=10){let n=null;return Math.abs(t.y)>e?n="y":Math.abs(t.x)>e&&(n="x"),n}class v7 extends vi{constructor(e){super(e),this.removeGroupControls=pn,this.removeListeners=pn,this.controls=new g7(e)}mount(){const{dragControls:e}=this.node.getProps();e&&(this.removeGroupControls=e.subscribe(this.controls)),this.removeListeners=this.controls.addListeners()||pn}unmount(){this.removeGroupControls(),this.removeListeners()}}const iE=t=>(e,n)=>{t&&ze.postRender(()=>t(e,n))};class x7 extends vi{constructor(){super(...arguments),this.removePointerDownListener=pn}onPointerDown(e){this.session=new Rk(e,this.createPanHandlers(),{transformPagePoint:this.node.getTransformPagePoint(),contextWindow:Uk(this.node)})}createPanHandlers(){const{onPanSessionStart:e,onPanStart:n,onPan:r,onPanEnd:s}=this.node.getProps();return{onSessionStart:iE(e),onStart:iE(n),onMove:r,onEnd:(i,o)=>{delete this.session,s&&ze.postRender(()=>s(i,o))}}}mount(){this.removePointerDownListener=lc(this.node.current,"pointerdown",e=>this.onPointerDown(e))}update(){this.session&&this.session.updateHandlers(this.createPanHandlers())}unmount(){this.removePointerDownListener(),this.session&&this.session.end()}}const Wd={hasAnimatedSinceResize:!0,hasEverUpdated:!1};function oE(t,e){return e.max===e.min?0:t/(e.max-e.min)*100}const Pl={correct:(t,e)=>{if(!e.target)return t;if(typeof t=="string")if(he.test(t))t=parseFloat(t);else return t;const n=oE(t,e.target.x),r=oE(t,e.target.y);return`${n}% ${r}%`}},w7={correct:(t,{treeScale:e,projectionDelta:n})=>{const r=t,s=fi.parse(t);if(s.length>5)return r;const i=fi.createTransformer(t),o=typeof s[0]!="number"?1:0,a=n.x.scale*e.x,l=n.y.scale*e.y;s[0+o]/=a,s[1+o]/=l;const c=Ge(a,l,.5);return typeof s[2+o]=="number"&&(s[2+o]/=c),typeof s[3+o]=="number"&&(s[3+o]/=c),i(s)}};class _7 extends b.Component{componentDidMount(){const{visualElement:e,layoutGroup:n,switchLayoutGroup:r,layoutId:s}=this.props,{projection:i}=e;z$(b7),i&&(n.group&&n.group.add(i),r&&r.register&&s&&r.register(i),i.root.didUpdate(),i.addEventListener("animationComplete",()=>{this.safeToRemove()}),i.setOptions({...i.options,onExitComplete:()=>this.safeToRemove()})),Wd.hasEverUpdated=!0}getSnapshotBeforeUpdate(e){const{layoutDependency:n,visualElement:r,drag:s,isPresent:i}=this.props,o=r.projection;return o&&(o.isPresent=i,s||e.layoutDependency!==n||n===void 0?o.willUpdate():this.safeToRemove(),e.isPresent!==i&&(i?o.promote():o.relegate()||ze.postRender(()=>{const a=o.getStack();(!a||!a.members.length)&&this.safeToRemove()}))),null}componentDidUpdate(){const{projection:e}=this.props.visualElement;e&&(e.root.didUpdate(),U0.postRender(()=>{!e.currentAnimation&&e.isLead()&&this.safeToRemove()}))}componentWillUnmount(){const{visualElement:e,layoutGroup:n,switchLayoutGroup:r}=this.props,{projection:s}=e;s&&(s.scheduleCheckAfterUnmount(),n&&n.group&&n.group.remove(s),r&&r.deregister&&r.deregister(s))}safeToRemove(){const{safeToRemove:e}=this.props;e&&e()}render(){return null}}function $k(t){const[e,n]=TP(),r=b.useContext(R0);return d.jsx(_7,{...t,layoutGroup:r,switchLayoutGroup:b.useContext(NP),isPresent:e,safeToRemove:n})}const b7={borderRadius:{...Pl,applyTo:["borderTopLeftRadius","borderTopRightRadius","borderBottomLeftRadius","borderBottomRightRadius"]},borderTopLeftRadius:Pl,borderTopRightRadius:Pl,borderBottomLeftRadius:Pl,borderBottomRightRadius:Pl,boxShadow:w7};function E7(t,e,n){const r=Ft(t)?t:Wc(t);return r.start(dx("",r,e,n)),r.animation}function T7(t){return t instanceof SVGElement&&t.tagName!=="svg"}const S7=(t,e)=>t.depth-e.depth;class C7{constructor(){this.children=[],this.isDirty=!1}add(e){ex(this.children,e),this.isDirty=!0}remove(e){tx(this.children,e),this.isDirty=!0}forEach(e){this.isDirty&&this.children.sort(S7),this.isDirty=!1,this.children.forEach(e)}}function I7(t,e){const n=Ir.now(),r=({timestamp:s})=>{const i=s-n;i>=e&&(hi(r),t(i-e))};return ze.read(r,!0),()=>hi(r)}const zk=["TopLeft","TopRight","BottomLeft","BottomRight"],A7=zk.length,aE=t=>typeof t=="string"?parseFloat(t):t,lE=t=>typeof t=="number"||he.test(t);function P7(t,e,n,r,s,i){s?(t.opacity=Ge(0,n.opacity!==void 0?n.opacity:1,k7(r)),t.opacityExit=Ge(e.opacity!==void 0?e.opacity:1,0,N7(r))):i&&(t.opacity=Ge(e.opacity!==void 0?e.opacity:1,n.opacity!==void 0?n.opacity:1,r));for(let o=0;o<A7;o++){const a=`border${zk[o]}Radius`;let l=cE(e,a),c=cE(n,a);if(l===void 0&&c===void 0)continue;l||(l=0),c||(c=0),l===0||c===0||lE(l)===lE(c)?(t[a]=Math.max(Ge(aE(l),aE(c),r),0),(Cr.test(c)||Cr.test(l))&&(t[a]+="%")):t[a]=c}(e.rotate||n.rotate)&&(t.rotate=Ge(e.rotate||0,n.rotate||0,r))}function cE(t,e){return t[e]!==void 0?t[e]:t.borderRadius}const k7=Bk(0,.5,ak),N7=Bk(.5,.95,pn);function Bk(t,e,n){return r=>r<t?0:r>e?1:n(Va(t,e,r))}function uE(t,e){t.min=e.min,t.max=e.max}function _n(t,e){uE(t.x,e.x),uE(t.y,e.y)}function dE(t,e){t.translate=e.translate,t.scale=e.scale,t.originPoint=e.originPoint,t.origin=e.origin}function hE(t,e,n,r,s){return t-=e,t=Qh(t,1/n,r),s!==void 0&&(t=Qh(t,1/s,r)),t}function R7(t,e=0,n=1,r=.5,s,i=t,o=t){if(Cr.test(e)&&(e=parseFloat(e),e=Ge(o.min,o.max,e/100)-o.min),typeof e!="number")return;let a=Ge(i.min,i.max,r);t===i&&(a-=e),t.min=hE(t.min,e,n,a,s),t.max=hE(t.max,e,n,a,s)}function fE(t,e,[n,r,s],i,o){R7(t,e[n],e[r],e[s],e.scale,i,o)}const j7=["x","scaleX","originX"],D7=["y","scaleY","originY"];function pE(t,e,n,r){fE(t.x,e,j7,n?n.x:void 0,r?r.x:void 0),fE(t.y,e,D7,n?n.y:void 0,r?r.y:void 0)}function mE(t){return t.translate===0&&t.scale===1}function Wk(t){return mE(t.x)&&mE(t.y)}function gE(t,e){return t.min===e.min&&t.max===e.max}function M7(t,e){return gE(t.x,e.x)&&gE(t.y,e.y)}function yE(t,e){return Math.round(t.min)===Math.round(e.min)&&Math.round(t.max)===Math.round(e.max)}function Hk(t,e){return yE(t.x,e.x)&&yE(t.y,e.y)}function vE(t){return gn(t.x)/gn(t.y)}function xE(t,e){return t.translate===e.translate&&t.scale===e.scale&&t.originPoint===e.originPoint}class V7{constructor(){this.members=[]}add(e){ex(this.members,e),e.scheduleRender()}remove(e){if(tx(this.members,e),e===this.prevLead&&(this.prevLead=void 0),e===this.lead){const n=this.members[this.members.length-1];n&&this.promote(n)}}relegate(e){const n=this.members.findIndex(s=>e===s);if(n===0)return!1;let r;for(let s=n;s>=0;s--){const i=this.members[s];if(i.isPresent!==!1){r=i;break}}return r?(this.promote(r),!0):!1}promote(e,n){const r=this.lead;if(e!==r&&(this.prevLead=r,this.lead=e,e.show(),r)){r.instance&&r.scheduleRender(),e.scheduleRender(),e.resumeFrom=r,n&&(e.resumeFrom.preserveOpacity=!0),r.snapshot&&(e.snapshot=r.snapshot,e.snapshot.latestValues=r.animationValues||r.latestValues),e.root&&e.root.isUpdating&&(e.isLayoutDirty=!0);const{crossfade:s}=e.options;s===!1&&r.hide()}}exitAnimationComplete(){this.members.forEach(e=>{const{options:n,resumingFrom:r}=e;n.onExitComplete&&n.onExitComplete(),r&&r.options.onExitComplete&&r.options.onExitComplete()})}scheduleRender(){this.members.forEach(e=>{e.instance&&e.scheduleRender(!1)})}removeLeadSnapshot(){this.lead&&this.lead.snapshot&&(this.lead.snapshot=void 0)}}function O7(t,e,n){let r="";const s=t.x.translate/e.x,i=t.y.translate/e.y,o=(n==null?void 0:n.z)||0;if((s||i||o)&&(r=`translate3d(${s}px, ${i}px, ${o}px) `),(e.x!==1||e.y!==1)&&(r+=`scale(${1/e.x}, ${1/e.y}) `),n){const{transformPerspective:c,rotate:h,rotateX:f,rotateY:p,skewX:m,skewY:E}=n;c&&(r=`perspective(${c}px) ${r}`),h&&(r+=`rotate(${h}deg) `),f&&(r+=`rotateX(${f}deg) `),p&&(r+=`rotateY(${p}deg) `),m&&(r+=`skewX(${m}deg) `),E&&(r+=`skewY(${E}deg) `)}const a=t.x.scale*e.x,l=t.y.scale*e.y;return(a!==1||l!==1)&&(r+=`scale(${a}, ${l})`),r||"none"}const ji={type:"projectionFrame",totalNodes:0,resolvedTargetDeltas:0,recalculatedProjection:0},Hl=typeof window<"u"&&window.MotionDebug!==void 0,gm=["","X","Y","Z"],L7={visibility:"hidden"},wE=1e3;let F7=0;function ym(t,e,n,r){const{latestValues:s}=e;s[t]&&(n[t]=s[t],e.setStaticValue(t,0),r&&(r[t]=0))}function Gk(t){if(t.hasCheckedOptimisedAppear=!0,t.root===t)return;const{visualElement:e}=t.options;if(!e)return;const n=ek(e);if(window.MotionHasOptimisedAnimation(n,"transform")){const{layout:s,layoutId:i}=t.options;window.MotionCancelOptimisedAnimation(n,"transform",ze,!(s||i))}const{parent:r}=t;r&&!r.hasCheckedOptimisedAppear&&Gk(r)}function qk({attachResizeListener:t,defaultParent:e,measureScroll:n,checkIsScrollRoot:r,resetTransform:s}){return class{constructor(o={},a=e==null?void 0:e()){this.id=F7++,this.animationId=0,this.children=new Set,this.options={},this.isTreeAnimating=!1,this.isAnimationBlocked=!1,this.isLayoutDirty=!1,this.isProjectionDirty=!1,this.isSharedProjectionDirty=!1,this.isTransformDirty=!1,this.updateManuallyBlocked=!1,this.updateBlockedByResize=!1,this.isUpdating=!1,this.isSVG=!1,this.needsReset=!1,this.shouldResetTransform=!1,this.hasCheckedOptimisedAppear=!1,this.treeScale={x:1,y:1},this.eventHandlers=new Map,this.hasTreeAnimated=!1,this.updateScheduled=!1,this.scheduleUpdate=()=>this.update(),this.projectionUpdateScheduled=!1,this.checkUpdateFailed=()=>{this.isUpdating&&(this.isUpdating=!1,this.clearAllSnapshots())},this.updateProjection=()=>{this.projectionUpdateScheduled=!1,Hl&&(ji.totalNodes=ji.resolvedTargetDeltas=ji.recalculatedProjection=0),this.nodes.forEach(z7),this.nodes.forEach(q7),this.nodes.forEach(K7),this.nodes.forEach(B7),Hl&&window.MotionDebug.record(ji)},this.resolvedRelativeTargetAt=0,this.hasProjected=!1,this.isVisible=!0,this.animationProgress=0,this.sharedNodes=new Map,this.latestValues=o,this.root=a?a.root||a:this,this.path=a?[...a.path,a]:[],this.parent=a,this.depth=a?a.depth+1:0;for(let l=0;l<this.path.length;l++)this.path[l].shouldResetTransform=!0;this.root===this&&(this.nodes=new C7)}addEventListener(o,a){return this.eventHandlers.has(o)||this.eventHandlers.set(o,new nx),this.eventHandlers.get(o).add(a)}notifyListeners(o,...a){const l=this.eventHandlers.get(o);l&&l.notify(...a)}hasListeners(o){return this.eventHandlers.has(o)}mount(o,a=this.root.hasTreeAnimated){if(this.instance)return;this.isSVG=T7(o),this.instance=o;const{layoutId:l,layout:c,visualElement:h}=this.options;if(h&&!h.current&&h.mount(o),this.root.nodes.add(this),this.parent&&this.parent.children.add(this),a&&(c||l)&&(this.isLayoutDirty=!0),t){let f;const p=()=>this.root.updateBlockedByResize=!1;t(o,()=>{this.root.updateBlockedByResize=!0,f&&f(),f=I7(p,250),Wd.hasAnimatedSinceResize&&(Wd.hasAnimatedSinceResize=!1,this.nodes.forEach(bE))})}l&&this.root.registerSharedNode(l,this),this.options.animate!==!1&&h&&(l||c)&&this.addEventListener("didUpdate",({delta:f,hasLayoutChanged:p,hasRelativeTargetChanged:m,layout:E})=>{if(this.isTreeAnimationBlocked()){this.target=void 0,this.relativeTarget=void 0;return}const w=this.options.transition||h.getDefaultTransition()||Z7,{onLayoutAnimationStart:v,onLayoutAnimationComplete:y}=h.getProps(),x=!this.targetLayout||!Hk(this.targetLayout,E)||m,S=!p&&m;if(this.options.layoutRoot||this.resumeFrom&&this.resumeFrom.instance||S||p&&(x||!this.currentAnimation)){this.resumeFrom&&(this.resumingFrom=this.resumeFrom,this.resumingFrom.resumingFrom=void 0),this.setAnimationOrigin(f,S);const D={...Y0(w,"layout"),onPlay:v,onComplete:y};(h.shouldReduceMotion||this.options.layoutRoot)&&(D.delay=0,D.type=!1),this.startAnimation(D)}else p||bE(this),this.isLead()&&this.options.onExitComplete&&this.options.onExitComplete();this.targetLayout=E})}unmount(){this.options.layoutId&&this.willUpdate(),this.root.nodes.remove(this);const o=this.getStack();o&&o.remove(this),this.parent&&this.parent.children.delete(this),this.instance=void 0,hi(this.updateProjection)}blockUpdate(){this.updateManuallyBlocked=!0}unblockUpdate(){this.updateManuallyBlocked=!1}isUpdateBlocked(){return this.updateManuallyBlocked||this.updateBlockedByResize}isTreeAnimationBlocked(){return this.isAnimationBlocked||this.parent&&this.parent.isTreeAnimationBlocked()||!1}startUpdate(){this.isUpdateBlocked()||(this.isUpdating=!0,this.nodes&&this.nodes.forEach(Q7),this.animationId++)}getTransformTemplate(){const{visualElement:o}=this.options;return o&&o.getProps().transformTemplate}willUpdate(o=!0){if(this.root.hasTreeAnimated=!0,this.root.isUpdateBlocked()){this.options.onExitComplete&&this.options.onExitComplete();return}if(window.MotionCancelOptimisedAnimation&&!this.hasCheckedOptimisedAppear&&Gk(this),!this.root.isUpdating&&this.root.startUpdate(),this.isLayoutDirty)return;this.isLayoutDirty=!0;for(let h=0;h<this.path.length;h++){const f=this.path[h];f.shouldResetTransform=!0,f.updateScroll("snapshot"),f.options.layoutRoot&&f.willUpdate(!1)}const{layoutId:a,layout:l}=this.options;if(a===void 0&&!l)return;const c=this.getTransformTemplate();this.prevTransformTemplateValue=c?c(this.latestValues,""):void 0,this.updateSnapshot(),o&&this.notifyListeners("willUpdate")}update(){if(this.updateScheduled=!1,this.isUpdateBlocked()){this.unblockUpdate(),this.clearAllSnapshots(),this.nodes.forEach(_E);return}this.isUpdating||this.nodes.forEach(H7),this.isUpdating=!1,this.nodes.forEach(G7),this.nodes.forEach(U7),this.nodes.forEach($7),this.clearAllSnapshots();const a=Ir.now();Tt.delta=is(0,1e3/60,a-Tt.timestamp),Tt.timestamp=a,Tt.isProcessing=!0,am.update.process(Tt),am.preRender.process(Tt),am.render.process(Tt),Tt.isProcessing=!1}didUpdate(){this.updateScheduled||(this.updateScheduled=!0,U0.read(this.scheduleUpdate))}clearAllSnapshots(){this.nodes.forEach(W7),this.sharedNodes.forEach(Y7)}scheduleUpdateProjection(){this.projectionUpdateScheduled||(this.projectionUpdateScheduled=!0,ze.preRender(this.updateProjection,!1,!0))}scheduleCheckAfterUnmount(){ze.postRender(()=>{this.isLayoutDirty?this.root.didUpdate():this.root.checkUpdateFailed()})}updateSnapshot(){this.snapshot||!this.instance||(this.snapshot=this.measure())}updateLayout(){if(!this.instance||(this.updateScroll(),!(this.options.alwaysMeasureLayout&&this.isLead())&&!this.isLayoutDirty))return;if(this.resumeFrom&&!this.resumeFrom.instance)for(let l=0;l<this.path.length;l++)this.path[l].updateScroll();const o=this.layout;this.layout=this.measure(!1),this.layoutCorrected=et(),this.isLayoutDirty=!1,this.projectionDelta=void 0,this.notifyListeners("measure",this.layout.layoutBox);const{visualElement:a}=this.options;a&&a.notify("LayoutMeasure",this.layout.layoutBox,o?o.layoutBox:void 0)}updateScroll(o="measure"){let a=!!(this.options.layoutScroll&&this.instance);if(this.scroll&&this.scroll.animationId===this.root.animationId&&this.scroll.phase===o&&(a=!1),a){const l=r(this.instance);this.scroll={animationId:this.root.animationId,phase:o,isRoot:l,offset:n(this.instance),wasRoot:this.scroll?this.scroll.isRoot:l}}}resetTransform(){if(!s)return;const o=this.isLayoutDirty||this.shouldResetTransform||this.options.alwaysMeasureLayout,a=this.projectionDelta&&!Wk(this.projectionDelta),l=this.getTransformTemplate(),c=l?l(this.latestValues,""):void 0,h=c!==this.prevTransformTemplateValue;o&&(a||Ri(this.latestValues)||h)&&(s(this.instance,c),this.shouldResetTransform=!1,this.scheduleRender())}measure(o=!0){const a=this.measurePageBox();let l=this.removeElementScroll(a);return o&&(l=this.removeTransform(l)),eW(l),{animationId:this.root.animationId,measuredBox:a,layoutBox:l,latestValues:{},source:this.id}}measurePageBox(){var o;const{visualElement:a}=this.options;if(!a)return et();const l=a.measureViewportBox();if(!(((o=this.scroll)===null||o===void 0?void 0:o.wasRoot)||this.path.some(tW))){const{scroll:h}=this.root;h&&(Go(l.x,h.offset.x),Go(l.y,h.offset.y))}return l}removeElementScroll(o){var a;const l=et();if(_n(l,o),!((a=this.scroll)===null||a===void 0)&&a.wasRoot)return l;for(let c=0;c<this.path.length;c++){const h=this.path[c],{scroll:f,options:p}=h;h!==this.root&&f&&p.layoutScroll&&(f.wasRoot&&_n(l,o),Go(l.x,f.offset.x),Go(l.y,f.offset.y))}return l}applyTransform(o,a=!1){const l=et();_n(l,o);for(let c=0;c<this.path.length;c++){const h=this.path[c];!a&&h.options.layoutScroll&&h.scroll&&h!==h.root&&qo(l,{x:-h.scroll.offset.x,y:-h.scroll.offset.y}),Ri(h.latestValues)&&qo(l,h.latestValues)}return Ri(this.latestValues)&&qo(l,this.latestValues),l}removeTransform(o){const a=et();_n(a,o);for(let l=0;l<this.path.length;l++){const c=this.path[l];if(!c.instance||!Ri(c.latestValues))continue;yy(c.latestValues)&&c.updateSnapshot();const h=et(),f=c.measurePageBox();_n(h,f),pE(a,c.latestValues,c.snapshot?c.snapshot.layoutBox:void 0,h)}return Ri(this.latestValues)&&pE(a,this.latestValues),a}setTargetDelta(o){this.targetDelta=o,this.root.scheduleUpdateProjection(),this.isProjectionDirty=!0}setOptions(o){this.options={...this.options,...o,crossfade:o.crossfade!==void 0?o.crossfade:!0}}clearMeasurements(){this.scroll=void 0,this.layout=void 0,this.snapshot=void 0,this.prevTransformTemplateValue=void 0,this.targetDelta=void 0,this.target=void 0,this.isLayoutDirty=!1}forceRelativeParentToResolveTarget(){this.relativeParent&&this.relativeParent.resolvedRelativeTargetAt!==Tt.timestamp&&this.relativeParent.resolveTargetDelta(!0)}resolveTargetDelta(o=!1){var a;const l=this.getLead();this.isProjectionDirty||(this.isProjectionDirty=l.isProjectionDirty),this.isTransformDirty||(this.isTransformDirty=l.isTransformDirty),this.isSharedProjectionDirty||(this.isSharedProjectionDirty=l.isSharedProjectionDirty);const c=!!this.resumingFrom||this!==l;if(!(o||c&&this.isSharedProjectionDirty||this.isProjectionDirty||!((a=this.parent)===null||a===void 0)&&a.isProjectionDirty||this.attemptToResolveRelativeTarget||this.root.updateBlockedByResize))return;const{layout:f,layoutId:p}=this.options;if(!(!this.layout||!(f||p))){if(this.resolvedRelativeTargetAt=Tt.timestamp,!this.targetDelta&&!this.relativeTarget){const m=this.getClosestProjectingParent();m&&m.layout&&this.animationProgress!==1?(this.relativeParent=m,this.forceRelativeParentToResolveTarget(),this.relativeTarget=et(),this.relativeTargetOrigin=et(),uc(this.relativeTargetOrigin,this.layout.layoutBox,m.layout.layoutBox),_n(this.relativeTarget,this.relativeTargetOrigin)):this.relativeParent=this.relativeTarget=void 0}if(!(!this.relativeTarget&&!this.targetDelta)){if(this.target||(this.target=et(),this.targetWithTransforms=et()),this.relativeTarget&&this.relativeTargetOrigin&&this.relativeParent&&this.relativeParent.target?(this.forceRelativeParentToResolveTarget(),s7(this.target,this.relativeTarget,this.relativeParent.target)):this.targetDelta?(this.resumingFrom?this.target=this.applyTransform(this.layout.layoutBox):_n(this.target,this.layout.layoutBox),Lk(this.target,this.targetDelta)):_n(this.target,this.layout.layoutBox),this.attemptToResolveRelativeTarget){this.attemptToResolveRelativeTarget=!1;const m=this.getClosestProjectingParent();m&&!!m.resumingFrom==!!this.resumingFrom&&!m.options.layoutScroll&&m.target&&this.animationProgress!==1?(this.relativeParent=m,this.forceRelativeParentToResolveTarget(),this.relativeTarget=et(),this.relativeTargetOrigin=et(),uc(this.relativeTargetOrigin,this.target,m.target),_n(this.relativeTarget,this.relativeTargetOrigin)):this.relativeParent=this.relativeTarget=void 0}Hl&&ji.resolvedTargetDeltas++}}}getClosestProjectingParent(){if(!(!this.parent||yy(this.parent.latestValues)||Ok(this.parent.latestValues)))return this.parent.isProjecting()?this.parent:this.parent.getClosestProjectingParent()}isProjecting(){return!!((this.relativeTarget||this.targetDelta||this.options.layoutRoot)&&this.layout)}calcProjection(){var o;const a=this.getLead(),l=!!this.resumingFrom||this!==a;let c=!0;if((this.isProjectionDirty||!((o=this.parent)===null||o===void 0)&&o.isProjectionDirty)&&(c=!1),l&&(this.isSharedProjectionDirty||this.isTransformDirty)&&(c=!1),this.resolvedRelativeTargetAt===Tt.timestamp&&(c=!1),c)return;const{layout:h,layoutId:f}=this.options;if(this.isTreeAnimating=!!(this.parent&&this.parent.isTreeAnimating||this.currentAnimation||this.pendingAnimation),this.isTreeAnimating||(this.targetDelta=this.relativeTarget=void 0),!this.layout||!(h||f))return;_n(this.layoutCorrected,this.layout.layoutBox);const p=this.treeScale.x,m=this.treeScale.y;f7(this.layoutCorrected,this.treeScale,this.path,l),a.layout&&!a.target&&(this.treeScale.x!==1||this.treeScale.y!==1)&&(a.target=a.layout.layoutBox,a.targetWithTransforms=et());const{target:E}=a;if(!E){this.prevProjectionDelta&&(this.createProjectionDeltas(),this.scheduleRender());return}!this.projectionDelta||!this.prevProjectionDelta?this.createProjectionDeltas():(dE(this.prevProjectionDelta.x,this.projectionDelta.x),dE(this.prevProjectionDelta.y,this.projectionDelta.y)),cc(this.projectionDelta,this.layoutCorrected,E,this.latestValues),(this.treeScale.x!==p||this.treeScale.y!==m||!xE(this.projectionDelta.x,this.prevProjectionDelta.x)||!xE(this.projectionDelta.y,this.prevProjectionDelta.y))&&(this.hasProjected=!0,this.scheduleRender(),this.notifyListeners("projectionUpdate",E)),Hl&&ji.recalculatedProjection++}hide(){this.isVisible=!1}show(){this.isVisible=!0}scheduleRender(o=!0){var a;if((a=this.options.visualElement)===null||a===void 0||a.scheduleRender(),o){const l=this.getStack();l&&l.scheduleRender()}this.resumingFrom&&!this.resumingFrom.instance&&(this.resumingFrom=void 0)}createProjectionDeltas(){this.prevProjectionDelta=Ho(),this.projectionDelta=Ho(),this.projectionDeltaWithTransform=Ho()}setAnimationOrigin(o,a=!1){const l=this.snapshot,c=l?l.latestValues:{},h={...this.latestValues},f=Ho();(!this.relativeParent||!this.relativeParent.options.layoutRoot)&&(this.relativeTarget=this.relativeTargetOrigin=void 0),this.attemptToResolveRelativeTarget=!a;const p=et(),m=l?l.source:void 0,E=this.layout?this.layout.source:void 0,w=m!==E,v=this.getStack(),y=!v||v.members.length<=1,x=!!(w&&!y&&this.options.crossfade===!0&&!this.path.some(J7));this.animationProgress=0;let S;this.mixTargetDelta=D=>{const j=D/1e3;EE(f.x,o.x,j),EE(f.y,o.y,j),this.setTargetDelta(f),this.relativeTarget&&this.relativeTargetOrigin&&this.layout&&this.relativeParent&&this.relativeParent.layout&&(uc(p,this.layout.layoutBox,this.relativeParent.layout.layoutBox),X7(this.relativeTarget,this.relativeTargetOrigin,p,j),S&&M7(this.relativeTarget,S)&&(this.isProjectionDirty=!1),S||(S=et()),_n(S,this.relativeTarget)),w&&(this.animationValues=h,P7(h,c,this.latestValues,j,x,y)),this.root.scheduleUpdateProjection(),this.scheduleRender(),this.animationProgress=j},this.mixTargetDelta(this.options.layoutRoot?1e3:0)}startAnimation(o){this.notifyListeners("animationStart"),this.currentAnimation&&this.currentAnimation.stop(),this.resumingFrom&&this.resumingFrom.currentAnimation&&this.resumingFrom.currentAnimation.stop(),this.pendingAnimation&&(hi(this.pendingAnimation),this.pendingAnimation=void 0),this.pendingAnimation=ze.update(()=>{Wd.hasAnimatedSinceResize=!0,this.currentAnimation=E7(0,wE,{...o,onUpdate:a=>{this.mixTargetDelta(a),o.onUpdate&&o.onUpdate(a)},onComplete:()=>{o.onComplete&&o.onComplete(),this.completeAnimation()}}),this.resumingFrom&&(this.resumingFrom.currentAnimation=this.currentAnimation),this.pendingAnimation=void 0})}completeAnimation(){this.resumingFrom&&(this.resumingFrom.currentAnimation=void 0,this.resumingFrom.preserveOpacity=void 0);const o=this.getStack();o&&o.exitAnimationComplete(),this.resumingFrom=this.currentAnimation=this.animationValues=void 0,this.notifyListeners("animationComplete")}finishAnimation(){this.currentAnimation&&(this.mixTargetDelta&&this.mixTargetDelta(wE),this.currentAnimation.stop()),this.completeAnimation()}applyTransformsToTarget(){const o=this.getLead();let{targetWithTransforms:a,target:l,layout:c,latestValues:h}=o;if(!(!a||!l||!c)){if(this!==o&&this.layout&&c&&Kk(this.options.animationType,this.layout.layoutBox,c.layoutBox)){l=this.target||et();const f=gn(this.layout.layoutBox.x);l.x.min=o.target.x.min,l.x.max=l.x.min+f;const p=gn(this.layout.layoutBox.y);l.y.min=o.target.y.min,l.y.max=l.y.min+p}_n(a,l),qo(a,h),cc(this.projectionDeltaWithTransform,this.layoutCorrected,a,h)}}registerSharedNode(o,a){this.sharedNodes.has(o)||this.sharedNodes.set(o,new V7),this.sharedNodes.get(o).add(a);const c=a.options.initialPromotionConfig;a.promote({transition:c?c.transition:void 0,preserveFollowOpacity:c&&c.shouldPreserveFollowOpacity?c.shouldPreserveFollowOpacity(a):void 0})}isLead(){const o=this.getStack();return o?o.lead===this:!0}getLead(){var o;const{layoutId:a}=this.options;return a?((o=this.getStack())===null||o===void 0?void 0:o.lead)||this:this}getPrevLead(){var o;const{layoutId:a}=this.options;return a?(o=this.getStack())===null||o===void 0?void 0:o.prevLead:void 0}getStack(){const{layoutId:o}=this.options;if(o)return this.root.sharedNodes.get(o)}promote({needsReset:o,transition:a,preserveFollowOpacity:l}={}){const c=this.getStack();c&&c.promote(this,l),o&&(this.projectionDelta=void 0,this.needsReset=!0),a&&this.setOptions({transition:a})}relegate(){const o=this.getStack();return o?o.relegate(this):!1}resetSkewAndRotation(){const{visualElement:o}=this.options;if(!o)return;let a=!1;const{latestValues:l}=o;if((l.z||l.rotate||l.rotateX||l.rotateY||l.rotateZ||l.skewX||l.skewY)&&(a=!0),!a)return;const c={};l.z&&ym("z",o,c,this.animationValues);for(let h=0;h<gm.length;h++)ym(`rotate${gm[h]}`,o,c,this.animationValues),ym(`skew${gm[h]}`,o,c,this.animationValues);o.render();for(const h in c)o.setStaticValue(h,c[h]),this.animationValues&&(this.animationValues[h]=c[h]);o.scheduleRender()}getProjectionStyles(o){var a,l;if(!this.instance||this.isSVG)return;if(!this.isVisible)return L7;const c={visibility:""},h=this.getTransformTemplate();if(this.needsReset)return this.needsReset=!1,c.opacity="",c.pointerEvents=zd(o==null?void 0:o.pointerEvents)||"",c.transform=h?h(this.latestValues,""):"none",c;const f=this.getLead();if(!this.projectionDelta||!this.layout||!f.target){const w={};return this.options.layoutId&&(w.opacity=this.latestValues.opacity!==void 0?this.latestValues.opacity:1,w.pointerEvents=zd(o==null?void 0:o.pointerEvents)||""),this.hasProjected&&!Ri(this.latestValues)&&(w.transform=h?h({},""):"none",this.hasProjected=!1),w}const p=f.animationValues||f.latestValues;this.applyTransformsToTarget(),c.transform=O7(this.projectionDeltaWithTransform,this.treeScale,p),h&&(c.transform=h(p,c.transform));const{x:m,y:E}=this.projectionDelta;c.transformOrigin=`${m.origin*100}% ${E.origin*100}% 0`,f.animationValues?c.opacity=f===this?(l=(a=p.opacity)!==null&&a!==void 0?a:this.latestValues.opacity)!==null&&l!==void 0?l:1:this.preserveOpacity?this.latestValues.opacity:p.opacityExit:c.opacity=f===this?p.opacity!==void 0?p.opacity:"":p.opacityExit!==void 0?p.opacityExit:0;for(const w in Wh){if(p[w]===void 0)continue;const{correct:v,applyTo:y}=Wh[w],x=c.transform==="none"?p[w]:v(p[w],f);if(y){const S=y.length;for(let D=0;D<S;D++)c[y[D]]=x}else c[w]=x}return this.options.layoutId&&(c.pointerEvents=f===this?zd(o==null?void 0:o.pointerEvents)||"":"none"),c}clearSnapshot(){this.resumeFrom=this.snapshot=void 0}resetTree(){this.root.nodes.forEach(o=>{var a;return(a=o.currentAnimation)===null||a===void 0?void 0:a.stop()}),this.root.nodes.forEach(_E),this.root.sharedNodes.clear()}}}function U7(t){t.updateLayout()}function $7(t){var e;const n=((e=t.resumeFrom)===null||e===void 0?void 0:e.snapshot)||t.snapshot;if(t.isLead()&&t.layout&&n&&t.hasListeners("didUpdate")){const{layoutBox:r,measuredBox:s}=t.layout,{animationType:i}=t.options,o=n.source!==t.layout.source;i==="size"?bn(f=>{const p=o?n.measuredBox[f]:n.layoutBox[f],m=gn(p);p.min=r[f].min,p.max=p.min+m}):Kk(i,n.layoutBox,r)&&bn(f=>{const p=o?n.measuredBox[f]:n.layoutBox[f],m=gn(r[f]);p.max=p.min+m,t.relativeTarget&&!t.currentAnimation&&(t.isProjectionDirty=!0,t.relativeTarget[f].max=t.relativeTarget[f].min+m)});const a=Ho();cc(a,r,n.layoutBox);const l=Ho();o?cc(l,t.applyTransform(s,!0),n.measuredBox):cc(l,r,n.layoutBox);const c=!Wk(a);let h=!1;if(!t.resumeFrom){const f=t.getClosestProjectingParent();if(f&&!f.resumeFrom){const{snapshot:p,layout:m}=f;if(p&&m){const E=et();uc(E,n.layoutBox,p.layoutBox);const w=et();uc(w,r,m.layoutBox),Hk(E,w)||(h=!0),f.options.layoutRoot&&(t.relativeTarget=w,t.relativeTargetOrigin=E,t.relativeParent=f)}}}t.notifyListeners("didUpdate",{layout:r,snapshot:n,delta:l,layoutDelta:a,hasLayoutChanged:c,hasRelativeTargetChanged:h})}else if(t.isLead()){const{onExitComplete:r}=t.options;r&&r()}t.options.transition=void 0}function z7(t){Hl&&ji.totalNodes++,t.parent&&(t.isProjecting()||(t.isProjectionDirty=t.parent.isProjectionDirty),t.isSharedProjectionDirty||(t.isSharedProjectionDirty=!!(t.isProjectionDirty||t.parent.isProjectionDirty||t.parent.isSharedProjectionDirty)),t.isTransformDirty||(t.isTransformDirty=t.parent.isTransformDirty))}function B7(t){t.isProjectionDirty=t.isSharedProjectionDirty=t.isTransformDirty=!1}function W7(t){t.clearSnapshot()}function _E(t){t.clearMeasurements()}function H7(t){t.isLayoutDirty=!1}function G7(t){const{visualElement:e}=t.options;e&&e.getProps().onBeforeLayoutMeasure&&e.notify("BeforeLayoutMeasure"),t.resetTransform()}function bE(t){t.finishAnimation(),t.targetDelta=t.relativeTarget=t.target=void 0,t.isProjectionDirty=!0}function q7(t){t.resolveTargetDelta()}function K7(t){t.calcProjection()}function Q7(t){t.resetSkewAndRotation()}function Y7(t){t.removeLeadSnapshot()}function EE(t,e,n){t.translate=Ge(e.translate,0,n),t.scale=Ge(e.scale,1,n),t.origin=e.origin,t.originPoint=e.originPoint}function TE(t,e,n,r){t.min=Ge(e.min,n.min,r),t.max=Ge(e.max,n.max,r)}function X7(t,e,n,r){TE(t.x,e.x,n.x,r),TE(t.y,e.y,n.y,r)}function J7(t){return t.animationValues&&t.animationValues.opacityExit!==void 0}const Z7={duration:.45,ease:[.4,0,.1,1]},SE=t=>typeof navigator<"u"&&navigator.userAgent&&navigator.userAgent.toLowerCase().includes(t),CE=SE("applewebkit/")&&!SE("chrome/")?Math.round:pn;function IE(t){t.min=CE(t.min),t.max=CE(t.max)}function eW(t){IE(t.x),IE(t.y)}function Kk(t,e,n){return t==="position"||t==="preserve-aspect"&&!r7(vE(e),vE(n),.2)}function tW(t){var e;return t!==t.root&&((e=t.scroll)===null||e===void 0?void 0:e.wasRoot)}const nW=qk({attachResizeListener:(t,e)=>Gc(t,"resize",e),measureScroll:()=>({x:document.documentElement.scrollLeft||document.body.scrollLeft,y:document.documentElement.scrollTop||document.body.scrollTop}),checkIsScrollRoot:()=>!0}),vm={current:void 0},Qk=qk({measureScroll:t=>({x:t.scrollLeft,y:t.scrollTop}),defaultParent:()=>{if(!vm.current){const t=new nW({});t.mount(window),t.setOptions({layoutScroll:!0}),vm.current=t}return vm.current},resetTransform:(t,e)=>{t.style.transform=e!==void 0?e:"none"},checkIsScrollRoot:t=>window.getComputedStyle(t).position==="fixed"}),rW={pan:{Feature:x7},drag:{Feature:v7,ProjectionNode:Qk,MeasureLayout:$k}};function AE(t,e,n){const{props:r}=t;t.animationState&&r.whileHover&&t.animationState.setActive("whileHover",n==="Start");const s="onHover"+n,i=r[s];i&&ze.postRender(()=>i(e,_u(e)))}class sW extends vi{mount(){const{current:e}=this.node;e&&(this.unmount=sz(e,n=>(AE(this.node,n,"Start"),r=>AE(this.node,r,"End"))))}unmount(){}}class iW extends vi{constructor(){super(...arguments),this.isActive=!1}onFocus(){let e=!1;try{e=this.node.current.matches(":focus-visible")}catch{e=!0}!e||!this.node.animationState||(this.node.animationState.setActive("whileFocus",!0),this.isActive=!0)}onBlur(){!this.isActive||!this.node.animationState||(this.node.animationState.setActive("whileFocus",!1),this.isActive=!1)}mount(){this.unmount=wu(Gc(this.node.current,"focus",()=>this.onFocus()),Gc(this.node.current,"blur",()=>this.onBlur()))}unmount(){}}function PE(t,e,n){const{props:r}=t;t.animationState&&r.whileTap&&t.animationState.setActive("whileTap",n==="Start");const s="onTap"+(n==="End"?"":n),i=r[s];i&&ze.postRender(()=>i(e,_u(e)))}class oW extends vi{mount(){const{current:e}=this.node;e&&(this.unmount=lz(e,n=>(PE(this.node,n,"Start"),(r,{success:s})=>PE(this.node,r,s?"End":"Cancel")),{useGlobalTarget:this.node.props.globalTapTarget}))}unmount(){}}const xy=new WeakMap,xm=new WeakMap,aW=t=>{const e=xy.get(t.target);e&&e(t)},lW=t=>{t.forEach(aW)};function cW({root:t,...e}){const n=t||document;xm.has(n)||xm.set(n,{});const r=xm.get(n),s=JSON.stringify(e);return r[s]||(r[s]=new IntersectionObserver(lW,{root:t,...e})),r[s]}function uW(t,e,n){const r=cW(e);return xy.set(t,n),r.observe(t),()=>{xy.delete(t),r.unobserve(t)}}const dW={some:0,all:1};class hW extends vi{constructor(){super(...arguments),this.hasEnteredView=!1,this.isInView=!1}startObserver(){this.unmount();const{viewport:e={}}=this.node.getProps(),{root:n,margin:r,amount:s="some",once:i}=e,o={root:n?n.current:void 0,rootMargin:r,threshold:typeof s=="number"?s:dW[s]},a=l=>{const{isIntersecting:c}=l;if(this.isInView===c||(this.isInView=c,i&&!c&&this.hasEnteredView))return;c&&(this.hasEnteredView=!0),this.node.animationState&&this.node.animationState.setActive("whileInView",c);const{onViewportEnter:h,onViewportLeave:f}=this.node.getProps(),p=c?h:f;p&&p(l)};return uW(this.node.current,o,a)}mount(){this.startObserver()}update(){if(typeof IntersectionObserver>"u")return;const{props:e,prevProps:n}=this.node;["amount","margin","root"].some(fW(e,n))&&this.startObserver()}unmount(){}}function fW({viewport:t={}},{viewport:e={}}={}){return n=>t[n]!==e[n]}const pW={inView:{Feature:hW},tap:{Feature:oW},focus:{Feature:iW},hover:{Feature:sW}},mW={layout:{ProjectionNode:Qk,MeasureLayout:$k}},wy={current:null},Yk={current:!1};function gW(){if(Yk.current=!0,!!M0)if(window.matchMedia){const t=window.matchMedia("(prefers-reduced-motion)"),e=()=>wy.current=t.matches;t.addListener(e),e()}else wy.current=!1}const yW=[..._k,Mt,fi],vW=t=>yW.find(wk(t)),kE=new WeakMap;function xW(t,e,n){for(const r in e){const s=e[r],i=n[r];if(Ft(s))t.addValue(r,s);else if(Ft(i))t.addValue(r,Wc(s,{owner:t}));else if(i!==s)if(t.hasValue(r)){const o=t.getValue(r);o.liveStyle===!0?o.jump(s):o.hasAnimated||o.set(s)}else{const o=t.getStaticValue(r);t.addValue(r,Wc(o!==void 0?o:s,{owner:t}))}}for(const r in n)e[r]===void 0&&t.removeValue(r);return e}const NE=["AnimationStart","AnimationComplete","Update","BeforeLayoutMeasure","LayoutMeasure","LayoutAnimationStart","LayoutAnimationComplete"];class wW{scrapeMotionValuesFromProps(e,n,r){return{}}constructor({parent:e,props:n,presenceContext:r,reducedMotionConfig:s,blockInitialAnimation:i,visualState:o},a={}){this.current=null,this.children=new Set,this.isVariantNode=!1,this.isControllingVariants=!1,this.shouldReduceMotion=null,this.values=new Map,this.KeyframeResolver=lx,this.features={},this.valueSubscriptions=new Map,this.prevMotionValues={},this.events={},this.propEventSubscriptions={},this.notifyUpdate=()=>this.notify("Update",this.latestValues),this.render=()=>{this.current&&(this.triggerBuild(),this.renderInstance(this.current,this.renderState,this.props.style,this.projection))},this.renderScheduledAt=0,this.scheduleRender=()=>{const m=Ir.now();this.renderScheduledAt<m&&(this.renderScheduledAt=m,ze.render(this.render,!1,!0))};const{latestValues:l,renderState:c,onUpdate:h}=o;this.onUpdate=h,this.latestValues=l,this.baseTarget={...l},this.initialValues=n.initial?{...l}:{},this.renderState=c,this.parent=e,this.props=n,this.presenceContext=r,this.depth=e?e.depth+1:0,this.reducedMotionConfig=s,this.options=a,this.blockInitialAnimation=!!i,this.isControllingVariants=Kf(n),this.isVariantNode=PP(n),this.isVariantNode&&(this.variantChildren=new Set),this.manuallyAnimateOnMount=!!(e&&e.current);const{willChange:f,...p}=this.scrapeMotionValuesFromProps(n,{},this);for(const m in p){const E=p[m];l[m]!==void 0&&Ft(E)&&E.set(l[m],!1)}}mount(e){this.current=e,kE.set(e,this),this.projection&&!this.projection.instance&&this.projection.mount(e),this.parent&&this.isVariantNode&&!this.isControllingVariants&&(this.removeFromVariantTree=this.parent.addVariantChild(this)),this.values.forEach((n,r)=>this.bindToMotionValue(r,n)),Yk.current||gW(),this.shouldReduceMotion=this.reducedMotionConfig==="never"?!1:this.reducedMotionConfig==="always"?!0:wy.current,this.parent&&this.parent.children.add(this),this.update(this.props,this.presenceContext)}unmount(){kE.delete(this.current),this.projection&&this.projection.unmount(),hi(this.notifyUpdate),hi(this.render),this.valueSubscriptions.forEach(e=>e()),this.valueSubscriptions.clear(),this.removeFromVariantTree&&this.removeFromVariantTree(),this.parent&&this.parent.children.delete(this);for(const e in this.events)this.events[e].clear();for(const e in this.features){const n=this.features[e];n&&(n.unmount(),n.isMounted=!1)}this.current=null}bindToMotionValue(e,n){this.valueSubscriptions.has(e)&&this.valueSubscriptions.get(e)();const r=wo.has(e),s=n.on("change",a=>{this.latestValues[e]=a,this.props.onUpdate&&ze.preRender(this.notifyUpdate),r&&this.projection&&(this.projection.isTransformDirty=!0)}),i=n.on("renderRequest",this.scheduleRender);let o;window.MotionCheckAppearSync&&(o=window.MotionCheckAppearSync(this,e,n)),this.valueSubscriptions.set(e,()=>{s(),i(),o&&o(),n.owner&&n.stop()})}sortNodePosition(e){return!this.current||!this.sortInstanceNodePosition||this.type!==e.type?0:this.sortInstanceNodePosition(this.current,e.current)}updateFeatures(){let e="animation";for(e in Oa){const n=Oa[e];if(!n)continue;const{isEnabled:r,Feature:s}=n;if(!this.features[e]&&s&&r(this.props)&&(this.features[e]=new s(this)),this.features[e]){const i=this.features[e];i.isMounted?i.update():(i.mount(),i.isMounted=!0)}}}triggerBuild(){this.build(this.renderState,this.latestValues,this.props)}measureViewportBox(){return this.current?this.measureInstanceViewportBox(this.current,this.props):et()}getStaticValue(e){return this.latestValues[e]}setStaticValue(e,n){this.latestValues[e]=n}update(e,n){(e.transformTemplate||this.props.transformTemplate)&&this.scheduleRender(),this.prevProps=this.props,this.props=e,this.prevPresenceContext=this.presenceContext,this.presenceContext=n;for(let r=0;r<NE.length;r++){const s=NE[r];this.propEventSubscriptions[s]&&(this.propEventSubscriptions[s](),delete this.propEventSubscriptions[s]);const i="on"+s,o=e[i];o&&(this.propEventSubscriptions[s]=this.on(s,o))}this.prevMotionValues=xW(this,this.scrapeMotionValuesFromProps(e,this.prevProps,this),this.prevMotionValues),this.handleChildMotionValue&&this.handleChildMotionValue(),this.onUpdate&&this.onUpdate(this)}getProps(){return this.props}getVariant(e){return this.props.variants?this.props.variants[e]:void 0}getDefaultTransition(){return this.props.transition}getTransformPagePoint(){return this.props.transformPagePoint}getClosestVariantNode(){return this.isVariantNode?this:this.parent?this.parent.getClosestVariantNode():void 0}addVariantChild(e){const n=this.getClosestVariantNode();if(n)return n.variantChildren&&n.variantChildren.add(e),()=>n.variantChildren.delete(e)}addValue(e,n){const r=this.values.get(e);n!==r&&(r&&this.removeValue(e),this.bindToMotionValue(e,n),this.values.set(e,n),this.latestValues[e]=n.get())}removeValue(e){this.values.delete(e);const n=this.valueSubscriptions.get(e);n&&(n(),this.valueSubscriptions.delete(e)),delete this.latestValues[e],this.removeValueFromRenderState(e,this.renderState)}hasValue(e){return this.values.has(e)}getValue(e,n){if(this.props.values&&this.props.values[e])return this.props.values[e];let r=this.values.get(e);return r===void 0&&n!==void 0&&(r=Wc(n===null?void 0:n,{owner:this}),this.addValue(e,r)),r}readValue(e,n){var r;let s=this.latestValues[e]!==void 0||!this.current?this.latestValues[e]:(r=this.getBaseTargetFromProps(this.props,e))!==null&&r!==void 0?r:this.readValueFromInstance(this.current,e,this.options);return s!=null&&(typeof s=="string"&&(vk(s)||ck(s))?s=parseFloat(s):!vW(s)&&fi.test(n)&&(s=mk(e,n)),this.setBaseTarget(e,Ft(s)?s.get():s)),Ft(s)?s.get():s}setBaseTarget(e,n){this.baseTarget[e]=n}getBaseTarget(e){var n;const{initial:r}=this.props;let s;if(typeof r=="string"||typeof r=="object"){const o=z0(this.props,r,(n=this.presenceContext)===null||n===void 0?void 0:n.custom);o&&(s=o[e])}if(r&&s!==void 0)return s;const i=this.getBaseTargetFromProps(this.props,e);return i!==void 0&&!Ft(i)?i:this.initialValues[e]!==void 0&&s===void 0?void 0:this.baseTarget[e]}on(e,n){return this.events[e]||(this.events[e]=new nx),this.events[e].add(n)}notify(e,...n){this.events[e]&&this.events[e].notify(...n)}}class Xk extends wW{constructor(){super(...arguments),this.KeyframeResolver=bk}sortInstanceNodePosition(e,n){return e.compareDocumentPosition(n)&2?1:-1}getBaseTargetFromProps(e,n){return e.style?e.style[n]:void 0}removeValueFromRenderState(e,{vars:n,style:r}){delete n[e],delete r[e]}handleChildMotionValue(){this.childSubscription&&(this.childSubscription(),delete this.childSubscription);const{children:e}=this.props;Ft(e)&&(this.childSubscription=e.on("change",n=>{this.current&&(this.current.textContent=`${n}`)}))}}function _W(t){return window.getComputedStyle(t)}class bW extends Xk{constructor(){super(...arguments),this.type="html",this.renderInstance=LP}readValueFromInstance(e,n){if(wo.has(n)){const r=ax(n);return r&&r.default||0}else{const r=_W(e),s=(MP(n)?r.getPropertyValue(n):r[n])||0;return typeof s=="string"?s.trim():s}}measureInstanceViewportBox(e,{transformPagePoint:n}){return Fk(e,n)}build(e,n,r){H0(e,n,r.transformTemplate)}scrapeMotionValuesFromProps(e,n,r){return Q0(e,n,r)}}class EW extends Xk{constructor(){super(...arguments),this.type="svg",this.isSVGTag=!1,this.measureInstanceViewportBox=et}getBaseTargetFromProps(e,n){return e[n]}readValueFromInstance(e,n){if(wo.has(n)){const r=ax(n);return r&&r.default||0}return n=FP.has(n)?n:F0(n),e.getAttribute(n)}scrapeMotionValuesFromProps(e,n,r){return zP(e,n,r)}build(e,n,r){G0(e,n,this.isSVGTag,r.transformTemplate)}renderInstance(e,n,r,s){UP(e,n,r,s)}mount(e){this.isSVGTag=K0(e.tagName),super.mount(e)}}const TW=(t,e)=>$0(t)?new EW(e):new bW(e,{allowProjection:t!==b.Fragment}),SW=X$({...KB,...pW,...rW,...mW},TW),Y=h$(SW);const GymDumbbellIcon = function({ size = 20, color = 'currentColor', strokeWidth = 2 }) {
-  return d.jsxs('svg', {
-    width: size, height: size, viewBox: '0 0 24 24',
-    fill: 'none', stroke: color, strokeWidth, strokeLinecap: 'round', strokeLinejoin: 'round',
-    children: [
-      d.jsx('rect', { key: 'a', x: '2', y: '9', width: '4', height: '6', rx: '1.5' }),
-      d.jsx('rect', { key: 'b', x: '18', y: '9', width: '4', height: '6', rx: '1.5' }),
-      d.jsx('line', { key: 'c', x1: '6', y1: '12', x2: '18', y2: '12' }),
-      d.jsx('line', { key: 'd', x1: '6', y1: '8', x2: '6', y2: '16' }),
-      d.jsx('line', { key: 'e', x1: '18', y1: '8', x2: '18', y2: '16' }),
-    ],
+        `),()=>{document.head.removeChild(h)}},[e]),d.jsx(t$,{isPresent:e,childRef:r,sizeRef:s,children:b.cloneElement(t,{ref:r})})}const r$=({children:t,initial:e,isPresent:n,onExitComplete:r,custom:s,presenceAffectsLayout:i,mode:o})=>{const a=j0(s$),l=b.useId(),c=b.useCallback(f=>{a.set(f,!0);for(const p of a.values())if(!p)return;r&&r()},[a,r]),h=b.useMemo(()=>({id:l,initial:e,isPresent:n,custom:s,onExitComplete:c,register:f=>(a.set(f,!1),()=>a.delete(f))}),i?[Math.random(),c]:[n,c]);return b.useMemo(()=>{a.forEach((f,p)=>a.set(p,!1))},[n]),b.useEffect(()=>{!n&&!a.size&&r&&r()},[n]),o==="popLayout"&&(t=d.jsx(n$,{isPresent:n,children:t})),d.jsx(Hf.Provider,{value:h,children:t})};function s$(){return new Map}function TP(t=!0){const e=b.useContext(Hf);if(e===null)return[!0,null];const{isPresent:n,onExitComplete:r,register:s}=e,i=b.useId();b.useEffect(()=>{t&&s(i)},[t]);const o=b.useCallback(()=>t&&r&&r(i),[i,r,t]);return!n&&r?[!1,o]:[!0]}const ud=t=>t.key||"";function gb(t){const e=[];return b.Children.forEach(t,n=>{b.isValidElement(n)&&e.push(n)}),e}const M0=typeof window<"u",SP=M0?b.useLayoutEffect:b.useEffect,Nr=({children:t,custom:e,initial:n=!0,onExitComplete:r,presenceAffectsLayout:s=!0,mode:i="sync",propagate:o=!1})=>{const[a,l]=TP(o),c=b.useMemo(()=>gb(t),[t]),h=o&&!a?[]:c.map(ud),f=b.useRef(!0),p=b.useRef(c),m=j0(()=>new Map),[E,w]=b.useState(c),[v,y]=b.useState(c);SP(()=>{f.current=!1,p.current=c;for(let D=0;D<v.length;D++){const j=ud(v[D]);h.includes(j)?m.delete(j):m.get(j)!==!0&&m.set(j,!1)}},[v,h.length,h.join("-")]);const x=[];if(c!==E){let D=[...c];for(let j=0;j<v.length;j++){const N=v[j],I=ud(N);h.includes(I)||(D.splice(j,0,N),x.push(N))}i==="wait"&&x.length&&(D=x),y(gb(D)),w(c);return}const{forceRender:S}=b.useContext(R0);return d.jsx(d.Fragment,{children:v.map(D=>{const j=ud(D),N=o&&!a?!1:c===v||h.includes(j),I=()=>{if(m.has(j))m.set(j,!0);else return;let T=!0;m.forEach(C=>{C||(T=!1)}),T&&(S==null||S(),y(p.current),o&&(l==null||l()),r&&r())};return d.jsx(r$,{isPresent:N,initial:!f.current||n?void 0:!1,custom:N?void 0:e,presenceAffectsLayout:s,mode:i,onExitComplete:N?void 0:I,children:D},j)})})},pn=t=>t;let sy=pn;function V0(t){let e;return()=>(e===void 0&&(e=t()),e)}const Va=(t,e,n)=>{const r=e-t;return r===0?1:(n-t)/r},qr=t=>t*1e3,Kr=t=>t/1e3,i$={skipAnimations:!1,useManualTiming:!1};function o$(t){let e=new Set,n=new Set,r=!1,s=!1;const i=new WeakSet;let o={delta:0,timestamp:0,isProcessing:!1};function a(c){i.has(c)&&(l.schedule(c),t()),c(o)}const l={schedule:(c,h=!1,f=!1)=>{const m=f&&r?e:n;return h&&i.add(c),m.has(c)||m.add(c),c},cancel:c=>{n.delete(c),i.delete(c)},process:c=>{if(o=c,r){s=!0;return}r=!0,[e,n]=[n,e],e.forEach(a),e.clear(),r=!1,s&&(s=!1,l.process(c))}};return l}const dd=["read","resolveKeyframes","update","preRender","render","postRender"],a$=40;function CP(t,e){let n=!1,r=!0;const s={delta:0,timestamp:0,isProcessing:!1},i=()=>n=!0,o=dd.reduce((y,x)=>(y[x]=o$(i),y),{}),{read:a,resolveKeyframes:l,update:c,preRender:h,render:f,postRender:p}=o,m=()=>{const y=performance.now();n=!1,s.delta=r?1e3/60:Math.max(Math.min(y-s.timestamp,a$),1),s.timestamp=y,s.isProcessing=!0,a.process(s),l.process(s),c.process(s),h.process(s),f.process(s),p.process(s),s.isProcessing=!1,n&&e&&(r=!1,t(m))},E=()=>{n=!0,r=!0,s.isProcessing||t(m)};return{schedule:dd.reduce((y,x)=>{const S=o[x];return y[x]=(D,j=!1,N=!1)=>(n||E(),S.schedule(D,j,N)),y},{}),cancel:y=>{for(let x=0;x<dd.length;x++)o[dd[x]].cancel(y)},state:s,steps:o}}const{schedule:ze,cancel:hi,state:Tt,steps:am}=CP(typeof requestAnimationFrame<"u"?requestAnimationFrame:pn,!0),IP=b.createContext({strict:!1}),yb={animation:["animate","variants","whileHover","whileTap","exit","whileInView","whileFocus","whileDrag"],exit:["exit"],drag:["drag","dragControls"],focus:["whileFocus"],hover:["whileHover","onHoverStart","onHoverEnd"],tap:["whileTap","onTap","onTapStart","onTapCancel"],pan:["onPan","onPanStart","onPanSessionStart","onPanEnd"],inView:["whileInView","onViewportEnter","onViewportLeave"],layout:["layout","layoutId"]},Oa={};for(const t in yb)Oa[t]={isEnabled:e=>yb[t].some(n=>!!e[n])};function l$(t){for(const e in t)Oa[e]={...Oa[e],...t[e]}}const c$=new Set(["animate","exit","variants","initial","style","values","variants","transition","transformTemplate","custom","inherit","onBeforeLayoutMeasure","onAnimationStart","onAnimationComplete","onUpdate","onDragStart","onDrag","onDragEnd","onMeasureDragConstraints","onDirectionLock","onDragTransitionEnd","_dragX","_dragY","onHoverStart","onHoverEnd","onViewportEnter","onViewportLeave","globalTapTarget","ignoreStrict","viewport"]);function Bh(t){return t.startsWith("while")||t.startsWith("drag")&&t!=="draggable"||t.startsWith("layout")||t.startsWith("onTap")||t.startsWith("onPan")||t.startsWith("onLayout")||c$.has(t)}let AP=t=>!Bh(t);function u$(t){t&&(AP=e=>e.startsWith("on")?!Bh(e):t(e))}try{u$(require("@emotion/is-prop-valid").default)}catch{}function d$(t,e,n){const r={};for(const s in t)s==="values"&&typeof t.values=="object"||(AP(s)||n===!0&&Bh(s)||!e&&!Bh(s)||t.draggable&&s.startsWith("onDrag"))&&(r[s]=t[s]);return r}function h$(t){if(typeof Proxy>"u")return t;const e=new Map,n=(...r)=>t(...r);return new Proxy(n,{get:(r,s)=>s==="create"?t:(e.has(s)||e.set(s,t(s)),e.get(s))})}const Gf=b.createContext({});function zc(t){return typeof t=="string"||Array.isArray(t)}function qf(t){return t!==null&&typeof t=="object"&&typeof t.start=="function"}const O0=["animate","whileInView","whileFocus","whileHover","whileTap","whileDrag","exit"],L0=["initial",...O0];function Kf(t){return qf(t.animate)||L0.some(e=>zc(t[e]))}function PP(t){return!!(Kf(t)||t.variants)}function f$(t,e){if(Kf(t)){const{initial:n,animate:r}=t;return{initial:n===!1||zc(n)?n:void 0,animate:zc(r)?r:void 0}}return t.inherit!==!1?e:{}}function p$(t){const{initial:e,animate:n}=f$(t,b.useContext(Gf));return b.useMemo(()=>({initial:e,animate:n}),[vb(e),vb(n)])}function vb(t){return Array.isArray(t)?t.join(" "):t}const m$=Symbol.for("motionComponentSymbol");function Bo(t){return t&&typeof t=="object"&&Object.prototype.hasOwnProperty.call(t,"current")}function g$(t,e,n){return b.useCallback(r=>{r&&t.onMount&&t.onMount(r),e&&(r?e.mount(r):e.unmount()),n&&(typeof n=="function"?n(r):Bo(n)&&(n.current=r))},[e])}const F0=t=>t.replace(/([a-z])([A-Z])/gu,"$1-$2").toLowerCase(),y$="framerAppearId",kP="data-"+F0(y$),{schedule:U0,cancel:MH}=CP(queueMicrotask,!1),NP=b.createContext({});function v$(t,e,n,r,s){var i,o;const{visualElement:a}=b.useContext(Gf),l=b.useContext(IP),c=b.useContext(Hf),h=b.useContext(D0).reducedMotion,f=b.useRef(null);r=r||l.renderer,!f.current&&r&&(f.current=r(t,{visualState:e,parent:a,props:n,presenceContext:c,blockInitialAnimation:c?c.initial===!1:!1,reducedMotionConfig:h}));const p=f.current,m=b.useContext(NP);p&&!p.projection&&s&&(p.type==="html"||p.type==="svg")&&x$(f.current,n,s,m);const E=b.useRef(!1);b.useInsertionEffect(()=>{p&&E.current&&p.update(n,c)});const w=n[kP],v=b.useRef(!!w&&!(!((i=window.MotionHandoffIsComplete)===null||i===void 0)&&i.call(window,w))&&((o=window.MotionHasOptimisedAnimation)===null||o===void 0?void 0:o.call(window,w)));return SP(()=>{p&&(E.current=!0,window.MotionIsMounted=!0,p.updateFeatures(),U0.render(p.render),v.current&&p.animationState&&p.animationState.animateChanges())}),b.useEffect(()=>{p&&(!v.current&&p.animationState&&p.animationState.animateChanges(),v.current&&(queueMicrotask(()=>{var y;(y=window.MotionHandoffMarkAsComplete)===null||y===void 0||y.call(window,w)}),v.current=!1))}),p}function x$(t,e,n,r){const{layoutId:s,layout:i,drag:o,dragConstraints:a,layoutScroll:l,layoutRoot:c}=e;t.projection=new n(t.latestValues,e["data-framer-portal-id"]?void 0:RP(t.parent)),t.projection.setOptions({layoutId:s,layout:i,alwaysMeasureLayout:!!o||a&&Bo(a),visualElement:t,animationType:typeof i=="string"?i:"both",initialPromotionConfig:r,layoutScroll:l,layoutRoot:c})}function RP(t){if(t)return t.options.allowProjection!==!1?t.projection:RP(t.parent)}function w$({preloadedFeatures:t,createVisualElement:e,useRender:n,useVisualState:r,Component:s}){var i,o;t&&l$(t);function a(c,h){let f;const p={...b.useContext(D0),...c,layoutId:_$(c)},{isStatic:m}=p,E=p$(c),w=r(c,m);if(!m&&M0){b$();const v=E$(p);f=v.MeasureLayout,E.visualElement=v$(s,w,p,e,v.ProjectionNode)}return d.jsxs(Gf.Provider,{value:E,children:[f&&E.visualElement?d.jsx(f,{visualElement:E.visualElement,...p}):null,n(s,c,g$(w,E.visualElement,h),w,m,E.visualElement)]})}a.displayName=`motion.${typeof s=="string"?s:`create(${(o=(i=s.displayName)!==null&&i!==void 0?i:s.name)!==null&&o!==void 0?o:""})`}`;const l=b.forwardRef(a);return l[m$]=s,l}function _$({layoutId:t}){const e=b.useContext(R0).id;return e&&t!==void 0?e+"-"+t:t}function b$(t,e){b.useContext(IP).strict}function E$(t){const{drag:e,layout:n}=Oa;if(!e&&!n)return{};const r={...e,...n};return{MeasureLayout:e!=null&&e.isEnabled(t)||n!=null&&n.isEnabled(t)?r.MeasureLayout:void 0,ProjectionNode:r.ProjectionNode}}const T$=["animate","circle","defs","desc","ellipse","g","image","line","filter","marker","mask","metadata","path","pattern","polygon","polyline","rect","stop","switch","symbol","svg","text","tspan","use","view"];function $0(t){return typeof t!="string"||t.includes("-")?!1:!!(T$.indexOf(t)>-1||/[A-Z]/u.test(t))}function xb(t){const e=[{},{}];return t==null||t.values.forEach((n,r)=>{e[0][r]=n.get(),e[1][r]=n.getVelocity()}),e}function z0(t,e,n,r){if(typeof e=="function"){const[s,i]=xb(r);e=e(n!==void 0?n:t.custom,s,i)}if(typeof e=="string"&&(e=t.variants&&t.variants[e]),typeof e=="function"){const[s,i]=xb(r);e=e(n!==void 0?n:t.custom,s,i)}return e}const iy=t=>Array.isArray(t),S$=t=>!!(t&&typeof t=="object"&&t.mix&&t.toValue),C$=t=>iy(t)?t[t.length-1]||0:t,Ft=t=>!!(t&&t.getVelocity);function zd(t){const e=Ft(t)?t.get():t;return S$(e)?e.toValue():e}function I$({scrapeMotionValuesFromProps:t,createRenderState:e,onUpdate:n},r,s,i){const o={latestValues:A$(r,s,i,t),renderState:e()};return n&&(o.onMount=a=>n({props:r,current:a,...o}),o.onUpdate=a=>n(a)),o}const jP=t=>(e,n)=>{const r=b.useContext(Gf),s=b.useContext(Hf),i=()=>I$(t,e,r,s);return n?i():j0(i)};function A$(t,e,n,r){const s={},i=r(t,{});for(const p in i)s[p]=zd(i[p]);let{initial:o,animate:a}=t;const l=Kf(t),c=PP(t);e&&c&&!l&&t.inherit!==!1&&(o===void 0&&(o=e.initial),a===void 0&&(a=e.animate));let h=n?n.initial===!1:!1;h=h||o===!1;const f=h?a:o;if(f&&typeof f!="boolean"&&!qf(f)){const p=Array.isArray(f)?f:[f];for(let m=0;m<p.length;m++){const E=z0(t,p[m]);if(E){const{transitionEnd:w,transition:v,...y}=E;for(const x in y){let S=y[x];if(Array.isArray(S)){const D=h?S.length-1:0;S=S[D]}S!==null&&(s[x]=S)}for(const x in w)s[x]=w[x]}}}return s}const Ja=["transformPerspective","x","y","z","translateX","translateY","translateZ","scale","scaleX","scaleY","rotate","rotateX","rotateY","rotateZ","skew","skewX","skewY"],wo=new Set(Ja),DP=t=>e=>typeof e=="string"&&e.startsWith(t),MP=DP("--"),P$=DP("var(--"),B0=t=>P$(t)?k$.test(t.split("/*")[0].trim()):!1,k$=/var\(--(?:[\w-]+\s*|[\w-]+\s*,(?:\s*[^)(\s]|\s*\((?:[^)(]|\([^)(]*\))*\))+\s*)\)$/iu,VP=(t,e)=>e&&typeof t=="number"?e.transform(t):t,is=(t,e,n)=>n>e?e:n<t?t:n,Za={test:t=>typeof t=="number",parse:parseFloat,transform:t=>t},Bc={...Za,transform:t=>is(0,1,t)},hd={...Za,default:1},vu=t=>({test:e=>typeof e=="string"&&e.endsWith(t)&&e.split(" ").length===1,parse:parseFloat,transform:e=>`${e}${t}`}),Es=vu("deg"),Cr=vu("%"),he=vu("px"),N$=vu("vh"),R$=vu("vw"),wb={...Cr,parse:t=>Cr.parse(t)/100,transform:t=>Cr.transform(t*100)},j$={borderWidth:he,borderTopWidth:he,borderRightWidth:he,borderBottomWidth:he,borderLeftWidth:he,borderRadius:he,radius:he,borderTopLeftRadius:he,borderTopRightRadius:he,borderBottomRightRadius:he,borderBottomLeftRadius:he,width:he,maxWidth:he,height:he,maxHeight:he,top:he,right:he,bottom:he,left:he,padding:he,paddingTop:he,paddingRight:he,paddingBottom:he,paddingLeft:he,margin:he,marginTop:he,marginRight:he,marginBottom:he,marginLeft:he,backgroundPositionX:he,backgroundPositionY:he},D$={rotate:Es,rotateX:Es,rotateY:Es,rotateZ:Es,scale:hd,scaleX:hd,scaleY:hd,scaleZ:hd,skew:Es,skewX:Es,skewY:Es,distance:he,translateX:he,translateY:he,translateZ:he,x:he,y:he,z:he,perspective:he,transformPerspective:he,opacity:Bc,originX:wb,originY:wb,originZ:he},_b={...Za,transform:Math.round},W0={...j$,...D$,zIndex:_b,size:he,fillOpacity:Bc,strokeOpacity:Bc,numOctaves:_b},M$={x:"translateX",y:"translateY",z:"translateZ",transformPerspective:"perspective"},V$=Ja.length;function O$(t,e,n){let r="",s=!0;for(let i=0;i<V$;i++){const o=Ja[i],a=t[o];if(a===void 0)continue;let l=!0;if(typeof a=="number"?l=a===(o.startsWith("scale")?1:0):l=parseFloat(a)===0,!l||n){const c=VP(a,W0[o]);if(!l){s=!1;const h=M$[o]||o;r+=`${h}(${c}) `}n&&(e[o]=c)}}return r=r.trim(),n?r=n(e,s?"":r):s&&(r="none"),r}function H0(t,e,n){const{style:r,vars:s,transformOrigin:i}=t;let o=!1,a=!1;for(const l in e){const c=e[l];if(wo.has(l)){o=!0;continue}else if(MP(l)){s[l]=c;continue}else{const h=VP(c,W0[l]);l.startsWith("origin")?(a=!0,i[l]=h):r[l]=h}}if(e.transform||(o||n?r.transform=O$(e,t.transform,n):r.transform&&(r.transform="none")),a){const{originX:l="50%",originY:c="50%",originZ:h=0}=i;r.transformOrigin=`${l} ${c} ${h}`}}const L$={offset:"stroke-dashoffset",array:"stroke-dasharray"},F$={offset:"strokeDashoffset",array:"strokeDasharray"};function U$(t,e,n=1,r=0,s=!0){t.pathLength=1;const i=s?L$:F$;t[i.offset]=he.transform(-r);const o=he.transform(e),a=he.transform(n);t[i.array]=`${o} ${a}`}function bb(t,e,n){return typeof t=="string"?t:he.transform(e+n*t)}function $$(t,e,n){const r=bb(e,t.x,t.width),s=bb(n,t.y,t.height);return`${r} ${s}`}function G0(t,{attrX:e,attrY:n,attrScale:r,originX:s,originY:i,pathLength:o,pathSpacing:a=1,pathOffset:l=0,...c},h,f){if(H0(t,c,f),h){t.style.viewBox&&(t.attrs.viewBox=t.style.viewBox);return}t.attrs=t.style,t.style={};const{attrs:p,style:m,dimensions:E}=t;p.transform&&(E&&(m.transform=p.transform),delete p.transform),E&&(s!==void 0||i!==void 0||m.transform)&&(m.transformOrigin=$$(E,s!==void 0?s:.5,i!==void 0?i:.5)),e!==void 0&&(p.x=e),n!==void 0&&(p.y=n),r!==void 0&&(p.scale=r),o!==void 0&&U$(p,o,a,l,!1)}const q0=()=>({style:{},transform:{},transformOrigin:{},vars:{}}),OP=()=>({...q0(),attrs:{}}),K0=t=>typeof t=="string"&&t.toLowerCase()==="svg";function LP(t,{style:e,vars:n},r,s){Object.assign(t.style,e,s&&s.getProjectionStyles(r));for(const i in n)t.style.setProperty(i,n[i])}const FP=new Set(["baseFrequency","diffuseConstant","kernelMatrix","kernelUnitLength","keySplines","keyTimes","limitingConeAngle","markerHeight","markerWidth","numOctaves","targetX","targetY","surfaceScale","specularConstant","specularExponent","stdDeviation","tableValues","viewBox","gradientTransform","pathLength","startOffset","textLength","lengthAdjust"]);function UP(t,e,n,r){LP(t,e,void 0,r);for(const s in e.attrs)t.setAttribute(FP.has(s)?s:F0(s),e.attrs[s])}const Wh={};function z$(t){Object.assign(Wh,t)}function $P(t,{layout:e,layoutId:n}){return wo.has(t)||t.startsWith("origin")||(e||n!==void 0)&&(!!Wh[t]||t==="opacity")}function Q0(t,e,n){var r;const{style:s}=t,i={};for(const o in s)(Ft(s[o])||e.style&&Ft(e.style[o])||$P(o,t)||((r=n==null?void 0:n.getValue(o))===null||r===void 0?void 0:r.liveStyle)!==void 0)&&(i[o]=s[o]);return i}function zP(t,e,n){const r=Q0(t,e,n);for(const s in t)if(Ft(t[s])||Ft(e[s])){const i=Ja.indexOf(s)!==-1?"attr"+s.charAt(0).toUpperCase()+s.substring(1):s;r[i]=t[s]}return r}function B$(t,e){try{e.dimensions=typeof t.getBBox=="function"?t.getBBox():t.getBoundingClientRect()}catch{e.dimensions={x:0,y:0,width:0,height:0}}}const Eb=["x","y","width","height","cx","cy","r"],W$={useVisualState:jP({scrapeMotionValuesFromProps:zP,createRenderState:OP,onUpdate:({props:t,prevProps:e,current:n,renderState:r,latestValues:s})=>{if(!n)return;let i=!!t.drag;if(!i){for(const a in s)if(wo.has(a)){i=!0;break}}if(!i)return;let o=!e;if(e)for(let a=0;a<Eb.length;a++){const l=Eb[a];t[l]!==e[l]&&(o=!0)}o&&ze.read(()=>{B$(n,r),ze.render(()=>{G0(r,s,K0(n.tagName),t.transformTemplate),UP(n,r)})})}})},H$={useVisualState:jP({scrapeMotionValuesFromProps:Q0,createRenderState:q0})};function BP(t,e,n){for(const r in e)!Ft(e[r])&&!$P(r,n)&&(t[r]=e[r])}function G$({transformTemplate:t},e){return b.useMemo(()=>{const n=q0();return H0(n,e,t),Object.assign({},n.vars,n.style)},[e])}function q$(t,e){const n=t.style||{},r={};return BP(r,n,t),Object.assign(r,G$(t,e)),r}function K$(t,e){const n={},r=q$(t,e);return t.drag&&t.dragListener!==!1&&(n.draggable=!1,r.userSelect=r.WebkitUserSelect=r.WebkitTouchCallout="none",r.touchAction=t.drag===!0?"none":`pan-${t.drag==="x"?"y":"x"}`),t.tabIndex===void 0&&(t.onTap||t.onTapStart||t.whileTap)&&(n.tabIndex=0),n.style=r,n}function Q$(t,e,n,r){const s=b.useMemo(()=>{const i=OP();return G0(i,e,K0(r),t.transformTemplate),{...i.attrs,style:{...i.style}}},[e]);if(t.style){const i={};BP(i,t.style,t),s.style={...i,...s.style}}return s}function Y$(t=!1){return(n,r,s,{latestValues:i},o)=>{const l=($0(n)?Q$:K$)(r,i,o,n),c=d$(r,typeof n=="string",t),h=n!==b.Fragment?{...c,...l,ref:s}:{},{children:f}=r,p=b.useMemo(()=>Ft(f)?f.get():f,[f]);return b.createElement(n,{...h,children:p})}}function X$(t,e){return function(r,{forwardMotionProps:s}={forwardMotionProps:!1}){const o={...$0(r)?W$:H$,preloadedFeatures:t,useRender:Y$(s),createVisualElement:e,Component:r};return w$(o)}}function WP(t,e){if(!Array.isArray(e))return!1;const n=e.length;if(n!==t.length)return!1;for(let r=0;r<n;r++)if(e[r]!==t[r])return!1;return!0}function Qf(t,e,n){const r=t.getProps();return z0(r,e,n!==void 0?n:r.custom,t)}const J$=V0(()=>window.ScrollTimeline!==void 0);class Z${constructor(e){this.stop=()=>this.runAll("stop"),this.animations=e.filter(Boolean)}get finished(){return Promise.all(this.animations.map(e=>"finished"in e?e.finished:e))}getAll(e){return this.animations[0][e]}setAll(e,n){for(let r=0;r<this.animations.length;r++)this.animations[r][e]=n}attachTimeline(e,n){const r=this.animations.map(s=>{if(J$()&&s.attachTimeline)return s.attachTimeline(e);if(typeof n=="function")return n(s)});return()=>{r.forEach((s,i)=>{s&&s(),this.animations[i].stop()})}}get time(){return this.getAll("time")}set time(e){this.setAll("time",e)}get speed(){return this.getAll("speed")}set speed(e){this.setAll("speed",e)}get startTime(){return this.getAll("startTime")}get duration(){let e=0;for(let n=0;n<this.animations.length;n++)e=Math.max(e,this.animations[n].duration);return e}runAll(e){this.animations.forEach(n=>n[e]())}flatten(){this.runAll("flatten")}play(){this.runAll("play")}pause(){this.runAll("pause")}cancel(){this.runAll("cancel")}complete(){this.runAll("complete")}}class ez extends Z${then(e,n){return Promise.all(this.animations).then(e).catch(n)}}function Y0(t,e){return t?t[e]||t.default||t:void 0}const oy=2e4;function HP(t){let e=0;const n=50;let r=t.next(e);for(;!r.done&&e<oy;)e+=n,r=t.next(e);return e>=oy?1/0:e}function X0(t){return typeof t=="function"}function Tb(t,e){t.timeline=e,t.onfinish=null}const J0=t=>Array.isArray(t)&&typeof t[0]=="number",tz={linearEasing:void 0};function nz(t,e){const n=V0(t);return()=>{var r;return(r=tz[e])!==null&&r!==void 0?r:n()}}const Hh=nz(()=>{try{document.createElement("div").animate({opacity:0},{easing:"linear(0, 1)"})}catch{return!1}return!0},"linearEasing"),GP=(t,e,n=10)=>{let r="";const s=Math.max(Math.round(e/n),2);for(let i=0;i<s;i++)r+=t(Va(0,s-1,i))+", ";return`linear(${r.substring(0,r.length-2)})`};function qP(t){return!!(typeof t=="function"&&Hh()||!t||typeof t=="string"&&(t in ay||Hh())||J0(t)||Array.isArray(t)&&t.every(qP))}const Bl=([t,e,n,r])=>`cubic-bezier(${t}, ${e}, ${n}, ${r})`,ay={linear:"linear",ease:"ease",easeIn:"ease-in",easeOut:"ease-out",easeInOut:"ease-in-out",circIn:Bl([0,.65,.55,1]),circOut:Bl([.55,0,1,.45]),backIn:Bl([.31,.01,.66,-.59]),backOut:Bl([.33,1.53,.69,.99])};function KP(t,e){if(t)return typeof t=="function"&&Hh()?GP(t,e):J0(t)?Bl(t):Array.isArray(t)?t.map(n=>KP(n,e)||ay.easeOut):ay[t]}const On={x:!1,y:!1};function QP(){return On.x||On.y}function rz(t,e,n){var r;if(t instanceof Element)return[t];if(typeof t=="string"){let s=document;const i=(r=void 0)!==null&&r!==void 0?r:s.querySelectorAll(t);return i?Array.from(i):[]}return Array.from(t)}function YP(t,e){const n=rz(t),r=new AbortController,s={passive:!0,...e,signal:r.signal};return[n,s,()=>r.abort()]}function Sb(t){return e=>{e.pointerType==="touch"||QP()||t(e)}}function sz(t,e,n={}){const[r,s,i]=YP(t,n),o=Sb(a=>{const{target:l}=a,c=e(a);if(typeof c!="function"||!l)return;const h=Sb(f=>{c(f),l.removeEventListener("pointerleave",h)});l.addEventListener("pointerleave",h,s)});return r.forEach(a=>{a.addEventListener("pointerenter",o,s)}),i}const XP=(t,e)=>e?t===e?!0:XP(t,e.parentElement):!1,Z0=t=>t.pointerType==="mouse"?typeof t.button!="number"||t.button<=0:t.isPrimary!==!1,iz=new Set(["BUTTON","INPUT","SELECT","TEXTAREA","A"]);function oz(t){return iz.has(t.tagName)||t.tabIndex!==-1}const Wl=new WeakSet;function Cb(t){return e=>{e.key==="Enter"&&t(e)}}function lm(t,e){t.dispatchEvent(new PointerEvent("pointer"+e,{isPrimary:!0,bubbles:!0}))}const az=(t,e)=>{const n=t.currentTarget;if(!n)return;const r=Cb(()=>{if(Wl.has(n))return;lm(n,"down");const s=Cb(()=>{lm(n,"up")}),i=()=>lm(n,"cancel");n.addEventListener("keyup",s,e),n.addEventListener("blur",i,e)});n.addEventListener("keydown",r,e),n.addEventListener("blur",()=>n.removeEventListener("keydown",r),e)};function Ib(t){return Z0(t)&&!QP()}function lz(t,e,n={}){const[r,s,i]=YP(t,n),o=a=>{const l=a.currentTarget;if(!Ib(a)||Wl.has(l))return;Wl.add(l);const c=e(a),h=(m,E)=>{window.removeEventListener("pointerup",f),window.removeEventListener("pointercancel",p),!(!Ib(m)||!Wl.has(l))&&(Wl.delete(l),typeof c=="function"&&c(m,{success:E}))},f=m=>{h(m,n.useGlobalTarget||XP(l,m.target))},p=m=>{h(m,!1)};window.addEventListener("pointerup",f,s),window.addEventListener("pointercancel",p,s)};return r.forEach(a=>{!oz(a)&&a.getAttribute("tabindex")===null&&(a.tabIndex=0),(n.useGlobalTarget?window:a).addEventListener("pointerdown",o,s),a.addEventListener("focus",c=>az(c,s),s)}),i}function cz(t){return t==="x"||t==="y"?On[t]?null:(On[t]=!0,()=>{On[t]=!1}):On.x||On.y?null:(On.x=On.y=!0,()=>{On.x=On.y=!1})}const JP=new Set(["width","height","top","left","right","bottom",...Ja]);let Bd;function uz(){Bd=void 0}const Ir={now:()=>(Bd===void 0&&Ir.set(Tt.isProcessing||i$.useManualTiming?Tt.timestamp:performance.now()),Bd),set:t=>{Bd=t,queueMicrotask(uz)}};function ex(t,e){t.indexOf(e)===-1&&t.push(e)}function tx(t,e){const n=t.indexOf(e);n>-1&&t.splice(n,1)}class nx{constructor(){this.subscriptions=[]}add(e){return ex(this.subscriptions,e),()=>tx(this.subscriptions,e)}notify(e,n,r){const s=this.subscriptions.length;if(s)if(s===1)this.subscriptions[0](e,n,r);else for(let i=0;i<s;i++){const o=this.subscriptions[i];o&&o(e,n,r)}}getSize(){return this.subscriptions.length}clear(){this.subscriptions.length=0}}function ZP(t,e){return e?t*(1e3/e):0}const Ab=30,dz=t=>!isNaN(parseFloat(t));class hz{constructor(e,n={}){this.version="11.18.2",this.canTrackVelocity=null,this.events={},this.updateAndNotify=(r,s=!0)=>{const i=Ir.now();this.updatedAt!==i&&this.setPrevFrameValue(),this.prev=this.current,this.setCurrent(r),this.current!==this.prev&&this.events.change&&this.events.change.notify(this.current),s&&this.events.renderRequest&&this.events.renderRequest.notify(this.current)},this.hasAnimated=!1,this.setCurrent(e),this.owner=n.owner}setCurrent(e){this.current=e,this.updatedAt=Ir.now(),this.canTrackVelocity===null&&e!==void 0&&(this.canTrackVelocity=dz(this.current))}setPrevFrameValue(e=this.current){this.prevFrameValue=e,this.prevUpdatedAt=this.updatedAt}onChange(e){return this.on("change",e)}on(e,n){this.events[e]||(this.events[e]=new nx);const r=this.events[e].add(n);return e==="change"?()=>{r(),ze.read(()=>{this.events.change.getSize()||this.stop()})}:r}clearListeners(){for(const e in this.events)this.events[e].clear()}attach(e,n){this.passiveEffect=e,this.stopPassiveEffect=n}set(e,n=!0){!n||!this.passiveEffect?this.updateAndNotify(e,n):this.passiveEffect(e,this.updateAndNotify)}setWithVelocity(e,n,r){this.set(n),this.prev=void 0,this.prevFrameValue=e,this.prevUpdatedAt=this.updatedAt-r}jump(e,n=!0){this.updateAndNotify(e),this.prev=e,this.prevUpdatedAt=this.prevFrameValue=void 0,n&&this.stop(),this.stopPassiveEffect&&this.stopPassiveEffect()}get(){return this.current}getPrevious(){return this.prev}getVelocity(){const e=Ir.now();if(!this.canTrackVelocity||this.prevFrameValue===void 0||e-this.updatedAt>Ab)return 0;const n=Math.min(this.updatedAt-this.prevUpdatedAt,Ab);return ZP(parseFloat(this.current)-parseFloat(this.prevFrameValue),n)}start(e){return this.stop(),new Promise(n=>{this.hasAnimated=!0,this.animation=e(n),this.events.animationStart&&this.events.animationStart.notify()}).then(()=>{this.events.animationComplete&&this.events.animationComplete.notify(),this.clearAnimation()})}stop(){this.animation&&(this.animation.stop(),this.events.animationCancel&&this.events.animationCancel.notify()),this.clearAnimation()}isAnimating(){return!!this.animation}clearAnimation(){delete this.animation}destroy(){this.clearListeners(),this.stop(),this.stopPassiveEffect&&this.stopPassiveEffect()}}function Wc(t,e){return new hz(t,e)}function fz(t,e,n){t.hasValue(e)?t.getValue(e).set(n):t.addValue(e,Wc(n))}function pz(t,e){const n=Qf(t,e);let{transitionEnd:r={},transition:s={},...i}=n||{};i={...i,...r};for(const o in i){const a=C$(i[o]);fz(t,o,a)}}function mz(t){return!!(Ft(t)&&t.add)}function ly(t,e){const n=t.getValue("willChange");if(mz(n))return n.add(e)}function ek(t){return t.props[kP]}const tk=(t,e,n)=>(((1-3*n+3*e)*t+(3*n-6*e))*t+3*e)*t,gz=1e-7,yz=12;function vz(t,e,n,r,s){let i,o,a=0;do o=e+(n-e)/2,i=tk(o,r,s)-t,i>0?n=o:e=o;while(Math.abs(i)>gz&&++a<yz);return o}function xu(t,e,n,r){if(t===e&&n===r)return pn;const s=i=>vz(i,0,1,t,n);return i=>i===0||i===1?i:tk(s(i),e,r)}const nk=t=>e=>e<=.5?t(2*e)/2:(2-t(2*(1-e)))/2,rk=t=>e=>1-t(1-e),sk=xu(.33,1.53,.69,.99),rx=rk(sk),ik=nk(rx),ok=t=>(t*=2)<1?.5*rx(t):.5*(2-Math.pow(2,-10*(t-1))),sx=t=>1-Math.sin(Math.acos(t)),ak=rk(sx),lk=nk(sx),ck=t=>/^0[^.\s]+$/u.test(t);function xz(t){return typeof t=="number"?t===0:t!==null?t==="none"||t==="0"||ck(t):!0}const ac=t=>Math.round(t*1e5)/1e5,ix=/-?(?:\d+(?:\.\d+)?|\.\d+)/gu;function wz(t){return t==null}const _z=/^(?:#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\))$/iu,ox=(t,e)=>n=>!!(typeof n=="string"&&_z.test(n)&&n.startsWith(t)||e&&!wz(n)&&Object.prototype.hasOwnProperty.call(n,e)),uk=(t,e,n)=>r=>{if(typeof r!="string")return r;const[s,i,o,a]=r.match(ix);return{[t]:parseFloat(s),[e]:parseFloat(i),[n]:parseFloat(o),alpha:a!==void 0?parseFloat(a):1}},bz=t=>is(0,255,t),cm={...Za,transform:t=>Math.round(bz(t))},Fi={test:ox("rgb","red"),parse:uk("red","green","blue"),transform:({red:t,green:e,blue:n,alpha:r=1})=>"rgba("+cm.transform(t)+", "+cm.transform(e)+", "+cm.transform(n)+", "+ac(Bc.transform(r))+")"};function Ez(t){let e="",n="",r="",s="";return t.length>5?(e=t.substring(1,3),n=t.substring(3,5),r=t.substring(5,7),s=t.substring(7,9)):(e=t.substring(1,2),n=t.substring(2,3),r=t.substring(3,4),s=t.substring(4,5),e+=e,n+=n,r+=r,s+=s),{red:parseInt(e,16),green:parseInt(n,16),blue:parseInt(r,16),alpha:s?parseInt(s,16)/255:1}}const cy={test:ox("#"),parse:Ez,transform:Fi.transform},Wo={test:ox("hsl","hue"),parse:uk("hue","saturation","lightness"),transform:({hue:t,saturation:e,lightness:n,alpha:r=1})=>"hsla("+Math.round(t)+", "+Cr.transform(ac(e))+", "+Cr.transform(ac(n))+", "+ac(Bc.transform(r))+")"},Mt={test:t=>Fi.test(t)||cy.test(t)||Wo.test(t),parse:t=>Fi.test(t)?Fi.parse(t):Wo.test(t)?Wo.parse(t):cy.parse(t),transform:t=>typeof t=="string"?t:t.hasOwnProperty("red")?Fi.transform(t):Wo.transform(t)},Tz=/(?:#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\))/giu;function Sz(t){var e,n;return isNaN(t)&&typeof t=="string"&&(((e=t.match(ix))===null||e===void 0?void 0:e.length)||0)+(((n=t.match(Tz))===null||n===void 0?void 0:n.length)||0)>0}const dk="number",hk="color",Cz="var",Iz="var(",Pb="${}",Az=/var\s*\(\s*--(?:[\w-]+\s*|[\w-]+\s*,(?:\s*[^)(\s]|\s*\((?:[^)(]|\([^)(]*\))*\))+\s*)\)|#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\)|-?(?:\d+(?:\.\d+)?|\.\d+)/giu;function Hc(t){const e=t.toString(),n=[],r={color:[],number:[],var:[]},s=[];let i=0;const a=e.replace(Az,l=>(Mt.test(l)?(r.color.push(i),s.push(hk),n.push(Mt.parse(l))):l.startsWith(Iz)?(r.var.push(i),s.push(Cz),n.push(l)):(r.number.push(i),s.push(dk),n.push(parseFloat(l))),++i,Pb)).split(Pb);return{values:n,split:a,indexes:r,types:s}}function fk(t){return Hc(t).values}function pk(t){const{split:e,types:n}=Hc(t),r=e.length;return s=>{let i="";for(let o=0;o<r;o++)if(i+=e[o],s[o]!==void 0){const a=n[o];a===dk?i+=ac(s[o]):a===hk?i+=Mt.transform(s[o]):i+=s[o]}return i}}const Pz=t=>typeof t=="number"?0:t;function kz(t){const e=fk(t);return pk(t)(e.map(Pz))}const fi={test:Sz,parse:fk,createTransformer:pk,getAnimatableNone:kz},Nz=new Set(["brightness","contrast","saturate","opacity"]);function Rz(t){const[e,n]=t.slice(0,-1).split("(");if(e==="drop-shadow")return t;const[r]=n.match(ix)||[];if(!r)return t;const s=n.replace(r,"");let i=Nz.has(e)?1:0;return r!==n&&(i*=100),e+"("+i+s+")"}const jz=/\b([a-z-]*)\(.*?\)/gu,uy={...fi,getAnimatableNone:t=>{const e=t.match(jz);return e?e.map(Rz).join(" "):t}},Dz={...W0,color:Mt,backgroundColor:Mt,outlineColor:Mt,fill:Mt,stroke:Mt,borderColor:Mt,borderTopColor:Mt,borderRightColor:Mt,borderBottomColor:Mt,borderLeftColor:Mt,filter:uy,WebkitFilter:uy},ax=t=>Dz[t];function mk(t,e){let n=ax(t);return n!==uy&&(n=fi),n.getAnimatableNone?n.getAnimatableNone(e):void 0}const Mz=new Set(["auto","none","0"]);function Vz(t,e,n){let r=0,s;for(;r<t.length&&!s;){const i=t[r];typeof i=="string"&&!Mz.has(i)&&Hc(i).values.length&&(s=t[r]),r++}if(s&&n)for(const i of e)t[i]=mk(n,s)}const kb=t=>t===Za||t===he,Nb=(t,e)=>parseFloat(t.split(", ")[e]),Rb=(t,e)=>(n,{transform:r})=>{if(r==="none"||!r)return 0;const s=r.match(/^matrix3d\((.+)\)$/u);if(s)return Nb(s[1],e);{const i=r.match(/^matrix\((.+)\)$/u);return i?Nb(i[1],t):0}},Oz=new Set(["x","y","z"]),Lz=Ja.filter(t=>!Oz.has(t));function Fz(t){const e=[];return Lz.forEach(n=>{const r=t.getValue(n);r!==void 0&&(e.push([n,r.get()]),r.set(n.startsWith("scale")?1:0))}),e}const La={width:({x:t},{paddingLeft:e="0",paddingRight:n="0"})=>t.max-t.min-parseFloat(e)-parseFloat(n),height:({y:t},{paddingTop:e="0",paddingBottom:n="0"})=>t.max-t.min-parseFloat(e)-parseFloat(n),top:(t,{top:e})=>parseFloat(e),left:(t,{left:e})=>parseFloat(e),bottom:({y:t},{top:e})=>parseFloat(e)+(t.max-t.min),right:({x:t},{left:e})=>parseFloat(e)+(t.max-t.min),x:Rb(4,13),y:Rb(5,14)};La.translateX=La.x;La.translateY=La.y;const Xi=new Set;let dy=!1,hy=!1;function gk(){if(hy){const t=Array.from(Xi).filter(r=>r.needsMeasurement),e=new Set(t.map(r=>r.element)),n=new Map;e.forEach(r=>{const s=Fz(r);s.length&&(n.set(r,s),r.render())}),t.forEach(r=>r.measureInitialState()),e.forEach(r=>{r.render();const s=n.get(r);s&&s.forEach(([i,o])=>{var a;(a=r.getValue(i))===null||a===void 0||a.set(o)})}),t.forEach(r=>r.measureEndState()),t.forEach(r=>{r.suspendedScrollY!==void 0&&window.scrollTo(0,r.suspendedScrollY)})}hy=!1,dy=!1,Xi.forEach(t=>t.complete()),Xi.clear()}function yk(){Xi.forEach(t=>{t.readKeyframes(),t.needsMeasurement&&(hy=!0)})}function Uz(){yk(),gk()}class lx{constructor(e,n,r,s,i,o=!1){this.isComplete=!1,this.isAsync=!1,this.needsMeasurement=!1,this.isScheduled=!1,this.unresolvedKeyframes=[...e],this.onComplete=n,this.name=r,this.motionValue=s,this.element=i,this.isAsync=o}scheduleResolve(){this.isScheduled=!0,this.isAsync?(Xi.add(this),dy||(dy=!0,ze.read(yk),ze.resolveKeyframes(gk))):(this.readKeyframes(),this.complete())}readKeyframes(){const{unresolvedKeyframes:e,name:n,element:r,motionValue:s}=this;for(let i=0;i<e.length;i++)if(e[i]===null)if(i===0){const o=s==null?void 0:s.get(),a=e[e.length-1];if(o!==void 0)e[0]=o;else if(r&&n){const l=r.readValue(n,a);l!=null&&(e[0]=l)}e[0]===void 0&&(e[0]=a),s&&o===void 0&&s.set(e[0])}else e[i]=e[i-1]}setFinalKeyframe(){}measureInitialState(){}renderEndStyles(){}measureEndState(){}complete(){this.isComplete=!0,this.onComplete(this.unresolvedKeyframes,this.finalKeyframe),Xi.delete(this)}cancel(){this.isComplete||(this.isScheduled=!1,Xi.delete(this))}resume(){this.isComplete||this.scheduleResolve()}}const vk=t=>/^-?(?:\d+(?:\.\d+)?|\.\d+)$/u.test(t),$z=/^var\(--(?:([\w-]+)|([\w-]+), ?([a-zA-Z\d ()%#.,-]+))\)/u;function zz(t){const e=$z.exec(t);if(!e)return[,];const[,n,r,s]=e;return[`--${n??r}`,s]}function xk(t,e,n=1){const[r,s]=zz(t);if(!r)return;const i=window.getComputedStyle(e).getPropertyValue(r);if(i){const o=i.trim();return vk(o)?parseFloat(o):o}return B0(s)?xk(s,e,n+1):s}const wk=t=>e=>e.test(t),Bz={test:t=>t==="auto",parse:t=>t},_k=[Za,he,Cr,Es,R$,N$,Bz],jb=t=>_k.find(wk(t));class bk extends lx{constructor(e,n,r,s,i){super(e,n,r,s,i,!0)}readKeyframes(){const{unresolvedKeyframes:e,element:n,name:r}=this;if(!n||!n.current)return;super.readKeyframes();for(let l=0;l<e.length;l++){let c=e[l];if(typeof c=="string"&&(c=c.trim(),B0(c))){const h=xk(c,n.current);h!==void 0&&(e[l]=h),l===e.length-1&&(this.finalKeyframe=c)}}if(this.resolveNoneKeyframes(),!JP.has(r)||e.length!==2)return;const[s,i]=e,o=jb(s),a=jb(i);if(o!==a)if(kb(o)&&kb(a))for(let l=0;l<e.length;l++){const c=e[l];typeof c=="string"&&(e[l]=parseFloat(c))}else this.needsMeasurement=!0}resolveNoneKeyframes(){const{unresolvedKeyframes:e,name:n}=this,r=[];for(let s=0;s<e.length;s++)xz(e[s])&&r.push(s);r.length&&Vz(e,r,n)}measureInitialState(){const{element:e,unresolvedKeyframes:n,name:r}=this;if(!e||!e.current)return;r==="height"&&(this.suspendedScrollY=window.pageYOffset),this.measuredOrigin=La[r](e.measureViewportBox(),window.getComputedStyle(e.current)),n[0]=this.measuredOrigin;const s=n[n.length-1];s!==void 0&&e.getValue(r,s).jump(s,!1)}measureEndState(){var e;const{element:n,name:r,unresolvedKeyframes:s}=this;if(!n||!n.current)return;const i=n.getValue(r);i&&i.jump(this.measuredOrigin,!1);const o=s.length-1,a=s[o];s[o]=La[r](n.measureViewportBox(),window.getComputedStyle(n.current)),a!==null&&this.finalKeyframe===void 0&&(this.finalKeyframe=a),!((e=this.removedTransforms)===null||e===void 0)&&e.length&&this.removedTransforms.forEach(([l,c])=>{n.getValue(l).set(c)}),this.resolveNoneKeyframes()}}const Db=(t,e)=>e==="zIndex"?!1:!!(typeof t=="number"||Array.isArray(t)||typeof t=="string"&&(fi.test(t)||t==="0")&&!t.startsWith("url("));function Wz(t){const e=t[0];if(t.length===1)return!0;for(let n=0;n<t.length;n++)if(t[n]!==e)return!0}function Hz(t,e,n,r){const s=t[0];if(s===null)return!1;if(e==="display"||e==="visibility")return!0;const i=t[t.length-1],o=Db(s,e),a=Db(i,e);return!o||!a?!1:Wz(t)||(n==="spring"||X0(n))&&r}const Gz=t=>t!==null;function Yf(t,{repeat:e,repeatType:n="loop"},r){const s=t.filter(Gz),i=e&&n!=="loop"&&e%2===1?0:s.length-1;return!i||r===void 0?s[i]:r}const qz=40;class Ek{constructor({autoplay:e=!0,delay:n=0,type:r="keyframes",repeat:s=0,repeatDelay:i=0,repeatType:o="loop",...a}){this.isStopped=!1,this.hasAttemptedResolve=!1,this.createdAt=Ir.now(),this.options={autoplay:e,delay:n,type:r,repeat:s,repeatDelay:i,repeatType:o,...a},this.updateFinishedPromise()}calcStartTime(){return this.resolvedAt?this.resolvedAt-this.createdAt>qz?this.resolvedAt:this.createdAt:this.createdAt}get resolved(){return!this._resolved&&!this.hasAttemptedResolve&&Uz(),this._resolved}onKeyframesResolved(e,n){this.resolvedAt=Ir.now(),this.hasAttemptedResolve=!0;const{name:r,type:s,velocity:i,delay:o,onComplete:a,onUpdate:l,isGenerator:c}=this.options;if(!c&&!Hz(e,r,s,i))if(o)this.options.duration=0;else{l&&l(Yf(e,this.options,n)),a&&a(),this.resolveFinishedPromise();return}const h=this.initPlayback(e,n);h!==!1&&(this._resolved={keyframes:e,finalKeyframe:n,...h},this.onPostResolved())}onPostResolved(){}then(e,n){return this.currentFinishedPromise.then(e,n)}flatten(){this.options.type="keyframes",this.options.ease="linear"}updateFinishedPromise(){this.currentFinishedPromise=new Promise(e=>{this.resolveFinishedPromise=e})}}const Ge=(t,e,n)=>t+(e-t)*n;function um(t,e,n){return n<0&&(n+=1),n>1&&(n-=1),n<1/6?t+(e-t)*6*n:n<1/2?e:n<2/3?t+(e-t)*(2/3-n)*6:t}function Kz({hue:t,saturation:e,lightness:n,alpha:r}){t/=360,e/=100,n/=100;let s=0,i=0,o=0;if(!e)s=i=o=n;else{const a=n<.5?n*(1+e):n+e-n*e,l=2*n-a;s=um(l,a,t+1/3),i=um(l,a,t),o=um(l,a,t-1/3)}return{red:Math.round(s*255),green:Math.round(i*255),blue:Math.round(o*255),alpha:r}}function Gh(t,e){return n=>n>0?e:t}const dm=(t,e,n)=>{const r=t*t,s=n*(e*e-r)+r;return s<0?0:Math.sqrt(s)},Qz=[cy,Fi,Wo],Yz=t=>Qz.find(e=>e.test(t));function Mb(t){const e=Yz(t);if(!e)return!1;let n=e.parse(t);return e===Wo&&(n=Kz(n)),n}const Vb=(t,e)=>{const n=Mb(t),r=Mb(e);if(!n||!r)return Gh(t,e);const s={...n};return i=>(s.red=dm(n.red,r.red,i),s.green=dm(n.green,r.green,i),s.blue=dm(n.blue,r.blue,i),s.alpha=Ge(n.alpha,r.alpha,i),Fi.transform(s))},Xz=(t,e)=>n=>e(t(n)),wu=(...t)=>t.reduce(Xz),fy=new Set(["none","hidden"]);function Jz(t,e){return fy.has(t)?n=>n<=0?t:e:n=>n>=1?e:t}function Zz(t,e){return n=>Ge(t,e,n)}function cx(t){return typeof t=="number"?Zz:typeof t=="string"?B0(t)?Gh:Mt.test(t)?Vb:nB:Array.isArray(t)?Tk:typeof t=="object"?Mt.test(t)?Vb:eB:Gh}function Tk(t,e){const n=[...t],r=n.length,s=t.map((i,o)=>cx(i)(i,e[o]));return i=>{for(let o=0;o<r;o++)n[o]=s[o](i);return n}}function eB(t,e){const n={...t,...e},r={};for(const s in n)t[s]!==void 0&&e[s]!==void 0&&(r[s]=cx(t[s])(t[s],e[s]));return s=>{for(const i in r)n[i]=r[i](s);return n}}function tB(t,e){var n;const r=[],s={color:0,var:0,number:0};for(let i=0;i<e.values.length;i++){const o=e.types[i],a=t.indexes[o][s[o]],l=(n=t.values[a])!==null&&n!==void 0?n:0;r[i]=l,s[o]++}return r}const nB=(t,e)=>{const n=fi.createTransformer(e),r=Hc(t),s=Hc(e);return r.indexes.var.length===s.indexes.var.length&&r.indexes.color.length===s.indexes.color.length&&r.indexes.number.length>=s.indexes.number.length?fy.has(t)&&!s.values.length||fy.has(e)&&!r.values.length?Jz(t,e):wu(Tk(tB(r,s),s.values),n):Gh(t,e)};function Sk(t,e,n){return typeof t=="number"&&typeof e=="number"&&typeof n=="number"?Ge(t,e,n):cx(t)(t,e)}const rB=5;function Ck(t,e,n){const r=Math.max(e-rB,0);return ZP(n-t(r),e-r)}const Je={stiffness:100,damping:10,mass:1,velocity:0,duration:800,bounce:.3,visualDuration:.3,restSpeed:{granular:.01,default:2},restDelta:{granular:.005,default:.5},minDuration:.01,maxDuration:10,minDamping:.05,maxDamping:1},hm=.001;function sB({duration:t=Je.duration,bounce:e=Je.bounce,velocity:n=Je.velocity,mass:r=Je.mass}){let s,i,o=1-e;o=is(Je.minDamping,Je.maxDamping,o),t=is(Je.minDuration,Je.maxDuration,Kr(t)),o<1?(s=c=>{const h=c*o,f=h*t,p=h-n,m=py(c,o),E=Math.exp(-f);return hm-p/m*E},i=c=>{const f=c*o*t,p=f*n+n,m=Math.pow(o,2)*Math.pow(c,2)*t,E=Math.exp(-f),w=py(Math.pow(c,2),o);return(-s(c)+hm>0?-1:1)*((p-m)*E)/w}):(s=c=>{const h=Math.exp(-c*t),f=(c-n)*t+1;return-hm+h*f},i=c=>{const h=Math.exp(-c*t),f=(n-c)*(t*t);return h*f});const a=5/t,l=oB(s,i,a);if(t=qr(t),isNaN(l))return{stiffness:Je.stiffness,damping:Je.damping,duration:t};{const c=Math.pow(l,2)*r;return{stiffness:c,damping:o*2*Math.sqrt(r*c),duration:t}}}const iB=12;function oB(t,e,n){let r=n;for(let s=1;s<iB;s++)r=r-t(r)/e(r);return r}function py(t,e){return t*Math.sqrt(1-e*e)}const aB=["duration","bounce"],lB=["stiffness","damping","mass"];function Ob(t,e){return e.some(n=>t[n]!==void 0)}function cB(t){let e={velocity:Je.velocity,stiffness:Je.stiffness,damping:Je.damping,mass:Je.mass,isResolvedFromDuration:!1,...t};if(!Ob(t,lB)&&Ob(t,aB))if(t.visualDuration){const n=t.visualDuration,r=2*Math.PI/(n*1.2),s=r*r,i=2*is(.05,1,1-(t.bounce||0))*Math.sqrt(s);e={...e,mass:Je.mass,stiffness:s,damping:i}}else{const n=sB(t);e={...e,...n,mass:Je.mass},e.isResolvedFromDuration=!0}return e}function Ik(t=Je.visualDuration,e=Je.bounce){const n=typeof t!="object"?{visualDuration:t,keyframes:[0,1],bounce:e}:t;let{restSpeed:r,restDelta:s}=n;const i=n.keyframes[0],o=n.keyframes[n.keyframes.length-1],a={done:!1,value:i},{stiffness:l,damping:c,mass:h,duration:f,velocity:p,isResolvedFromDuration:m}=cB({...n,velocity:-Kr(n.velocity||0)}),E=p||0,w=c/(2*Math.sqrt(l*h)),v=o-i,y=Kr(Math.sqrt(l/h)),x=Math.abs(v)<5;r||(r=x?Je.restSpeed.granular:Je.restSpeed.default),s||(s=x?Je.restDelta.granular:Je.restDelta.default);let S;if(w<1){const j=py(y,w);S=N=>{const I=Math.exp(-w*y*N);return o-I*((E+w*y*v)/j*Math.sin(j*N)+v*Math.cos(j*N))}}else if(w===1)S=j=>o-Math.exp(-y*j)*(v+(E+y*v)*j);else{const j=y*Math.sqrt(w*w-1);S=N=>{const I=Math.exp(-w*y*N),T=Math.min(j*N,300);return o-I*((E+w*y*v)*Math.sinh(T)+j*v*Math.cosh(T))/j}}const D={calculatedDuration:m&&f||null,next:j=>{const N=S(j);if(m)a.done=j>=f;else{let I=0;w<1&&(I=j===0?qr(E):Ck(S,j,N));const T=Math.abs(I)<=r,C=Math.abs(o-N)<=s;a.done=T&&C}return a.value=a.done?o:N,a},toString:()=>{const j=Math.min(HP(D),oy),N=GP(I=>D.next(j*I).value,j,30);return j+"ms "+N}};return D}function Lb({keyframes:t,velocity:e=0,power:n=.8,timeConstant:r=325,bounceDamping:s=10,bounceStiffness:i=500,modifyTarget:o,min:a,max:l,restDelta:c=.5,restSpeed:h}){const f=t[0],p={done:!1,value:f},m=T=>a!==void 0&&T<a||l!==void 0&&T>l,E=T=>a===void 0?l:l===void 0||Math.abs(a-T)<Math.abs(l-T)?a:l;let w=n*e;const v=f+w,y=o===void 0?v:o(v);y!==v&&(w=y-f);const x=T=>-w*Math.exp(-T/r),S=T=>y+x(T),D=T=>{const C=x(T),A=S(T);p.done=Math.abs(C)<=c,p.value=p.done?y:A};let j,N;const I=T=>{m(p.value)&&(j=T,N=Ik({keyframes:[p.value,E(p.value)],velocity:Ck(S,T,p.value),damping:s,stiffness:i,restDelta:c,restSpeed:h}))};return I(0),{calculatedDuration:null,next:T=>{let C=!1;return!N&&j===void 0&&(C=!0,D(T),I(T)),j!==void 0&&T>=j?N.next(T-j):(!C&&D(T),p)}}}const uB=xu(.42,0,1,1),dB=xu(0,0,.58,1),Ak=xu(.42,0,.58,1),hB=t=>Array.isArray(t)&&typeof t[0]!="number",Fb={linear:pn,easeIn:uB,easeInOut:Ak,easeOut:dB,circIn:sx,circInOut:lk,circOut:ak,backIn:rx,backInOut:ik,backOut:sk,anticipate:ok},Ub=t=>{if(J0(t)){sy(t.length===4);const[e,n,r,s]=t;return xu(e,n,r,s)}else if(typeof t=="string")return sy(Fb[t]!==void 0),Fb[t];return t};function fB(t,e,n){const r=[],s=n||Sk,i=t.length-1;for(let o=0;o<i;o++){let a=s(t[o],t[o+1]);if(e){const l=Array.isArray(e)?e[o]||pn:e;a=wu(l,a)}r.push(a)}return r}function pB(t,e,{clamp:n=!0,ease:r,mixer:s}={}){const i=t.length;if(sy(i===e.length),i===1)return()=>e[0];if(i===2&&e[0]===e[1])return()=>e[1];const o=t[0]===t[1];t[0]>t[i-1]&&(t=[...t].reverse(),e=[...e].reverse());const a=fB(e,r,s),l=a.length,c=h=>{if(o&&h<t[0])return e[0];let f=0;if(l>1)for(;f<t.length-2&&!(h<t[f+1]);f++);const p=Va(t[f],t[f+1],h);return a[f](p)};return n?h=>c(is(t[0],t[i-1],h)):c}function mB(t,e){const n=t[t.length-1];for(let r=1;r<=e;r++){const s=Va(0,e,r);t.push(Ge(n,1,s))}}function gB(t){const e=[0];return mB(e,t.length-1),e}function yB(t,e){return t.map(n=>n*e)}function vB(t,e){return t.map(()=>e||Ak).splice(0,t.length-1)}function qh({duration:t=300,keyframes:e,times:n,ease:r="easeInOut"}){const s=hB(r)?r.map(Ub):Ub(r),i={done:!1,value:e[0]},o=yB(n&&n.length===e.length?n:gB(e),t),a=pB(o,e,{ease:Array.isArray(s)?s:vB(e,s)});return{calculatedDuration:t,next:l=>(i.value=a(l),i.done=l>=t,i)}}const xB=t=>{const e=({timestamp:n})=>t(n);return{start:()=>ze.update(e,!0),stop:()=>hi(e),now:()=>Tt.isProcessing?Tt.timestamp:Ir.now()}},wB={decay:Lb,inertia:Lb,tween:qh,keyframes:qh,spring:Ik},_B=t=>t/100;class ux extends Ek{constructor(e){super(e),this.holdTime=null,this.cancelTime=null,this.currentTime=0,this.playbackSpeed=1,this.pendingPlayState="running",this.startTime=null,this.state="idle",this.stop=()=>{if(this.resolver.cancel(),this.isStopped=!0,this.state==="idle")return;this.teardown();const{onStop:l}=this.options;l&&l()};const{name:n,motionValue:r,element:s,keyframes:i}=this.options,o=(s==null?void 0:s.KeyframeResolver)||lx,a=(l,c)=>this.onKeyframesResolved(l,c);this.resolver=new o(i,a,n,r,s),this.resolver.scheduleResolve()}flatten(){super.flatten(),this._resolved&&Object.assign(this._resolved,this.initPlayback(this._resolved.keyframes))}initPlayback(e){const{type:n="keyframes",repeat:r=0,repeatDelay:s=0,repeatType:i,velocity:o=0}=this.options,a=X0(n)?n:wB[n]||qh;let l,c;a!==qh&&typeof e[0]!="number"&&(l=wu(_B,Sk(e[0],e[1])),e=[0,100]);const h=a({...this.options,keyframes:e});i==="mirror"&&(c=a({...this.options,keyframes:[...e].reverse(),velocity:-o})),h.calculatedDuration===null&&(h.calculatedDuration=HP(h));const{calculatedDuration:f}=h,p=f+s,m=p*(r+1)-s;return{generator:h,mirroredGenerator:c,mapPercentToKeyframes:l,calculatedDuration:f,resolvedDuration:p,totalDuration:m}}onPostResolved(){const{autoplay:e=!0}=this.options;this.play(),this.pendingPlayState==="paused"||!e?this.pause():this.state=this.pendingPlayState}tick(e,n=!1){const{resolved:r}=this;if(!r){const{keyframes:T}=this.options;return{done:!0,value:T[T.length-1]}}const{finalKeyframe:s,generator:i,mirroredGenerator:o,mapPercentToKeyframes:a,keyframes:l,calculatedDuration:c,totalDuration:h,resolvedDuration:f}=r;if(this.startTime===null)return i.next(0);const{delay:p,repeat:m,repeatType:E,repeatDelay:w,onUpdate:v}=this.options;this.speed>0?this.startTime=Math.min(this.startTime,e):this.speed<0&&(this.startTime=Math.min(e-h/this.speed,this.startTime)),n?this.currentTime=e:this.holdTime!==null?this.currentTime=this.holdTime:this.currentTime=Math.round(e-this.startTime)*this.speed;const y=this.currentTime-p*(this.speed>=0?1:-1),x=this.speed>=0?y<0:y>h;this.currentTime=Math.max(y,0),this.state==="finished"&&this.holdTime===null&&(this.currentTime=h);let S=this.currentTime,D=i;if(m){const T=Math.min(this.currentTime,h)/f;let C=Math.floor(T),A=T%1;!A&&T>=1&&(A=1),A===1&&C--,C=Math.min(C,m+1),!!(C%2)&&(E==="reverse"?(A=1-A,w&&(A-=w/f)):E==="mirror"&&(D=o)),S=is(0,1,A)*f}const j=x?{done:!1,value:l[0]}:D.next(S);a&&(j.value=a(j.value));let{done:N}=j;!x&&c!==null&&(N=this.speed>=0?this.currentTime>=h:this.currentTime<=0);const I=this.holdTime===null&&(this.state==="finished"||this.state==="running"&&N);return I&&s!==void 0&&(j.value=Yf(l,this.options,s)),v&&v(j.value),I&&this.finish(),j}get duration(){const{resolved:e}=this;return e?Kr(e.calculatedDuration):0}get time(){return Kr(this.currentTime)}set time(e){e=qr(e),this.currentTime=e,this.holdTime!==null||this.speed===0?this.holdTime=e:this.driver&&(this.startTime=this.driver.now()-e/this.speed)}get speed(){return this.playbackSpeed}set speed(e){const n=this.playbackSpeed!==e;this.playbackSpeed=e,n&&(this.time=Kr(this.currentTime))}play(){if(this.resolver.isScheduled||this.resolver.resume(),!this._resolved){this.pendingPlayState="running";return}if(this.isStopped)return;const{driver:e=xB,onPlay:n,startTime:r}=this.options;this.driver||(this.driver=e(i=>this.tick(i))),n&&n();const s=this.driver.now();this.holdTime!==null?this.startTime=s-this.holdTime:this.startTime?this.state==="finished"&&(this.startTime=s):this.startTime=r??this.calcStartTime(),this.state==="finished"&&this.updateFinishedPromise(),this.cancelTime=this.startTime,this.holdTime=null,this.state="running",this.driver.start()}pause(){var e;if(!this._resolved){this.pendingPlayState="paused";return}this.state="paused",this.holdTime=(e=this.currentTime)!==null&&e!==void 0?e:0}complete(){this.state!=="running"&&this.play(),this.pendingPlayState=this.state="finished",this.holdTime=null}finish(){this.teardown(),this.state="finished";const{onComplete:e}=this.options;e&&e()}cancel(){this.cancelTime!==null&&this.tick(this.cancelTime),this.teardown(),this.updateFinishedPromise()}teardown(){this.state="idle",this.stopDriver(),this.resolveFinishedPromise(),this.updateFinishedPromise(),this.startTime=this.cancelTime=null,this.resolver.cancel()}stopDriver(){this.driver&&(this.driver.stop(),this.driver=void 0)}sample(e){return this.startTime=0,this.tick(e,!0)}}const bB=new Set(["opacity","clipPath","filter","transform"]);function EB(t,e,n,{delay:r=0,duration:s=300,repeat:i=0,repeatType:o="loop",ease:a="easeInOut",times:l}={}){const c={[e]:n};l&&(c.offset=l);const h=KP(a,s);return Array.isArray(h)&&(c.easing=h),t.animate(c,{delay:r,duration:s,easing:Array.isArray(h)?"linear":h,fill:"both",iterations:i+1,direction:o==="reverse"?"alternate":"normal"})}const TB=V0(()=>Object.hasOwnProperty.call(Element.prototype,"animate")),Kh=10,SB=2e4;function CB(t){return X0(t.type)||t.type==="spring"||!qP(t.ease)}function IB(t,e){const n=new ux({...e,keyframes:t,repeat:0,delay:0,isGenerator:!0});let r={done:!1,value:t[0]};const s=[];let i=0;for(;!r.done&&i<SB;)r=n.sample(i),s.push(r.value),i+=Kh;return{times:void 0,keyframes:s,duration:i-Kh,ease:"linear"}}const Pk={anticipate:ok,backInOut:ik,circInOut:lk};function AB(t){return t in Pk}class $b extends Ek{constructor(e){super(e);const{name:n,motionValue:r,element:s,keyframes:i}=this.options;this.resolver=new bk(i,(o,a)=>this.onKeyframesResolved(o,a),n,r,s),this.resolver.scheduleResolve()}initPlayback(e,n){let{duration:r=300,times:s,ease:i,type:o,motionValue:a,name:l,startTime:c}=this.options;if(!a.owner||!a.owner.current)return!1;if(typeof i=="string"&&Hh()&&AB(i)&&(i=Pk[i]),CB(this.options)){const{onComplete:f,onUpdate:p,motionValue:m,element:E,...w}=this.options,v=IB(e,w);e=v.keyframes,e.length===1&&(e[1]=e[0]),r=v.duration,s=v.times,i=v.ease,o="keyframes"}const h=EB(a.owner.current,l,e,{...this.options,duration:r,times:s,ease:i});return h.startTime=c??this.calcStartTime(),this.pendingTimeline?(Tb(h,this.pendingTimeline),this.pendingTimeline=void 0):h.onfinish=()=>{const{onComplete:f}=this.options;a.set(Yf(e,this.options,n)),f&&f(),this.cancel(),this.resolveFinishedPromise()},{animation:h,duration:r,times:s,type:o,ease:i,keyframes:e}}get duration(){const{resolved:e}=this;if(!e)return 0;const{duration:n}=e;return Kr(n)}get time(){const{resolved:e}=this;if(!e)return 0;const{animation:n}=e;return Kr(n.currentTime||0)}set time(e){const{resolved:n}=this;if(!n)return;const{animation:r}=n;r.currentTime=qr(e)}get speed(){const{resolved:e}=this;if(!e)return 1;const{animation:n}=e;return n.playbackRate}set speed(e){const{resolved:n}=this;if(!n)return;const{animation:r}=n;r.playbackRate=e}get state(){const{resolved:e}=this;if(!e)return"idle";const{animation:n}=e;return n.playState}get startTime(){const{resolved:e}=this;if(!e)return null;const{animation:n}=e;return n.startTime}attachTimeline(e){if(!this._resolved)this.pendingTimeline=e;else{const{resolved:n}=this;if(!n)return pn;const{animation:r}=n;Tb(r,e)}return pn}play(){if(this.isStopped)return;const{resolved:e}=this;if(!e)return;const{animation:n}=e;n.playState==="finished"&&this.updateFinishedPromise(),n.play()}pause(){const{resolved:e}=this;if(!e)return;const{animation:n}=e;n.pause()}stop(){if(this.resolver.cancel(),this.isStopped=!0,this.state==="idle")return;this.resolveFinishedPromise(),this.updateFinishedPromise();const{resolved:e}=this;if(!e)return;const{animation:n,keyframes:r,duration:s,type:i,ease:o,times:a}=e;if(n.playState==="idle"||n.playState==="finished")return;if(this.time){const{motionValue:c,onUpdate:h,onComplete:f,element:p,...m}=this.options,E=new ux({...m,keyframes:r,duration:s,type:i,ease:o,times:a,isGenerator:!0}),w=qr(this.time);c.setWithVelocity(E.sample(w-Kh).value,E.sample(w).value,Kh)}const{onStop:l}=this.options;l&&l(),this.cancel()}complete(){const{resolved:e}=this;e&&e.animation.finish()}cancel(){const{resolved:e}=this;e&&e.animation.cancel()}static supports(e){const{motionValue:n,name:r,repeatDelay:s,repeatType:i,damping:o,type:a}=e;if(!n||!n.owner||!(n.owner.current instanceof HTMLElement))return!1;const{onUpdate:l,transformTemplate:c}=n.owner.getProps();return TB()&&r&&bB.has(r)&&!l&&!c&&!s&&i!=="mirror"&&o!==0&&a!=="inertia"}}const PB={type:"spring",stiffness:500,damping:25,restSpeed:10},kB=t=>({type:"spring",stiffness:550,damping:t===0?2*Math.sqrt(550):30,restSpeed:10}),NB={type:"keyframes",duration:.8},RB={type:"keyframes",ease:[.25,.1,.35,1],duration:.3},jB=(t,{keyframes:e})=>e.length>2?NB:wo.has(t)?t.startsWith("scale")?kB(e[1]):PB:RB;function DB({when:t,delay:e,delayChildren:n,staggerChildren:r,staggerDirection:s,repeat:i,repeatType:o,repeatDelay:a,from:l,elapsed:c,...h}){return!!Object.keys(h).length}const dx=(t,e,n,r={},s,i)=>o=>{const a=Y0(r,t)||{},l=a.delay||r.delay||0;let{elapsed:c=0}=r;c=c-qr(l);let h={keyframes:Array.isArray(n)?n:[null,n],ease:"easeOut",velocity:e.getVelocity(),...a,delay:-c,onUpdate:p=>{e.set(p),a.onUpdate&&a.onUpdate(p)},onComplete:()=>{o(),a.onComplete&&a.onComplete()},name:t,motionValue:e,element:i?void 0:s};DB(a)||(h={...h,...jB(t,h)}),h.duration&&(h.duration=qr(h.duration)),h.repeatDelay&&(h.repeatDelay=qr(h.repeatDelay)),h.from!==void 0&&(h.keyframes[0]=h.from);let f=!1;if((h.type===!1||h.duration===0&&!h.repeatDelay)&&(h.duration=0,h.delay===0&&(f=!0)),f&&!i&&e.get()!==void 0){const p=Yf(h.keyframes,a);if(p!==void 0)return ze.update(()=>{h.onUpdate(p),h.onComplete()}),new ez([])}return!i&&$b.supports(h)?new $b(h):new ux(h)};function MB({protectedKeys:t,needsAnimating:e},n){const r=t.hasOwnProperty(n)&&e[n]!==!0;return e[n]=!1,r}function kk(t,e,{delay:n=0,transitionOverride:r,type:s}={}){var i;let{transition:o=t.getDefaultTransition(),transitionEnd:a,...l}=e;r&&(o=r);const c=[],h=s&&t.animationState&&t.animationState.getState()[s];for(const f in l){const p=t.getValue(f,(i=t.latestValues[f])!==null&&i!==void 0?i:null),m=l[f];if(m===void 0||h&&MB(h,f))continue;const E={delay:n,...Y0(o||{},f)};let w=!1;if(window.MotionHandoffAnimation){const y=ek(t);if(y){const x=window.MotionHandoffAnimation(y,f,ze);x!==null&&(E.startTime=x,w=!0)}}ly(t,f),p.start(dx(f,p,m,t.shouldReduceMotion&&JP.has(f)?{type:!1}:E,t,w));const v=p.animation;v&&c.push(v)}return a&&Promise.all(c).then(()=>{ze.update(()=>{a&&pz(t,a)})}),c}function my(t,e,n={}){var r;const s=Qf(t,e,n.type==="exit"?(r=t.presenceContext)===null||r===void 0?void 0:r.custom:void 0);let{transition:i=t.getDefaultTransition()||{}}=s||{};n.transitionOverride&&(i=n.transitionOverride);const o=s?()=>Promise.all(kk(t,s,n)):()=>Promise.resolve(),a=t.variantChildren&&t.variantChildren.size?(c=0)=>{const{delayChildren:h=0,staggerChildren:f,staggerDirection:p}=i;return VB(t,e,h+c,f,p,n)}:()=>Promise.resolve(),{when:l}=i;if(l){const[c,h]=l==="beforeChildren"?[o,a]:[a,o];return c().then(()=>h())}else return Promise.all([o(),a(n.delay)])}function VB(t,e,n=0,r=0,s=1,i){const o=[],a=(t.variantChildren.size-1)*r,l=s===1?(c=0)=>c*r:(c=0)=>a-c*r;return Array.from(t.variantChildren).sort(OB).forEach((c,h)=>{c.notify("AnimationStart",e),o.push(my(c,e,{...i,delay:n+l(h)}).then(()=>c.notify("AnimationComplete",e)))}),Promise.all(o)}function OB(t,e){return t.sortNodePosition(e)}function LB(t,e,n={}){t.notify("AnimationStart",e);let r;if(Array.isArray(e)){const s=e.map(i=>my(t,i,n));r=Promise.all(s)}else if(typeof e=="string")r=my(t,e,n);else{const s=typeof e=="function"?Qf(t,e,n.custom):e;r=Promise.all(kk(t,s,n))}return r.then(()=>{t.notify("AnimationComplete",e)})}const FB=L0.length;function Nk(t){if(!t)return;if(!t.isControllingVariants){const n=t.parent?Nk(t.parent)||{}:{};return t.props.initial!==void 0&&(n.initial=t.props.initial),n}const e={};for(let n=0;n<FB;n++){const r=L0[n],s=t.props[r];(zc(s)||s===!1)&&(e[r]=s)}return e}const UB=[...O0].reverse(),$B=O0.length;function zB(t){return e=>Promise.all(e.map(({animation:n,options:r})=>LB(t,n,r)))}function BB(t){let e=zB(t),n=zb(),r=!0;const s=l=>(c,h)=>{var f;const p=Qf(t,h,l==="exit"?(f=t.presenceContext)===null||f===void 0?void 0:f.custom:void 0);if(p){const{transition:m,transitionEnd:E,...w}=p;c={...c,...w,...E}}return c};function i(l){e=l(t)}function o(l){const{props:c}=t,h=Nk(t.parent)||{},f=[],p=new Set;let m={},E=1/0;for(let v=0;v<$B;v++){const y=UB[v],x=n[y],S=c[y]!==void 0?c[y]:h[y],D=zc(S),j=y===l?x.isActive:null;j===!1&&(E=v);let N=S===h[y]&&S!==c[y]&&D;if(N&&r&&t.manuallyAnimateOnMount&&(N=!1),x.protectedKeys={...m},!x.isActive&&j===null||!S&&!x.prevProp||qf(S)||typeof S=="boolean")continue;const I=WB(x.prevProp,S);let T=I||y===l&&x.isActive&&!N&&D||v>E&&D,C=!1;const A=Array.isArray(S)?S:[S];let R=A.reduce(s(y),{});j===!1&&(R={});const{prevResolvedValues:M={}}=x,P={...M,...R},O=B=>{T=!0,p.has(B)&&(C=!0,p.delete(B)),x.needsAnimating[B]=!0;const V=t.getValue(B);V&&(V.liveStyle=!1)};for(const B in P){const V=R[B],U=M[B];if(m.hasOwnProperty(B))continue;let q=!1;iy(V)&&iy(U)?q=!WP(V,U):q=V!==U,q?V!=null?O(B):p.add(B):V!==void 0&&p.has(B)?O(B):x.protectedKeys[B]=!0}x.prevProp=S,x.prevResolvedValues=R,x.isActive&&(m={...m,...R}),r&&t.blockInitialAnimation&&(T=!1),T&&(!(N&&I)||C)&&f.push(...A.map(B=>({animation:B,options:{type:y}})))}if(p.size){const v={};p.forEach(y=>{const x=t.getBaseTarget(y),S=t.getValue(y);S&&(S.liveStyle=!0),v[y]=x??null}),f.push({animation:v})}let w=!!f.length;return r&&(c.initial===!1||c.initial===c.animate)&&!t.manuallyAnimateOnMount&&(w=!1),r=!1,w?e(f):Promise.resolve()}function a(l,c){var h;if(n[l].isActive===c)return Promise.resolve();(h=t.variantChildren)===null||h===void 0||h.forEach(p=>{var m;return(m=p.animationState)===null||m===void 0?void 0:m.setActive(l,c)}),n[l].isActive=c;const f=o(l);for(const p in n)n[p].protectedKeys={};return f}return{animateChanges:o,setActive:a,setAnimateFunction:i,getState:()=>n,reset:()=>{n=zb(),r=!0}}}function WB(t,e){return typeof e=="string"?e!==t:Array.isArray(e)?!WP(e,t):!1}function Ii(t=!1){return{isActive:t,protectedKeys:{},needsAnimating:{},prevResolvedValues:{}}}function zb(){return{animate:Ii(!0),whileInView:Ii(),whileHover:Ii(),whileTap:Ii(),whileDrag:Ii(),whileFocus:Ii(),exit:Ii()}}class vi{constructor(e){this.isMounted=!1,this.node=e}update(){}}class HB extends vi{constructor(e){super(e),e.animationState||(e.animationState=BB(e))}updateAnimationControlsSubscription(){const{animate:e}=this.node.getProps();qf(e)&&(this.unmountControls=e.subscribe(this.node))}mount(){this.updateAnimationControlsSubscription()}update(){const{animate:e}=this.node.getProps(),{animate:n}=this.node.prevProps||{};e!==n&&this.updateAnimationControlsSubscription()}unmount(){var e;this.node.animationState.reset(),(e=this.unmountControls)===null||e===void 0||e.call(this)}}let GB=0;class qB extends vi{constructor(){super(...arguments),this.id=GB++}update(){if(!this.node.presenceContext)return;const{isPresent:e,onExitComplete:n}=this.node.presenceContext,{isPresent:r}=this.node.prevPresenceContext||{};if(!this.node.animationState||e===r)return;const s=this.node.animationState.setActive("exit",!e);n&&!e&&s.then(()=>n(this.id))}mount(){const{register:e}=this.node.presenceContext||{};e&&(this.unmount=e(this.id))}unmount(){}}const KB={animation:{Feature:HB},exit:{Feature:qB}};function Gc(t,e,n,r={passive:!0}){return t.addEventListener(e,n,r),()=>t.removeEventListener(e,n)}function _u(t){return{point:{x:t.pageX,y:t.pageY}}}const QB=t=>e=>Z0(e)&&t(e,_u(e));function lc(t,e,n,r){return Gc(t,e,QB(n),r)}const Bb=(t,e)=>Math.abs(t-e);function YB(t,e){const n=Bb(t.x,e.x),r=Bb(t.y,e.y);return Math.sqrt(n**2+r**2)}class Rk{constructor(e,n,{transformPagePoint:r,contextWindow:s,dragSnapToOrigin:i=!1}={}){if(this.startEvent=null,this.lastMoveEvent=null,this.lastMoveEventInfo=null,this.handlers={},this.contextWindow=window,this.updatePoint=()=>{if(!(this.lastMoveEvent&&this.lastMoveEventInfo))return;const f=pm(this.lastMoveEventInfo,this.history),p=this.startEvent!==null,m=YB(f.offset,{x:0,y:0})>=3;if(!p&&!m)return;const{point:E}=f,{timestamp:w}=Tt;this.history.push({...E,timestamp:w});const{onStart:v,onMove:y}=this.handlers;p||(v&&v(this.lastMoveEvent,f),this.startEvent=this.lastMoveEvent),y&&y(this.lastMoveEvent,f)},this.handlePointerMove=(f,p)=>{this.lastMoveEvent=f,this.lastMoveEventInfo=fm(p,this.transformPagePoint),ze.update(this.updatePoint,!0)},this.handlePointerUp=(f,p)=>{this.end();const{onEnd:m,onSessionEnd:E,resumeAnimation:w}=this.handlers;if(this.dragSnapToOrigin&&w&&w(),!(this.lastMoveEvent&&this.lastMoveEventInfo))return;const v=pm(f.type==="pointercancel"?this.lastMoveEventInfo:fm(p,this.transformPagePoint),this.history);this.startEvent&&m&&m(f,v),E&&E(f,v)},!Z0(e))return;this.dragSnapToOrigin=i,this.handlers=n,this.transformPagePoint=r,this.contextWindow=s||window;const o=_u(e),a=fm(o,this.transformPagePoint),{point:l}=a,{timestamp:c}=Tt;this.history=[{...l,timestamp:c}];const{onSessionStart:h}=n;h&&h(e,pm(a,this.history)),this.removeListeners=wu(lc(this.contextWindow,"pointermove",this.handlePointerMove),lc(this.contextWindow,"pointerup",this.handlePointerUp),lc(this.contextWindow,"pointercancel",this.handlePointerUp))}updateHandlers(e){this.handlers=e}end(){this.removeListeners&&this.removeListeners(),hi(this.updatePoint)}}function fm(t,e){return e?{point:e(t.point)}:t}function Wb(t,e){return{x:t.x-e.x,y:t.y-e.y}}function pm({point:t},e){return{point:t,delta:Wb(t,jk(e)),offset:Wb(t,XB(e)),velocity:JB(e,.1)}}function XB(t){return t[0]}function jk(t){return t[t.length-1]}function JB(t,e){if(t.length<2)return{x:0,y:0};let n=t.length-1,r=null;const s=jk(t);for(;n>=0&&(r=t[n],!(s.timestamp-r.timestamp>qr(e)));)n--;if(!r)return{x:0,y:0};const i=Kr(s.timestamp-r.timestamp);if(i===0)return{x:0,y:0};const o={x:(s.x-r.x)/i,y:(s.y-r.y)/i};return o.x===1/0&&(o.x=0),o.y===1/0&&(o.y=0),o}const Dk=1e-4,ZB=1-Dk,e7=1+Dk,Mk=.01,t7=0-Mk,n7=0+Mk;function gn(t){return t.max-t.min}function r7(t,e,n){return Math.abs(t-e)<=n}function Hb(t,e,n,r=.5){t.origin=r,t.originPoint=Ge(e.min,e.max,t.origin),t.scale=gn(n)/gn(e),t.translate=Ge(n.min,n.max,t.origin)-t.originPoint,(t.scale>=ZB&&t.scale<=e7||isNaN(t.scale))&&(t.scale=1),(t.translate>=t7&&t.translate<=n7||isNaN(t.translate))&&(t.translate=0)}function cc(t,e,n,r){Hb(t.x,e.x,n.x,r?r.originX:void 0),Hb(t.y,e.y,n.y,r?r.originY:void 0)}function Gb(t,e,n){t.min=n.min+e.min,t.max=t.min+gn(e)}function s7(t,e,n){Gb(t.x,e.x,n.x),Gb(t.y,e.y,n.y)}function qb(t,e,n){t.min=e.min-n.min,t.max=t.min+gn(e)}function uc(t,e,n){qb(t.x,e.x,n.x),qb(t.y,e.y,n.y)}function i7(t,{min:e,max:n},r){return e!==void 0&&t<e?t=r?Ge(e,t,r.min):Math.max(t,e):n!==void 0&&t>n&&(t=r?Ge(n,t,r.max):Math.min(t,n)),t}function Kb(t,e,n){return{min:e!==void 0?t.min+e:void 0,max:n!==void 0?t.max+n-(t.max-t.min):void 0}}function o7(t,{top:e,left:n,bottom:r,right:s}){return{x:Kb(t.x,n,s),y:Kb(t.y,e,r)}}function Qb(t,e){let n=e.min-t.min,r=e.max-t.max;return e.max-e.min<t.max-t.min&&([n,r]=[r,n]),{min:n,max:r}}function a7(t,e){return{x:Qb(t.x,e.x),y:Qb(t.y,e.y)}}function l7(t,e){let n=.5;const r=gn(t),s=gn(e);return s>r?n=Va(e.min,e.max-r,t.min):r>s&&(n=Va(t.min,t.max-s,e.min)),is(0,1,n)}function c7(t,e){const n={};return e.min!==void 0&&(n.min=e.min-t.min),e.max!==void 0&&(n.max=e.max-t.min),n}const gy=.35;function u7(t=gy){return t===!1?t=0:t===!0&&(t=gy),{x:Yb(t,"left","right"),y:Yb(t,"top","bottom")}}function Yb(t,e,n){return{min:Xb(t,e),max:Xb(t,n)}}function Xb(t,e){return typeof t=="number"?t:t[e]||0}const Jb=()=>({translate:0,scale:1,origin:0,originPoint:0}),Ho=()=>({x:Jb(),y:Jb()}),Zb=()=>({min:0,max:0}),et=()=>({x:Zb(),y:Zb()});function bn(t){return[t("x"),t("y")]}function Vk({top:t,left:e,right:n,bottom:r}){return{x:{min:e,max:n},y:{min:t,max:r}}}function d7({x:t,y:e}){return{top:e.min,right:t.max,bottom:e.max,left:t.min}}function h7(t,e){if(!e)return t;const n=e({x:t.left,y:t.top}),r=e({x:t.right,y:t.bottom});return{top:n.y,left:n.x,bottom:r.y,right:r.x}}function mm(t){return t===void 0||t===1}function yy({scale:t,scaleX:e,scaleY:n}){return!mm(t)||!mm(e)||!mm(n)}function Ri(t){return yy(t)||Ok(t)||t.z||t.rotate||t.rotateX||t.rotateY||t.skewX||t.skewY}function Ok(t){return eE(t.x)||eE(t.y)}function eE(t){return t&&t!=="0%"}function Qh(t,e,n){const r=t-n,s=e*r;return n+s}function tE(t,e,n,r,s){return s!==void 0&&(t=Qh(t,s,r)),Qh(t,n,r)+e}function vy(t,e=0,n=1,r,s){t.min=tE(t.min,e,n,r,s),t.max=tE(t.max,e,n,r,s)}function Lk(t,{x:e,y:n}){vy(t.x,e.translate,e.scale,e.originPoint),vy(t.y,n.translate,n.scale,n.originPoint)}const nE=.999999999999,rE=1.0000000000001;function f7(t,e,n,r=!1){const s=n.length;if(!s)return;e.x=e.y=1;let i,o;for(let a=0;a<s;a++){i=n[a],o=i.projectionDelta;const{visualElement:l}=i.options;l&&l.props.style&&l.props.style.display==="contents"||(r&&i.options.layoutScroll&&i.scroll&&i!==i.root&&qo(t,{x:-i.scroll.offset.x,y:-i.scroll.offset.y}),o&&(e.x*=o.x.scale,e.y*=o.y.scale,Lk(t,o)),r&&Ri(i.latestValues)&&qo(t,i.latestValues))}e.x<rE&&e.x>nE&&(e.x=1),e.y<rE&&e.y>nE&&(e.y=1)}function Go(t,e){t.min=t.min+e,t.max=t.max+e}function sE(t,e,n,r,s=.5){const i=Ge(t.min,t.max,s);vy(t,e,n,i,r)}function qo(t,e){sE(t.x,e.x,e.scaleX,e.scale,e.originX),sE(t.y,e.y,e.scaleY,e.scale,e.originY)}function Fk(t,e){return Vk(h7(t.getBoundingClientRect(),e))}function p7(t,e,n){const r=Fk(t,n),{scroll:s}=e;return s&&(Go(r.x,s.offset.x),Go(r.y,s.offset.y)),r}const Uk=({current:t})=>t?t.ownerDocument.defaultView:null,m7=new WeakMap;class g7{constructor(e){this.openDragLock=null,this.isDragging=!1,this.currentDirection=null,this.originPoint={x:0,y:0},this.constraints=!1,this.hasMutatedConstraints=!1,this.elastic=et(),this.visualElement=e}start(e,{snapToCursor:n=!1}={}){const{presenceContext:r}=this.visualElement;if(r&&r.isPresent===!1)return;const s=h=>{const{dragSnapToOrigin:f}=this.getProps();f?this.pauseAnimation():this.stopAnimation(),n&&this.snapToCursor(_u(h).point)},i=(h,f)=>{const{drag:p,dragPropagation:m,onDragStart:E}=this.getProps();if(p&&!m&&(this.openDragLock&&this.openDragLock(),this.openDragLock=cz(p),!this.openDragLock))return;this.isDragging=!0,this.currentDirection=null,this.resolveConstraints(),this.visualElement.projection&&(this.visualElement.projection.isAnimationBlocked=!0,this.visualElement.projection.target=void 0),bn(v=>{let y=this.getAxisMotionValue(v).get()||0;if(Cr.test(y)){const{projection:x}=this.visualElement;if(x&&x.layout){const S=x.layout.layoutBox[v];S&&(y=gn(S)*(parseFloat(y)/100))}}this.originPoint[v]=y}),E&&ze.postRender(()=>E(h,f)),ly(this.visualElement,"transform");const{animationState:w}=this.visualElement;w&&w.setActive("whileDrag",!0)},o=(h,f)=>{const{dragPropagation:p,dragDirectionLock:m,onDirectionLock:E,onDrag:w}=this.getProps();if(!p&&!this.openDragLock)return;const{offset:v}=f;if(m&&this.currentDirection===null){this.currentDirection=y7(v),this.currentDirection!==null&&E&&E(this.currentDirection);return}this.updateAxis("x",f.point,v),this.updateAxis("y",f.point,v),this.visualElement.render(),w&&w(h,f)},a=(h,f)=>this.stop(h,f),l=()=>bn(h=>{var f;return this.getAnimationState(h)==="paused"&&((f=this.getAxisMotionValue(h).animation)===null||f===void 0?void 0:f.play())}),{dragSnapToOrigin:c}=this.getProps();this.panSession=new Rk(e,{onSessionStart:s,onStart:i,onMove:o,onSessionEnd:a,resumeAnimation:l},{transformPagePoint:this.visualElement.getTransformPagePoint(),dragSnapToOrigin:c,contextWindow:Uk(this.visualElement)})}stop(e,n){const r=this.isDragging;if(this.cancel(),!r)return;const{velocity:s}=n;this.startAnimation(s);const{onDragEnd:i}=this.getProps();i&&ze.postRender(()=>i(e,n))}cancel(){this.isDragging=!1;const{projection:e,animationState:n}=this.visualElement;e&&(e.isAnimationBlocked=!1),this.panSession&&this.panSession.end(),this.panSession=void 0;const{dragPropagation:r}=this.getProps();!r&&this.openDragLock&&(this.openDragLock(),this.openDragLock=null),n&&n.setActive("whileDrag",!1)}updateAxis(e,n,r){const{drag:s}=this.getProps();if(!r||!fd(e,s,this.currentDirection))return;const i=this.getAxisMotionValue(e);let o=this.originPoint[e]+r[e];this.constraints&&this.constraints[e]&&(o=i7(o,this.constraints[e],this.elastic[e])),i.set(o)}resolveConstraints(){var e;const{dragConstraints:n,dragElastic:r}=this.getProps(),s=this.visualElement.projection&&!this.visualElement.projection.layout?this.visualElement.projection.measure(!1):(e=this.visualElement.projection)===null||e===void 0?void 0:e.layout,i=this.constraints;n&&Bo(n)?this.constraints||(this.constraints=this.resolveRefConstraints()):n&&s?this.constraints=o7(s.layoutBox,n):this.constraints=!1,this.elastic=u7(r),i!==this.constraints&&s&&this.constraints&&!this.hasMutatedConstraints&&bn(o=>{this.constraints!==!1&&this.getAxisMotionValue(o)&&(this.constraints[o]=c7(s.layoutBox[o],this.constraints[o]))})}resolveRefConstraints(){const{dragConstraints:e,onMeasureDragConstraints:n}=this.getProps();if(!e||!Bo(e))return!1;const r=e.current,{projection:s}=this.visualElement;if(!s||!s.layout)return!1;const i=p7(r,s.root,this.visualElement.getTransformPagePoint());let o=a7(s.layout.layoutBox,i);if(n){const a=n(d7(o));this.hasMutatedConstraints=!!a,a&&(o=Vk(a))}return o}startAnimation(e){const{drag:n,dragMomentum:r,dragElastic:s,dragTransition:i,dragSnapToOrigin:o,onDragTransitionEnd:a}=this.getProps(),l=this.constraints||{},c=bn(h=>{if(!fd(h,n,this.currentDirection))return;let f=l&&l[h]||{};o&&(f={min:0,max:0});const p=s?200:1e6,m=s?40:1e7,E={type:"inertia",velocity:r?e[h]:0,bounceStiffness:p,bounceDamping:m,timeConstant:750,restDelta:1,restSpeed:10,...i,...f};return this.startAxisValueAnimation(h,E)});return Promise.all(c).then(a)}startAxisValueAnimation(e,n){const r=this.getAxisMotionValue(e);return ly(this.visualElement,e),r.start(dx(e,r,0,n,this.visualElement,!1))}stopAnimation(){bn(e=>this.getAxisMotionValue(e).stop())}pauseAnimation(){bn(e=>{var n;return(n=this.getAxisMotionValue(e).animation)===null||n===void 0?void 0:n.pause()})}getAnimationState(e){var n;return(n=this.getAxisMotionValue(e).animation)===null||n===void 0?void 0:n.state}getAxisMotionValue(e){const n=`_drag${e.toUpperCase()}`,r=this.visualElement.getProps(),s=r[n];return s||this.visualElement.getValue(e,(r.initial?r.initial[e]:void 0)||0)}snapToCursor(e){bn(n=>{const{drag:r}=this.getProps();if(!fd(n,r,this.currentDirection))return;const{projection:s}=this.visualElement,i=this.getAxisMotionValue(n);if(s&&s.layout){const{min:o,max:a}=s.layout.layoutBox[n];i.set(e[n]-Ge(o,a,.5))}})}scalePositionWithinConstraints(){if(!this.visualElement.current)return;const{drag:e,dragConstraints:n}=this.getProps(),{projection:r}=this.visualElement;if(!Bo(n)||!r||!this.constraints)return;this.stopAnimation();const s={x:0,y:0};bn(o=>{const a=this.getAxisMotionValue(o);if(a&&this.constraints!==!1){const l=a.get();s[o]=l7({min:l,max:l},this.constraints[o])}});const{transformTemplate:i}=this.visualElement.getProps();this.visualElement.current.style.transform=i?i({},""):"none",r.root&&r.root.updateScroll(),r.updateLayout(),this.resolveConstraints(),bn(o=>{if(!fd(o,e,null))return;const a=this.getAxisMotionValue(o),{min:l,max:c}=this.constraints[o];a.set(Ge(l,c,s[o]))})}addListeners(){if(!this.visualElement.current)return;m7.set(this.visualElement,this);const e=this.visualElement.current,n=lc(e,"pointerdown",l=>{const{drag:c,dragListener:h=!0}=this.getProps();c&&h&&this.start(l)}),r=()=>{const{dragConstraints:l}=this.getProps();Bo(l)&&l.current&&(this.constraints=this.resolveRefConstraints())},{projection:s}=this.visualElement,i=s.addEventListener("measure",r);s&&!s.layout&&(s.root&&s.root.updateScroll(),s.updateLayout()),ze.read(r);const o=Gc(window,"resize",()=>this.scalePositionWithinConstraints()),a=s.addEventListener("didUpdate",({delta:l,hasLayoutChanged:c})=>{this.isDragging&&c&&(bn(h=>{const f=this.getAxisMotionValue(h);f&&(this.originPoint[h]+=l[h].translate,f.set(f.get()+l[h].translate))}),this.visualElement.render())});return()=>{o(),n(),i(),a&&a()}}getProps(){const e=this.visualElement.getProps(),{drag:n=!1,dragDirectionLock:r=!1,dragPropagation:s=!1,dragConstraints:i=!1,dragElastic:o=gy,dragMomentum:a=!0}=e;return{...e,drag:n,dragDirectionLock:r,dragPropagation:s,dragConstraints:i,dragElastic:o,dragMomentum:a}}}function fd(t,e,n){return(e===!0||e===t)&&(n===null||n===t)}function y7(t,e=10){let n=null;return Math.abs(t.y)>e?n="y":Math.abs(t.x)>e&&(n="x"),n}class v7 extends vi{constructor(e){super(e),this.removeGroupControls=pn,this.removeListeners=pn,this.controls=new g7(e)}mount(){const{dragControls:e}=this.node.getProps();e&&(this.removeGroupControls=e.subscribe(this.controls)),this.removeListeners=this.controls.addListeners()||pn}unmount(){this.removeGroupControls(),this.removeListeners()}}const iE=t=>(e,n)=>{t&&ze.postRender(()=>t(e,n))};class x7 extends vi{constructor(){super(...arguments),this.removePointerDownListener=pn}onPointerDown(e){this.session=new Rk(e,this.createPanHandlers(),{transformPagePoint:this.node.getTransformPagePoint(),contextWindow:Uk(this.node)})}createPanHandlers(){const{onPanSessionStart:e,onPanStart:n,onPan:r,onPanEnd:s}=this.node.getProps();return{onSessionStart:iE(e),onStart:iE(n),onMove:r,onEnd:(i,o)=>{delete this.session,s&&ze.postRender(()=>s(i,o))}}}mount(){this.removePointerDownListener=lc(this.node.current,"pointerdown",e=>this.onPointerDown(e))}update(){this.session&&this.session.updateHandlers(this.createPanHandlers())}unmount(){this.removePointerDownListener(),this.session&&this.session.end()}}const Wd={hasAnimatedSinceResize:!0,hasEverUpdated:!1};function oE(t,e){return e.max===e.min?0:t/(e.max-e.min)*100}const Pl={correct:(t,e)=>{if(!e.target)return t;if(typeof t=="string")if(he.test(t))t=parseFloat(t);else return t;const n=oE(t,e.target.x),r=oE(t,e.target.y);return`${n}% ${r}%`}},w7={correct:(t,{treeScale:e,projectionDelta:n})=>{const r=t,s=fi.parse(t);if(s.length>5)return r;const i=fi.createTransformer(t),o=typeof s[0]!="number"?1:0,a=n.x.scale*e.x,l=n.y.scale*e.y;s[0+o]/=a,s[1+o]/=l;const c=Ge(a,l,.5);return typeof s[2+o]=="number"&&(s[2+o]/=c),typeof s[3+o]=="number"&&(s[3+o]/=c),i(s)}};class _7 extends b.Component{componentDidMount(){const{visualElement:e,layoutGroup:n,switchLayoutGroup:r,layoutId:s}=this.props,{projection:i}=e;z$(b7),i&&(n.group&&n.group.add(i),r&&r.register&&s&&r.register(i),i.root.didUpdate(),i.addEventListener("animationComplete",()=>{this.safeToRemove()}),i.setOptions({...i.options,onExitComplete:()=>this.safeToRemove()})),Wd.hasEverUpdated=!0}getSnapshotBeforeUpdate(e){const{layoutDependency:n,visualElement:r,drag:s,isPresent:i}=this.props,o=r.projection;return o&&(o.isPresent=i,s||e.layoutDependency!==n||n===void 0?o.willUpdate():this.safeToRemove(),e.isPresent!==i&&(i?o.promote():o.relegate()||ze.postRender(()=>{const a=o.getStack();(!a||!a.members.length)&&this.safeToRemove()}))),null}componentDidUpdate(){const{projection:e}=this.props.visualElement;e&&(e.root.didUpdate(),U0.postRender(()=>{!e.currentAnimation&&e.isLead()&&this.safeToRemove()}))}componentWillUnmount(){const{visualElement:e,layoutGroup:n,switchLayoutGroup:r}=this.props,{projection:s}=e;s&&(s.scheduleCheckAfterUnmount(),n&&n.group&&n.group.remove(s),r&&r.deregister&&r.deregister(s))}safeToRemove(){const{safeToRemove:e}=this.props;e&&e()}render(){return null}}function $k(t){const[e,n]=TP(),r=b.useContext(R0);return d.jsx(_7,{...t,layoutGroup:r,switchLayoutGroup:b.useContext(NP),isPresent:e,safeToRemove:n})}const b7={borderRadius:{...Pl,applyTo:["borderTopLeftRadius","borderTopRightRadius","borderBottomLeftRadius","borderBottomRightRadius"]},borderTopLeftRadius:Pl,borderTopRightRadius:Pl,borderBottomLeftRadius:Pl,borderBottomRightRadius:Pl,boxShadow:w7};function E7(t,e,n){const r=Ft(t)?t:Wc(t);return r.start(dx("",r,e,n)),r.animation}function T7(t){return t instanceof SVGElement&&t.tagName!=="svg"}const S7=(t,e)=>t.depth-e.depth;class C7{constructor(){this.children=[],this.isDirty=!1}add(e){ex(this.children,e),this.isDirty=!0}remove(e){tx(this.children,e),this.isDirty=!0}forEach(e){this.isDirty&&this.children.sort(S7),this.isDirty=!1,this.children.forEach(e)}}function I7(t,e){const n=Ir.now(),r=({timestamp:s})=>{const i=s-n;i>=e&&(hi(r),t(i-e))};return ze.read(r,!0),()=>hi(r)}const zk=["TopLeft","TopRight","BottomLeft","BottomRight"],A7=zk.length,aE=t=>typeof t=="string"?parseFloat(t):t,lE=t=>typeof t=="number"||he.test(t);function P7(t,e,n,r,s,i){s?(t.opacity=Ge(0,n.opacity!==void 0?n.opacity:1,k7(r)),t.opacityExit=Ge(e.opacity!==void 0?e.opacity:1,0,N7(r))):i&&(t.opacity=Ge(e.opacity!==void 0?e.opacity:1,n.opacity!==void 0?n.opacity:1,r));for(let o=0;o<A7;o++){const a=`border${zk[o]}Radius`;let l=cE(e,a),c=cE(n,a);if(l===void 0&&c===void 0)continue;l||(l=0),c||(c=0),l===0||c===0||lE(l)===lE(c)?(t[a]=Math.max(Ge(aE(l),aE(c),r),0),(Cr.test(c)||Cr.test(l))&&(t[a]+="%")):t[a]=c}(e.rotate||n.rotate)&&(t.rotate=Ge(e.rotate||0,n.rotate||0,r))}function cE(t,e){return t[e]!==void 0?t[e]:t.borderRadius}const k7=Bk(0,.5,ak),N7=Bk(.5,.95,pn);function Bk(t,e,n){return r=>r<t?0:r>e?1:n(Va(t,e,r))}function uE(t,e){t.min=e.min,t.max=e.max}function _n(t,e){uE(t.x,e.x),uE(t.y,e.y)}function dE(t,e){t.translate=e.translate,t.scale=e.scale,t.originPoint=e.originPoint,t.origin=e.origin}function hE(t,e,n,r,s){return t-=e,t=Qh(t,1/n,r),s!==void 0&&(t=Qh(t,1/s,r)),t}function R7(t,e=0,n=1,r=.5,s,i=t,o=t){if(Cr.test(e)&&(e=parseFloat(e),e=Ge(o.min,o.max,e/100)-o.min),typeof e!="number")return;let a=Ge(i.min,i.max,r);t===i&&(a-=e),t.min=hE(t.min,e,n,a,s),t.max=hE(t.max,e,n,a,s)}function fE(t,e,[n,r,s],i,o){R7(t,e[n],e[r],e[s],e.scale,i,o)}const j7=["x","scaleX","originX"],D7=["y","scaleY","originY"];function pE(t,e,n,r){fE(t.x,e,j7,n?n.x:void 0,r?r.x:void 0),fE(t.y,e,D7,n?n.y:void 0,r?r.y:void 0)}function mE(t){return t.translate===0&&t.scale===1}function Wk(t){return mE(t.x)&&mE(t.y)}function gE(t,e){return t.min===e.min&&t.max===e.max}function M7(t,e){return gE(t.x,e.x)&&gE(t.y,e.y)}function yE(t,e){return Math.round(t.min)===Math.round(e.min)&&Math.round(t.max)===Math.round(e.max)}function Hk(t,e){return yE(t.x,e.x)&&yE(t.y,e.y)}function vE(t){return gn(t.x)/gn(t.y)}function xE(t,e){return t.translate===e.translate&&t.scale===e.scale&&t.originPoint===e.originPoint}class V7{constructor(){this.members=[]}add(e){ex(this.members,e),e.scheduleRender()}remove(e){if(tx(this.members,e),e===this.prevLead&&(this.prevLead=void 0),e===this.lead){const n=this.members[this.members.length-1];n&&this.promote(n)}}relegate(e){const n=this.members.findIndex(s=>e===s);if(n===0)return!1;let r;for(let s=n;s>=0;s--){const i=this.members[s];if(i.isPresent!==!1){r=i;break}}return r?(this.promote(r),!0):!1}promote(e,n){const r=this.lead;if(e!==r&&(this.prevLead=r,this.lead=e,e.show(),r)){r.instance&&r.scheduleRender(),e.scheduleRender(),e.resumeFrom=r,n&&(e.resumeFrom.preserveOpacity=!0),r.snapshot&&(e.snapshot=r.snapshot,e.snapshot.latestValues=r.animationValues||r.latestValues),e.root&&e.root.isUpdating&&(e.isLayoutDirty=!0);const{crossfade:s}=e.options;s===!1&&r.hide()}}exitAnimationComplete(){this.members.forEach(e=>{const{options:n,resumingFrom:r}=e;n.onExitComplete&&n.onExitComplete(),r&&r.options.onExitComplete&&r.options.onExitComplete()})}scheduleRender(){this.members.forEach(e=>{e.instance&&e.scheduleRender(!1)})}removeLeadSnapshot(){this.lead&&this.lead.snapshot&&(this.lead.snapshot=void 0)}}function O7(t,e,n){let r="";const s=t.x.translate/e.x,i=t.y.translate/e.y,o=(n==null?void 0:n.z)||0;if((s||i||o)&&(r=`translate3d(${s}px, ${i}px, ${o}px) `),(e.x!==1||e.y!==1)&&(r+=`scale(${1/e.x}, ${1/e.y}) `),n){const{transformPerspective:c,rotate:h,rotateX:f,rotateY:p,skewX:m,skewY:E}=n;c&&(r=`perspective(${c}px) ${r}`),h&&(r+=`rotate(${h}deg) `),f&&(r+=`rotateX(${f}deg) `),p&&(r+=`rotateY(${p}deg) `),m&&(r+=`skewX(${m}deg) `),E&&(r+=`skewY(${E}deg) `)}const a=t.x.scale*e.x,l=t.y.scale*e.y;return(a!==1||l!==1)&&(r+=`scale(${a}, ${l})`),r||"none"}const ji={type:"projectionFrame",totalNodes:0,resolvedTargetDeltas:0,recalculatedProjection:0},Hl=typeof window<"u"&&window.MotionDebug!==void 0,gm=["","X","Y","Z"],L7={visibility:"hidden"},wE=1e3;let F7=0;function ym(t,e,n,r){const{latestValues:s}=e;s[t]&&(n[t]=s[t],e.setStaticValue(t,0),r&&(r[t]=0))}function Gk(t){if(t.hasCheckedOptimisedAppear=!0,t.root===t)return;const{visualElement:e}=t.options;if(!e)return;const n=ek(e);if(window.MotionHasOptimisedAnimation(n,"transform")){const{layout:s,layoutId:i}=t.options;window.MotionCancelOptimisedAnimation(n,"transform",ze,!(s||i))}const{parent:r}=t;r&&!r.hasCheckedOptimisedAppear&&Gk(r)}function qk({attachResizeListener:t,defaultParent:e,measureScroll:n,checkIsScrollRoot:r,resetTransform:s}){return class{constructor(o={},a=e==null?void 0:e()){this.id=F7++,this.animationId=0,this.children=new Set,this.options={},this.isTreeAnimating=!1,this.isAnimationBlocked=!1,this.isLayoutDirty=!1,this.isProjectionDirty=!1,this.isSharedProjectionDirty=!1,this.isTransformDirty=!1,this.updateManuallyBlocked=!1,this.updateBlockedByResize=!1,this.isUpdating=!1,this.isSVG=!1,this.needsReset=!1,this.shouldResetTransform=!1,this.hasCheckedOptimisedAppear=!1,this.treeScale={x:1,y:1},this.eventHandlers=new Map,this.hasTreeAnimated=!1,this.updateScheduled=!1,this.scheduleUpdate=()=>this.update(),this.projectionUpdateScheduled=!1,this.checkUpdateFailed=()=>{this.isUpdating&&(this.isUpdating=!1,this.clearAllSnapshots())},this.updateProjection=()=>{this.projectionUpdateScheduled=!1,Hl&&(ji.totalNodes=ji.resolvedTargetDeltas=ji.recalculatedProjection=0),this.nodes.forEach(z7),this.nodes.forEach(q7),this.nodes.forEach(K7),this.nodes.forEach(B7),Hl&&window.MotionDebug.record(ji)},this.resolvedRelativeTargetAt=0,this.hasProjected=!1,this.isVisible=!0,this.animationProgress=0,this.sharedNodes=new Map,this.latestValues=o,this.root=a?a.root||a:this,this.path=a?[...a.path,a]:[],this.parent=a,this.depth=a?a.depth+1:0;for(let l=0;l<this.path.length;l++)this.path[l].shouldResetTransform=!0;this.root===this&&(this.nodes=new C7)}addEventListener(o,a){return this.eventHandlers.has(o)||this.eventHandlers.set(o,new nx),this.eventHandlers.get(o).add(a)}notifyListeners(o,...a){const l=this.eventHandlers.get(o);l&&l.notify(...a)}hasListeners(o){return this.eventHandlers.has(o)}mount(o,a=this.root.hasTreeAnimated){if(this.instance)return;this.isSVG=T7(o),this.instance=o;const{layoutId:l,layout:c,visualElement:h}=this.options;if(h&&!h.current&&h.mount(o),this.root.nodes.add(this),this.parent&&this.parent.children.add(this),a&&(c||l)&&(this.isLayoutDirty=!0),t){let f;const p=()=>this.root.updateBlockedByResize=!1;t(o,()=>{this.root.updateBlockedByResize=!0,f&&f(),f=I7(p,250),Wd.hasAnimatedSinceResize&&(Wd.hasAnimatedSinceResize=!1,this.nodes.forEach(bE))})}l&&this.root.registerSharedNode(l,this),this.options.animate!==!1&&h&&(l||c)&&this.addEventListener("didUpdate",({delta:f,hasLayoutChanged:p,hasRelativeTargetChanged:m,layout:E})=>{if(this.isTreeAnimationBlocked()){this.target=void 0,this.relativeTarget=void 0;return}const w=this.options.transition||h.getDefaultTransition()||Z7,{onLayoutAnimationStart:v,onLayoutAnimationComplete:y}=h.getProps(),x=!this.targetLayout||!Hk(this.targetLayout,E)||m,S=!p&&m;if(this.options.layoutRoot||this.resumeFrom&&this.resumeFrom.instance||S||p&&(x||!this.currentAnimation)){this.resumeFrom&&(this.resumingFrom=this.resumeFrom,this.resumingFrom.resumingFrom=void 0),this.setAnimationOrigin(f,S);const D={...Y0(w,"layout"),onPlay:v,onComplete:y};(h.shouldReduceMotion||this.options.layoutRoot)&&(D.delay=0,D.type=!1),this.startAnimation(D)}else p||bE(this),this.isLead()&&this.options.onExitComplete&&this.options.onExitComplete();this.targetLayout=E})}unmount(){this.options.layoutId&&this.willUpdate(),this.root.nodes.remove(this);const o=this.getStack();o&&o.remove(this),this.parent&&this.parent.children.delete(this),this.instance=void 0,hi(this.updateProjection)}blockUpdate(){this.updateManuallyBlocked=!0}unblockUpdate(){this.updateManuallyBlocked=!1}isUpdateBlocked(){return this.updateManuallyBlocked||this.updateBlockedByResize}isTreeAnimationBlocked(){return this.isAnimationBlocked||this.parent&&this.parent.isTreeAnimationBlocked()||!1}startUpdate(){this.isUpdateBlocked()||(this.isUpdating=!0,this.nodes&&this.nodes.forEach(Q7),this.animationId++)}getTransformTemplate(){const{visualElement:o}=this.options;return o&&o.getProps().transformTemplate}willUpdate(o=!0){if(this.root.hasTreeAnimated=!0,this.root.isUpdateBlocked()){this.options.onExitComplete&&this.options.onExitComplete();return}if(window.MotionCancelOptimisedAnimation&&!this.hasCheckedOptimisedAppear&&Gk(this),!this.root.isUpdating&&this.root.startUpdate(),this.isLayoutDirty)return;this.isLayoutDirty=!0;for(let h=0;h<this.path.length;h++){const f=this.path[h];f.shouldResetTransform=!0,f.updateScroll("snapshot"),f.options.layoutRoot&&f.willUpdate(!1)}const{layoutId:a,layout:l}=this.options;if(a===void 0&&!l)return;const c=this.getTransformTemplate();this.prevTransformTemplateValue=c?c(this.latestValues,""):void 0,this.updateSnapshot(),o&&this.notifyListeners("willUpdate")}update(){if(this.updateScheduled=!1,this.isUpdateBlocked()){this.unblockUpdate(),this.clearAllSnapshots(),this.nodes.forEach(_E);return}this.isUpdating||this.nodes.forEach(H7),this.isUpdating=!1,this.nodes.forEach(G7),this.nodes.forEach(U7),this.nodes.forEach($7),this.clearAllSnapshots();const a=Ir.now();Tt.delta=is(0,1e3/60,a-Tt.timestamp),Tt.timestamp=a,Tt.isProcessing=!0,am.update.process(Tt),am.preRender.process(Tt),am.render.process(Tt),Tt.isProcessing=!1}didUpdate(){this.updateScheduled||(this.updateScheduled=!0,U0.read(this.scheduleUpdate))}clearAllSnapshots(){this.nodes.forEach(W7),this.sharedNodes.forEach(Y7)}scheduleUpdateProjection(){this.projectionUpdateScheduled||(this.projectionUpdateScheduled=!0,ze.preRender(this.updateProjection,!1,!0))}scheduleCheckAfterUnmount(){ze.postRender(()=>{this.isLayoutDirty?this.root.didUpdate():this.root.checkUpdateFailed()})}updateSnapshot(){this.snapshot||!this.instance||(this.snapshot=this.measure())}updateLayout(){if(!this.instance||(this.updateScroll(),!(this.options.alwaysMeasureLayout&&this.isLead())&&!this.isLayoutDirty))return;if(this.resumeFrom&&!this.resumeFrom.instance)for(let l=0;l<this.path.length;l++)this.path[l].updateScroll();const o=this.layout;this.layout=this.measure(!1),this.layoutCorrected=et(),this.isLayoutDirty=!1,this.projectionDelta=void 0,this.notifyListeners("measure",this.layout.layoutBox);const{visualElement:a}=this.options;a&&a.notify("LayoutMeasure",this.layout.layoutBox,o?o.layoutBox:void 0)}updateScroll(o="measure"){let a=!!(this.options.layoutScroll&&this.instance);if(this.scroll&&this.scroll.animationId===this.root.animationId&&this.scroll.phase===o&&(a=!1),a){const l=r(this.instance);this.scroll={animationId:this.root.animationId,phase:o,isRoot:l,offset:n(this.instance),wasRoot:this.scroll?this.scroll.isRoot:l}}}resetTransform(){if(!s)return;const o=this.isLayoutDirty||this.shouldResetTransform||this.options.alwaysMeasureLayout,a=this.projectionDelta&&!Wk(this.projectionDelta),l=this.getTransformTemplate(),c=l?l(this.latestValues,""):void 0,h=c!==this.prevTransformTemplateValue;o&&(a||Ri(this.latestValues)||h)&&(s(this.instance,c),this.shouldResetTransform=!1,this.scheduleRender())}measure(o=!0){const a=this.measurePageBox();let l=this.removeElementScroll(a);return o&&(l=this.removeTransform(l)),eW(l),{animationId:this.root.animationId,measuredBox:a,layoutBox:l,latestValues:{},source:this.id}}measurePageBox(){var o;const{visualElement:a}=this.options;if(!a)return et();const l=a.measureViewportBox();if(!(((o=this.scroll)===null||o===void 0?void 0:o.wasRoot)||this.path.some(tW))){const{scroll:h}=this.root;h&&(Go(l.x,h.offset.x),Go(l.y,h.offset.y))}return l}removeElementScroll(o){var a;const l=et();if(_n(l,o),!((a=this.scroll)===null||a===void 0)&&a.wasRoot)return l;for(let c=0;c<this.path.length;c++){const h=this.path[c],{scroll:f,options:p}=h;h!==this.root&&f&&p.layoutScroll&&(f.wasRoot&&_n(l,o),Go(l.x,f.offset.x),Go(l.y,f.offset.y))}return l}applyTransform(o,a=!1){const l=et();_n(l,o);for(let c=0;c<this.path.length;c++){const h=this.path[c];!a&&h.options.layoutScroll&&h.scroll&&h!==h.root&&qo(l,{x:-h.scroll.offset.x,y:-h.scroll.offset.y}),Ri(h.latestValues)&&qo(l,h.latestValues)}return Ri(this.latestValues)&&qo(l,this.latestValues),l}removeTransform(o){const a=et();_n(a,o);for(let l=0;l<this.path.length;l++){const c=this.path[l];if(!c.instance||!Ri(c.latestValues))continue;yy(c.latestValues)&&c.updateSnapshot();const h=et(),f=c.measurePageBox();_n(h,f),pE(a,c.latestValues,c.snapshot?c.snapshot.layoutBox:void 0,h)}return Ri(this.latestValues)&&pE(a,this.latestValues),a}setTargetDelta(o){this.targetDelta=o,this.root.scheduleUpdateProjection(),this.isProjectionDirty=!0}setOptions(o){this.options={...this.options,...o,crossfade:o.crossfade!==void 0?o.crossfade:!0}}clearMeasurements(){this.scroll=void 0,this.layout=void 0,this.snapshot=void 0,this.prevTransformTemplateValue=void 0,this.targetDelta=void 0,this.target=void 0,this.isLayoutDirty=!1}forceRelativeParentToResolveTarget(){this.relativeParent&&this.relativeParent.resolvedRelativeTargetAt!==Tt.timestamp&&this.relativeParent.resolveTargetDelta(!0)}resolveTargetDelta(o=!1){var a;const l=this.getLead();this.isProjectionDirty||(this.isProjectionDirty=l.isProjectionDirty),this.isTransformDirty||(this.isTransformDirty=l.isTransformDirty),this.isSharedProjectionDirty||(this.isSharedProjectionDirty=l.isSharedProjectionDirty);const c=!!this.resumingFrom||this!==l;if(!(o||c&&this.isSharedProjectionDirty||this.isProjectionDirty||!((a=this.parent)===null||a===void 0)&&a.isProjectionDirty||this.attemptToResolveRelativeTarget||this.root.updateBlockedByResize))return;const{layout:f,layoutId:p}=this.options;if(!(!this.layout||!(f||p))){if(this.resolvedRelativeTargetAt=Tt.timestamp,!this.targetDelta&&!this.relativeTarget){const m=this.getClosestProjectingParent();m&&m.layout&&this.animationProgress!==1?(this.relativeParent=m,this.forceRelativeParentToResolveTarget(),this.relativeTarget=et(),this.relativeTargetOrigin=et(),uc(this.relativeTargetOrigin,this.layout.layoutBox,m.layout.layoutBox),_n(this.relativeTarget,this.relativeTargetOrigin)):this.relativeParent=this.relativeTarget=void 0}if(!(!this.relativeTarget&&!this.targetDelta)){if(this.target||(this.target=et(),this.targetWithTransforms=et()),this.relativeTarget&&this.relativeTargetOrigin&&this.relativeParent&&this.relativeParent.target?(this.forceRelativeParentToResolveTarget(),s7(this.target,this.relativeTarget,this.relativeParent.target)):this.targetDelta?(this.resumingFrom?this.target=this.applyTransform(this.layout.layoutBox):_n(this.target,this.layout.layoutBox),Lk(this.target,this.targetDelta)):_n(this.target,this.layout.layoutBox),this.attemptToResolveRelativeTarget){this.attemptToResolveRelativeTarget=!1;const m=this.getClosestProjectingParent();m&&!!m.resumingFrom==!!this.resumingFrom&&!m.options.layoutScroll&&m.target&&this.animationProgress!==1?(this.relativeParent=m,this.forceRelativeParentToResolveTarget(),this.relativeTarget=et(),this.relativeTargetOrigin=et(),uc(this.relativeTargetOrigin,this.target,m.target),_n(this.relativeTarget,this.relativeTargetOrigin)):this.relativeParent=this.relativeTarget=void 0}Hl&&ji.resolvedTargetDeltas++}}}getClosestProjectingParent(){if(!(!this.parent||yy(this.parent.latestValues)||Ok(this.parent.latestValues)))return this.parent.isProjecting()?this.parent:this.parent.getClosestProjectingParent()}isProjecting(){return!!((this.relativeTarget||this.targetDelta||this.options.layoutRoot)&&this.layout)}calcProjection(){var o;const a=this.getLead(),l=!!this.resumingFrom||this!==a;let c=!0;if((this.isProjectionDirty||!((o=this.parent)===null||o===void 0)&&o.isProjectionDirty)&&(c=!1),l&&(this.isSharedProjectionDirty||this.isTransformDirty)&&(c=!1),this.resolvedRelativeTargetAt===Tt.timestamp&&(c=!1),c)return;const{layout:h,layoutId:f}=this.options;if(this.isTreeAnimating=!!(this.parent&&this.parent.isTreeAnimating||this.currentAnimation||this.pendingAnimation),this.isTreeAnimating||(this.targetDelta=this.relativeTarget=void 0),!this.layout||!(h||f))return;_n(this.layoutCorrected,this.layout.layoutBox);const p=this.treeScale.x,m=this.treeScale.y;f7(this.layoutCorrected,this.treeScale,this.path,l),a.layout&&!a.target&&(this.treeScale.x!==1||this.treeScale.y!==1)&&(a.target=a.layout.layoutBox,a.targetWithTransforms=et());const{target:E}=a;if(!E){this.prevProjectionDelta&&(this.createProjectionDeltas(),this.scheduleRender());return}!this.projectionDelta||!this.prevProjectionDelta?this.createProjectionDeltas():(dE(this.prevProjectionDelta.x,this.projectionDelta.x),dE(this.prevProjectionDelta.y,this.projectionDelta.y)),cc(this.projectionDelta,this.layoutCorrected,E,this.latestValues),(this.treeScale.x!==p||this.treeScale.y!==m||!xE(this.projectionDelta.x,this.prevProjectionDelta.x)||!xE(this.projectionDelta.y,this.prevProjectionDelta.y))&&(this.hasProjected=!0,this.scheduleRender(),this.notifyListeners("projectionUpdate",E)),Hl&&ji.recalculatedProjection++}hide(){this.isVisible=!1}show(){this.isVisible=!0}scheduleRender(o=!0){var a;if((a=this.options.visualElement)===null||a===void 0||a.scheduleRender(),o){const l=this.getStack();l&&l.scheduleRender()}this.resumingFrom&&!this.resumingFrom.instance&&(this.resumingFrom=void 0)}createProjectionDeltas(){this.prevProjectionDelta=Ho(),this.projectionDelta=Ho(),this.projectionDeltaWithTransform=Ho()}setAnimationOrigin(o,a=!1){const l=this.snapshot,c=l?l.latestValues:{},h={...this.latestValues},f=Ho();(!this.relativeParent||!this.relativeParent.options.layoutRoot)&&(this.relativeTarget=this.relativeTargetOrigin=void 0),this.attemptToResolveRelativeTarget=!a;const p=et(),m=l?l.source:void 0,E=this.layout?this.layout.source:void 0,w=m!==E,v=this.getStack(),y=!v||v.members.length<=1,x=!!(w&&!y&&this.options.crossfade===!0&&!this.path.some(J7));this.animationProgress=0;let S;this.mixTargetDelta=D=>{const j=D/1e3;EE(f.x,o.x,j),EE(f.y,o.y,j),this.setTargetDelta(f),this.relativeTarget&&this.relativeTargetOrigin&&this.layout&&this.relativeParent&&this.relativeParent.layout&&(uc(p,this.layout.layoutBox,this.relativeParent.layout.layoutBox),X7(this.relativeTarget,this.relativeTargetOrigin,p,j),S&&M7(this.relativeTarget,S)&&(this.isProjectionDirty=!1),S||(S=et()),_n(S,this.relativeTarget)),w&&(this.animationValues=h,P7(h,c,this.latestValues,j,x,y)),this.root.scheduleUpdateProjection(),this.scheduleRender(),this.animationProgress=j},this.mixTargetDelta(this.options.layoutRoot?1e3:0)}startAnimation(o){this.notifyListeners("animationStart"),this.currentAnimation&&this.currentAnimation.stop(),this.resumingFrom&&this.resumingFrom.currentAnimation&&this.resumingFrom.currentAnimation.stop(),this.pendingAnimation&&(hi(this.pendingAnimation),this.pendingAnimation=void 0),this.pendingAnimation=ze.update(()=>{Wd.hasAnimatedSinceResize=!0,this.currentAnimation=E7(0,wE,{...o,onUpdate:a=>{this.mixTargetDelta(a),o.onUpdate&&o.onUpdate(a)},onComplete:()=>{o.onComplete&&o.onComplete(),this.completeAnimation()}}),this.resumingFrom&&(this.resumingFrom.currentAnimation=this.currentAnimation),this.pendingAnimation=void 0})}completeAnimation(){this.resumingFrom&&(this.resumingFrom.currentAnimation=void 0,this.resumingFrom.preserveOpacity=void 0);const o=this.getStack();o&&o.exitAnimationComplete(),this.resumingFrom=this.currentAnimation=this.animationValues=void 0,this.notifyListeners("animationComplete")}finishAnimation(){this.currentAnimation&&(this.mixTargetDelta&&this.mixTargetDelta(wE),this.currentAnimation.stop()),this.completeAnimation()}applyTransformsToTarget(){const o=this.getLead();let{targetWithTransforms:a,target:l,layout:c,latestValues:h}=o;if(!(!a||!l||!c)){if(this!==o&&this.layout&&c&&Kk(this.options.animationType,this.layout.layoutBox,c.layoutBox)){l=this.target||et();const f=gn(this.layout.layoutBox.x);l.x.min=o.target.x.min,l.x.max=l.x.min+f;const p=gn(this.layout.layoutBox.y);l.y.min=o.target.y.min,l.y.max=l.y.min+p}_n(a,l),qo(a,h),cc(this.projectionDeltaWithTransform,this.layoutCorrected,a,h)}}registerSharedNode(o,a){this.sharedNodes.has(o)||this.sharedNodes.set(o,new V7),this.sharedNodes.get(o).add(a);const c=a.options.initialPromotionConfig;a.promote({transition:c?c.transition:void 0,preserveFollowOpacity:c&&c.shouldPreserveFollowOpacity?c.shouldPreserveFollowOpacity(a):void 0})}isLead(){const o=this.getStack();return o?o.lead===this:!0}getLead(){var o;const{layoutId:a}=this.options;return a?((o=this.getStack())===null||o===void 0?void 0:o.lead)||this:this}getPrevLead(){var o;const{layoutId:a}=this.options;return a?(o=this.getStack())===null||o===void 0?void 0:o.prevLead:void 0}getStack(){const{layoutId:o}=this.options;if(o)return this.root.sharedNodes.get(o)}promote({needsReset:o,transition:a,preserveFollowOpacity:l}={}){const c=this.getStack();c&&c.promote(this,l),o&&(this.projectionDelta=void 0,this.needsReset=!0),a&&this.setOptions({transition:a})}relegate(){const o=this.getStack();return o?o.relegate(this):!1}resetSkewAndRotation(){const{visualElement:o}=this.options;if(!o)return;let a=!1;const{latestValues:l}=o;if((l.z||l.rotate||l.rotateX||l.rotateY||l.rotateZ||l.skewX||l.skewY)&&(a=!0),!a)return;const c={};l.z&&ym("z",o,c,this.animationValues);for(let h=0;h<gm.length;h++)ym(`rotate${gm[h]}`,o,c,this.animationValues),ym(`skew${gm[h]}`,o,c,this.animationValues);o.render();for(const h in c)o.setStaticValue(h,c[h]),this.animationValues&&(this.animationValues[h]=c[h]);o.scheduleRender()}getProjectionStyles(o){var a,l;if(!this.instance||this.isSVG)return;if(!this.isVisible)return L7;const c={visibility:""},h=this.getTransformTemplate();if(this.needsReset)return this.needsReset=!1,c.opacity="",c.pointerEvents=zd(o==null?void 0:o.pointerEvents)||"",c.transform=h?h(this.latestValues,""):"none",c;const f=this.getLead();if(!this.projectionDelta||!this.layout||!f.target){const w={};return this.options.layoutId&&(w.opacity=this.latestValues.opacity!==void 0?this.latestValues.opacity:1,w.pointerEvents=zd(o==null?void 0:o.pointerEvents)||""),this.hasProjected&&!Ri(this.latestValues)&&(w.transform=h?h({},""):"none",this.hasProjected=!1),w}const p=f.animationValues||f.latestValues;this.applyTransformsToTarget(),c.transform=O7(this.projectionDeltaWithTransform,this.treeScale,p),h&&(c.transform=h(p,c.transform));const{x:m,y:E}=this.projectionDelta;c.transformOrigin=`${m.origin*100}% ${E.origin*100}% 0`,f.animationValues?c.opacity=f===this?(l=(a=p.opacity)!==null&&a!==void 0?a:this.latestValues.opacity)!==null&&l!==void 0?l:1:this.preserveOpacity?this.latestValues.opacity:p.opacityExit:c.opacity=f===this?p.opacity!==void 0?p.opacity:"":p.opacityExit!==void 0?p.opacityExit:0;for(const w in Wh){if(p[w]===void 0)continue;const{correct:v,applyTo:y}=Wh[w],x=c.transform==="none"?p[w]:v(p[w],f);if(y){const S=y.length;for(let D=0;D<S;D++)c[y[D]]=x}else c[w]=x}return this.options.layoutId&&(c.pointerEvents=f===this?zd(o==null?void 0:o.pointerEvents)||"":"none"),c}clearSnapshot(){this.resumeFrom=this.snapshot=void 0}resetTree(){this.root.nodes.forEach(o=>{var a;return(a=o.currentAnimation)===null||a===void 0?void 0:a.stop()}),this.root.nodes.forEach(_E),this.root.sharedNodes.clear()}}}function U7(t){t.updateLayout()}function $7(t){var e;const n=((e=t.resumeFrom)===null||e===void 0?void 0:e.snapshot)||t.snapshot;if(t.isLead()&&t.layout&&n&&t.hasListeners("didUpdate")){const{layoutBox:r,measuredBox:s}=t.layout,{animationType:i}=t.options,o=n.source!==t.layout.source;i==="size"?bn(f=>{const p=o?n.measuredBox[f]:n.layoutBox[f],m=gn(p);p.min=r[f].min,p.max=p.min+m}):Kk(i,n.layoutBox,r)&&bn(f=>{const p=o?n.measuredBox[f]:n.layoutBox[f],m=gn(r[f]);p.max=p.min+m,t.relativeTarget&&!t.currentAnimation&&(t.isProjectionDirty=!0,t.relativeTarget[f].max=t.relativeTarget[f].min+m)});const a=Ho();cc(a,r,n.layoutBox);const l=Ho();o?cc(l,t.applyTransform(s,!0),n.measuredBox):cc(l,r,n.layoutBox);const c=!Wk(a);let h=!1;if(!t.resumeFrom){const f=t.getClosestProjectingParent();if(f&&!f.resumeFrom){const{snapshot:p,layout:m}=f;if(p&&m){const E=et();uc(E,n.layoutBox,p.layoutBox);const w=et();uc(w,r,m.layoutBox),Hk(E,w)||(h=!0),f.options.layoutRoot&&(t.relativeTarget=w,t.relativeTargetOrigin=E,t.relativeParent=f)}}}t.notifyListeners("didUpdate",{layout:r,snapshot:n,delta:l,layoutDelta:a,hasLayoutChanged:c,hasRelativeTargetChanged:h})}else if(t.isLead()){const{onExitComplete:r}=t.options;r&&r()}t.options.transition=void 0}function z7(t){Hl&&ji.totalNodes++,t.parent&&(t.isProjecting()||(t.isProjectionDirty=t.parent.isProjectionDirty),t.isSharedProjectionDirty||(t.isSharedProjectionDirty=!!(t.isProjectionDirty||t.parent.isProjectionDirty||t.parent.isSharedProjectionDirty)),t.isTransformDirty||(t.isTransformDirty=t.parent.isTransformDirty))}function B7(t){t.isProjectionDirty=t.isSharedProjectionDirty=t.isTransformDirty=!1}function W7(t){t.clearSnapshot()}function _E(t){t.clearMeasurements()}function H7(t){t.isLayoutDirty=!1}function G7(t){const{visualElement:e}=t.options;e&&e.getProps().onBeforeLayoutMeasure&&e.notify("BeforeLayoutMeasure"),t.resetTransform()}function bE(t){t.finishAnimation(),t.targetDelta=t.relativeTarget=t.target=void 0,t.isProjectionDirty=!0}function q7(t){t.resolveTargetDelta()}function K7(t){t.calcProjection()}function Q7(t){t.resetSkewAndRotation()}function Y7(t){t.removeLeadSnapshot()}function EE(t,e,n){t.translate=Ge(e.translate,0,n),t.scale=Ge(e.scale,1,n),t.origin=e.origin,t.originPoint=e.originPoint}function TE(t,e,n,r){t.min=Ge(e.min,n.min,r),t.max=Ge(e.max,n.max,r)}function X7(t,e,n,r){TE(t.x,e.x,n.x,r),TE(t.y,e.y,n.y,r)}function J7(t){return t.animationValues&&t.animationValues.opacityExit!==void 0}const Z7={duration:.45,ease:[.4,0,.1,1]},SE=t=>typeof navigator<"u"&&navigator.userAgent&&navigator.userAgent.toLowerCase().includes(t),CE=SE("applewebkit/")&&!SE("chrome/")?Math.round:pn;function IE(t){t.min=CE(t.min),t.max=CE(t.max)}function eW(t){IE(t.x),IE(t.y)}function Kk(t,e,n){return t==="position"||t==="preserve-aspect"&&!r7(vE(e),vE(n),.2)}function tW(t){var e;return t!==t.root&&((e=t.scroll)===null||e===void 0?void 0:e.wasRoot)}const nW=qk({attachResizeListener:(t,e)=>Gc(t,"resize",e),measureScroll:()=>({x:document.documentElement.scrollLeft||document.body.scrollLeft,y:document.documentElement.scrollTop||document.body.scrollTop}),checkIsScrollRoot:()=>!0}),vm={current:void 0},Qk=qk({measureScroll:t=>({x:t.scrollLeft,y:t.scrollTop}),defaultParent:()=>{if(!vm.current){const t=new nW({});t.mount(window),t.setOptions({layoutScroll:!0}),vm.current=t}return vm.current},resetTransform:(t,e)=>{t.style.transform=e!==void 0?e:"none"},checkIsScrollRoot:t=>window.getComputedStyle(t).position==="fixed"}),rW={pan:{Feature:x7},drag:{Feature:v7,ProjectionNode:Qk,MeasureLayout:$k}};function AE(t,e,n){const{props:r}=t;t.animationState&&r.whileHover&&t.animationState.setActive("whileHover",n==="Start");const s="onHover"+n,i=r[s];i&&ze.postRender(()=>i(e,_u(e)))}class sW extends vi{mount(){const{current:e}=this.node;e&&(this.unmount=sz(e,n=>(AE(this.node,n,"Start"),r=>AE(this.node,r,"End"))))}unmount(){}}class iW extends vi{constructor(){super(...arguments),this.isActive=!1}onFocus(){let e=!1;try{e=this.node.current.matches(":focus-visible")}catch{e=!0}!e||!this.node.animationState||(this.node.animationState.setActive("whileFocus",!0),this.isActive=!0)}onBlur(){!this.isActive||!this.node.animationState||(this.node.animationState.setActive("whileFocus",!1),this.isActive=!1)}mount(){this.unmount=wu(Gc(this.node.current,"focus",()=>this.onFocus()),Gc(this.node.current,"blur",()=>this.onBlur()))}unmount(){}}function PE(t,e,n){const{props:r}=t;t.animationState&&r.whileTap&&t.animationState.setActive("whileTap",n==="Start");const s="onTap"+(n==="End"?"":n),i=r[s];i&&ze.postRender(()=>i(e,_u(e)))}class oW extends vi{mount(){const{current:e}=this.node;e&&(this.unmount=lz(e,n=>(PE(this.node,n,"Start"),(r,{success:s})=>PE(this.node,r,s?"End":"Cancel")),{useGlobalTarget:this.node.props.globalTapTarget}))}unmount(){}}const xy=new WeakMap,xm=new WeakMap,aW=t=>{const e=xy.get(t.target);e&&e(t)},lW=t=>{t.forEach(aW)};function cW({root:t,...e}){const n=t||document;xm.has(n)||xm.set(n,{});const r=xm.get(n),s=JSON.stringify(e);return r[s]||(r[s]=new IntersectionObserver(lW,{root:t,...e})),r[s]}function uW(t,e,n){const r=cW(e);return xy.set(t,n),r.observe(t),()=>{xy.delete(t),r.unobserve(t)}}const dW={some:0,all:1};class hW extends vi{constructor(){super(...arguments),this.hasEnteredView=!1,this.isInView=!1}startObserver(){this.unmount();const{viewport:e={}}=this.node.getProps(),{root:n,margin:r,amount:s="some",once:i}=e,o={root:n?n.current:void 0,rootMargin:r,threshold:typeof s=="number"?s:dW[s]},a=l=>{const{isIntersecting:c}=l;if(this.isInView===c||(this.isInView=c,i&&!c&&this.hasEnteredView))return;c&&(this.hasEnteredView=!0),this.node.animationState&&this.node.animationState.setActive("whileInView",c);const{onViewportEnter:h,onViewportLeave:f}=this.node.getProps(),p=c?h:f;p&&p(l)};return uW(this.node.current,o,a)}mount(){this.startObserver()}update(){if(typeof IntersectionObserver>"u")return;const{props:e,prevProps:n}=this.node;["amount","margin","root"].some(fW(e,n))&&this.startObserver()}unmount(){}}function fW({viewport:t={}},{viewport:e={}}={}){return n=>t[n]!==e[n]}const pW={inView:{Feature:hW},tap:{Feature:oW},focus:{Feature:iW},hover:{Feature:sW}},mW={layout:{ProjectionNode:Qk,MeasureLayout:$k}},wy={current:null},Yk={current:!1};function gW(){if(Yk.current=!0,!!M0)if(window.matchMedia){const t=window.matchMedia("(prefers-reduced-motion)"),e=()=>wy.current=t.matches;t.addListener(e),e()}else wy.current=!1}const yW=[..._k,Mt,fi],vW=t=>yW.find(wk(t)),kE=new WeakMap;function xW(t,e,n){for(const r in e){const s=e[r],i=n[r];if(Ft(s))t.addValue(r,s);else if(Ft(i))t.addValue(r,Wc(s,{owner:t}));else if(i!==s)if(t.hasValue(r)){const o=t.getValue(r);o.liveStyle===!0?o.jump(s):o.hasAnimated||o.set(s)}else{const o=t.getStaticValue(r);t.addValue(r,Wc(o!==void 0?o:s,{owner:t}))}}for(const r in n)e[r]===void 0&&t.removeValue(r);return e}const NE=["AnimationStart","AnimationComplete","Update","BeforeLayoutMeasure","LayoutMeasure","LayoutAnimationStart","LayoutAnimationComplete"];class wW{scrapeMotionValuesFromProps(e,n,r){return{}}constructor({parent:e,props:n,presenceContext:r,reducedMotionConfig:s,blockInitialAnimation:i,visualState:o},a={}){this.current=null,this.children=new Set,this.isVariantNode=!1,this.isControllingVariants=!1,this.shouldReduceMotion=null,this.values=new Map,this.KeyframeResolver=lx,this.features={},this.valueSubscriptions=new Map,this.prevMotionValues={},this.events={},this.propEventSubscriptions={},this.notifyUpdate=()=>this.notify("Update",this.latestValues),this.render=()=>{this.current&&(this.triggerBuild(),this.renderInstance(this.current,this.renderState,this.props.style,this.projection))},this.renderScheduledAt=0,this.scheduleRender=()=>{const m=Ir.now();this.renderScheduledAt<m&&(this.renderScheduledAt=m,ze.render(this.render,!1,!0))};const{latestValues:l,renderState:c,onUpdate:h}=o;this.onUpdate=h,this.latestValues=l,this.baseTarget={...l},this.initialValues=n.initial?{...l}:{},this.renderState=c,this.parent=e,this.props=n,this.presenceContext=r,this.depth=e?e.depth+1:0,this.reducedMotionConfig=s,this.options=a,this.blockInitialAnimation=!!i,this.isControllingVariants=Kf(n),this.isVariantNode=PP(n),this.isVariantNode&&(this.variantChildren=new Set),this.manuallyAnimateOnMount=!!(e&&e.current);const{willChange:f,...p}=this.scrapeMotionValuesFromProps(n,{},this);for(const m in p){const E=p[m];l[m]!==void 0&&Ft(E)&&E.set(l[m],!1)}}mount(e){this.current=e,kE.set(e,this),this.projection&&!this.projection.instance&&this.projection.mount(e),this.parent&&this.isVariantNode&&!this.isControllingVariants&&(this.removeFromVariantTree=this.parent.addVariantChild(this)),this.values.forEach((n,r)=>this.bindToMotionValue(r,n)),Yk.current||gW(),this.shouldReduceMotion=this.reducedMotionConfig==="never"?!1:this.reducedMotionConfig==="always"?!0:wy.current,this.parent&&this.parent.children.add(this),this.update(this.props,this.presenceContext)}unmount(){kE.delete(this.current),this.projection&&this.projection.unmount(),hi(this.notifyUpdate),hi(this.render),this.valueSubscriptions.forEach(e=>e()),this.valueSubscriptions.clear(),this.removeFromVariantTree&&this.removeFromVariantTree(),this.parent&&this.parent.children.delete(this);for(const e in this.events)this.events[e].clear();for(const e in this.features){const n=this.features[e];n&&(n.unmount(),n.isMounted=!1)}this.current=null}bindToMotionValue(e,n){this.valueSubscriptions.has(e)&&this.valueSubscriptions.get(e)();const r=wo.has(e),s=n.on("change",a=>{this.latestValues[e]=a,this.props.onUpdate&&ze.preRender(this.notifyUpdate),r&&this.projection&&(this.projection.isTransformDirty=!0)}),i=n.on("renderRequest",this.scheduleRender);let o;window.MotionCheckAppearSync&&(o=window.MotionCheckAppearSync(this,e,n)),this.valueSubscriptions.set(e,()=>{s(),i(),o&&o(),n.owner&&n.stop()})}sortNodePosition(e){return!this.current||!this.sortInstanceNodePosition||this.type!==e.type?0:this.sortInstanceNodePosition(this.current,e.current)}updateFeatures(){let e="animation";for(e in Oa){const n=Oa[e];if(!n)continue;const{isEnabled:r,Feature:s}=n;if(!this.features[e]&&s&&r(this.props)&&(this.features[e]=new s(this)),this.features[e]){const i=this.features[e];i.isMounted?i.update():(i.mount(),i.isMounted=!0)}}}triggerBuild(){this.build(this.renderState,this.latestValues,this.props)}measureViewportBox(){return this.current?this.measureInstanceViewportBox(this.current,this.props):et()}getStaticValue(e){return this.latestValues[e]}setStaticValue(e,n){this.latestValues[e]=n}update(e,n){(e.transformTemplate||this.props.transformTemplate)&&this.scheduleRender(),this.prevProps=this.props,this.props=e,this.prevPresenceContext=this.presenceContext,this.presenceContext=n;for(let r=0;r<NE.length;r++){const s=NE[r];this.propEventSubscriptions[s]&&(this.propEventSubscriptions[s](),delete this.propEventSubscriptions[s]);const i="on"+s,o=e[i];o&&(this.propEventSubscriptions[s]=this.on(s,o))}this.prevMotionValues=xW(this,this.scrapeMotionValuesFromProps(e,this.prevProps,this),this.prevMotionValues),this.handleChildMotionValue&&this.handleChildMotionValue(),this.onUpdate&&this.onUpdate(this)}getProps(){return this.props}getVariant(e){return this.props.variants?this.props.variants[e]:void 0}getDefaultTransition(){return this.props.transition}getTransformPagePoint(){return this.props.transformPagePoint}getClosestVariantNode(){return this.isVariantNode?this:this.parent?this.parent.getClosestVariantNode():void 0}addVariantChild(e){const n=this.getClosestVariantNode();if(n)return n.variantChildren&&n.variantChildren.add(e),()=>n.variantChildren.delete(e)}addValue(e,n){const r=this.values.get(e);n!==r&&(r&&this.removeValue(e),this.bindToMotionValue(e,n),this.values.set(e,n),this.latestValues[e]=n.get())}removeValue(e){this.values.delete(e);const n=this.valueSubscriptions.get(e);n&&(n(),this.valueSubscriptions.delete(e)),delete this.latestValues[e],this.removeValueFromRenderState(e,this.renderState)}hasValue(e){return this.values.has(e)}getValue(e,n){if(this.props.values&&this.props.values[e])return this.props.values[e];let r=this.values.get(e);return r===void 0&&n!==void 0&&(r=Wc(n===null?void 0:n,{owner:this}),this.addValue(e,r)),r}readValue(e,n){var r;let s=this.latestValues[e]!==void 0||!this.current?this.latestValues[e]:(r=this.getBaseTargetFromProps(this.props,e))!==null&&r!==void 0?r:this.readValueFromInstance(this.current,e,this.options);return s!=null&&(typeof s=="string"&&(vk(s)||ck(s))?s=parseFloat(s):!vW(s)&&fi.test(n)&&(s=mk(e,n)),this.setBaseTarget(e,Ft(s)?s.get():s)),Ft(s)?s.get():s}setBaseTarget(e,n){this.baseTarget[e]=n}getBaseTarget(e){var n;const{initial:r}=this.props;let s;if(typeof r=="string"||typeof r=="object"){const o=z0(this.props,r,(n=this.presenceContext)===null||n===void 0?void 0:n.custom);o&&(s=o[e])}if(r&&s!==void 0)return s;const i=this.getBaseTargetFromProps(this.props,e);return i!==void 0&&!Ft(i)?i:this.initialValues[e]!==void 0&&s===void 0?void 0:this.baseTarget[e]}on(e,n){return this.events[e]||(this.events[e]=new nx),this.events[e].add(n)}notify(e,...n){this.events[e]&&this.events[e].notify(...n)}}class Xk extends wW{constructor(){super(...arguments),this.KeyframeResolver=bk}sortInstanceNodePosition(e,n){return e.compareDocumentPosition(n)&2?1:-1}getBaseTargetFromProps(e,n){return e.style?e.style[n]:void 0}removeValueFromRenderState(e,{vars:n,style:r}){delete n[e],delete r[e]}handleChildMotionValue(){this.childSubscription&&(this.childSubscription(),delete this.childSubscription);const{children:e}=this.props;Ft(e)&&(this.childSubscription=e.on("change",n=>{this.current&&(this.current.textContent=`${n}`)}))}}function _W(t){return window.getComputedStyle(t)}class bW extends Xk{constructor(){super(...arguments),this.type="html",this.renderInstance=LP}readValueFromInstance(e,n){if(wo.has(n)){const r=ax(n);return r&&r.default||0}else{const r=_W(e),s=(MP(n)?r.getPropertyValue(n):r[n])||0;return typeof s=="string"?s.trim():s}}measureInstanceViewportBox(e,{transformPagePoint:n}){return Fk(e,n)}build(e,n,r){H0(e,n,r.transformTemplate)}scrapeMotionValuesFromProps(e,n,r){return Q0(e,n,r)}}class EW extends Xk{constructor(){super(...arguments),this.type="svg",this.isSVGTag=!1,this.measureInstanceViewportBox=et}getBaseTargetFromProps(e,n){return e[n]}readValueFromInstance(e,n){if(wo.has(n)){const r=ax(n);return r&&r.default||0}return n=FP.has(n)?n:F0(n),e.getAttribute(n)}scrapeMotionValuesFromProps(e,n,r){return zP(e,n,r)}build(e,n,r){G0(e,n,this.isSVGTag,r.transformTemplate)}renderInstance(e,n,r,s){UP(e,n,r,s)}mount(e){this.isSVGTag=K0(e.tagName),super.mount(e)}}const TW=(t,e)=>$0(t)?new EW(e):new bW(e,{allowProjection:t!==b.Fragment}),SW=X$({...KB,...pW,...rW,...mW},TW),Y=h$(SW);
+const GymNavIcon = function(props) {
+  return d.jsx('svg', {
+    width: props.size || 22, height: props.size || 22,
+    viewBox: '0 0 24 24', fill: 'none',
+    stroke: props.color || 'currentColor',
+    strokeWidth: props.strokeWidth || 2,
+    strokeLinecap: 'round',
+    dangerouslySetInnerHTML: { __html: '<path d="M6 5v14M18 5v14"/><rect x="2" y="9" width="4" height="6" rx="1.5"/><rect x="18" y="9" width="4" height="6" rx="1.5"/><line x1="6" y1="12" x2="18" y2="12"/>' },
   });
 };
-const GymNavIcon = function(props) {
-  return d.jsx(GymDumbbellIcon, { size: props.size || 20, color: props.color || 'currentColor', strokeWidth: props.strokeWidth || 2 });
-};
+
 const CW=[{path:"/dashboard",icon:tV,label:"Inicio"},{path:"/tasks",icon:wf,label:"Tareas"},{path:"/calendar",icon:yh,label:"Agenda"},{path:"/schedule",icon:Iv,label:"Horario"}];const RE=[{path:"/gimnasio",icon:GymNavIcon,label:"Gimnasio"},{path:"/grades",icon:W5,label:"Calculadora"},{path:"/courses",icon:Sv,label:"Cursos"},{path:"/organizer",icon:na,label:"Organizador"},{path:"/selectividad",icon:ta,label:"Selectividad"},{path:"/pizarra",icon:Av,label:"Pizarra"},{path:"/notes",icon:oV,label:"Apuntes"},{path:"/flashcards",icon:wV,label:"Flashcards"},{path:"/classroom",icon:dV,label:"Clases"}];
 
 // ════════════════════════════════════════════════════════════════════════════
-// GIMNASIO v28.1 — Fundación
-// Colecciones Firebase: gym_routines, gym_exercises, gym_logs
+// GIMNASIO v28.6 — Rediseño completo
 // ════════════════════════════════════════════════════════════════════════════
 
-// ── Firebase helpers ─────────────────────────────────────────────────────────
-const gymSet  = (uid, col, obj) => { try { Cl(uid, col, obj); } catch(e) { console.error(e); } };
-const gymDel  = (uid, col, id)  => { try { Il(uid, col, id);  } catch(e) { console.error(e); } };
-const gymSub  = (uid, col, cb)  => { try { return Al(uid, col, cb); } catch(e) { return () => {}; } };
+const gymSet = function(uid, col, obj) { try { Cl(uid, col, obj); } catch(e) { console.error(e); } };
+const gymDel = function(uid, col, id)  { try { Il(uid, col, id);  } catch(e) { console.error(e); } };
+const gymSub = function(uid, col, cb)  { try { return Al(uid, col, cb); } catch(e) { return function(){}; } };
 
-// ── Constantes de diseño ────────────────────────────────────────────────────
-const GYM_RED      = '#dc2626';
-const GYM_RED_SOFT = 'rgba(220,38,38,0.08)';
-const GYM_RED_MID  = 'rgba(220,38,38,0.15)';
+// ── Paleta y constantes ──────────────────────────────────────────────────────
+const GYM_RED      = '#e11d48';
+const GYM_RED_SOFT = 'rgba(225,29,72,0.08)';
+const GYM_RED_MID  = 'rgba(225,29,72,0.18)';
+const GYM_DARK     = 'hsl(220 40% 8%)';
 
 // ── Grupos musculares ────────────────────────────────────────────────────────
 const MUSCLE_GROUPS = [
-  { id: 'pecho',      label: 'Pecho',       short: 'PEC' },
-  { id: 'espalda',    label: 'Espalda',     short: 'ESP' },
-  { id: 'hombros',    label: 'Hombros',     short: 'HOM' },
-  { id: 'biceps',     label: 'Bíceps',      short: 'BIC' },
-  { id: 'triceps',    label: 'Tríceps',     short: 'TRI' },
-  { id: 'cuadriceps', label: 'Cuádriceps',  short: 'CUA' },
-  { id: 'femoral',    label: 'Femoral',     short: 'FEM' },
-  { id: 'gluteos',    label: 'Glúteos',     short: 'GLU' },
-  { id: 'core',       label: 'Core',        short: 'COR' },
-  { id: 'gemelos',    label: 'Gemelos',     short: 'GEM' },
-  { id: 'cardio',     label: 'Cardio',      short: 'CAR' },
-  { id: 'fullbody',   label: 'Full Body',   short: 'FUL' },
+  { id: 'pecho',      label: 'Pecho',      short: 'PEC', color: '#3b82f6' },
+  { id: 'espalda',    label: 'Espalda',    short: 'ESP', color: '#8b5cf6' },
+  { id: 'hombros',    label: 'Hombros',    short: 'HOM', color: '#06b6d4' },
+  { id: 'biceps',     label: 'Bíceps',     short: 'BIC', color: '#10b981' },
+  { id: 'triceps',    label: 'Tríceps',    short: 'TRI', color: '#f59e0b' },
+  { id: 'cuadriceps', label: 'Cuádriceps', short: 'CUA', color: '#ef4444' },
+  { id: 'femoral',    label: 'Femoral',    short: 'FEM', color: '#ec4899' },
+  { id: 'gluteos',    label: 'Glúteos',    short: 'GLU', color: '#f97316' },
+  { id: 'core',       label: 'Core',       short: 'COR', color: '#84cc16' },
+  { id: 'gemelos',    label: 'Gemelos',    short: 'GEM', color: '#14b8a6' },
+  { id: 'cardio',     label: 'Cardio',     short: 'CAR', color: '#e11d48' },
+  { id: 'fullbody',   label: 'Full Body',  short: 'FUL', color: '#6366f1' },
 ];
+const DAYS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 
-const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+// ── Iconos SVG inline ────────────────────────────────────────────────────────
+const GYM_SVG = {
+  dumbbell: 'M6 5v14M18 5v14M2 9h4v6H2zM18 9h4v6h-4zM6 12h12',
+  home:     'M3 9l9-7 9 7v11a2 2 0 01-2 2h-4v-5a2 2 0 00-4 0v5H5a2 2 0 01-2-2V9z',
+  calendar: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z',
+  history:  'M3 3v5h5M3.05 13A9 9 0 106 5.3L3 8',
+  chart:    'M18 20V10M12 20V4M6 20v-6',
+  brain:    'M9.5 2a2.5 2.5 0 015 0c.28 0 .54.04.8.1A6 6 0 0120 8a6 6 0 01-1.7 4.17A6 6 0 0116 18v1a1 1 0 01-1 1h-6a1 1 0 01-1-1v-1a6 6 0 01-2.3-5.83A6 6 0 014 8a6 6 0 015.7-5.9c.26-.06.52-.1.8-.1z',
+  gear:     'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z',
+  flame:    'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 14.5c-2.5 0-4.5-2-4.5-4.5 0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5c0 2.5-2 4.5-4.5 4.5z',
+  check:    'M20 6L9 17l-5-5',
+  plus:     'M12 5v14M5 12h14',
+  trash:    'M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6',
+  edit:     'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z',
+  back:     'M15 18l-6-6 6-6',
+  send:     'M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z',
+  up:       'M12 19V5M5 12l7-7 7 7',
+  down:     'M12 5v14M19 12l-7 7-7-7',
+  target:   'M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z',
+};
 
-// ── Icono mancuerna SVG ──────────────────────────────────────────────────────
-// GymDumbbellIcon — definida antes de RE[] (ver arriba)
+const GymIcon = function(props) {
+  return d.jsx('svg', {
+    width: props.size || 22, height: props.size || 22,
+    viewBox: '0 0 24 24', fill: 'none',
+    stroke: props.color || 'currentColor',
+    strokeWidth: props.sw || 2,
+    strokeLinecap: 'round', strokeLinejoin: 'round',
+    dangerouslySetInnerHTML: { __html: '<path d="' + GYM_SVG[props.icon] + '"/>' },
+  });
+};
 
-// ── Icono para el radial (acepta size/color como Lucide) ─────────────────────
-// GymNavIcon — definida antes de RE[] (ver arriba)
+// ── GymNavIcon (para el menú radial) ────────────────────────────────────────
+// GymNavIcon definida antes de RE (ver arriba)
+
+// ── Utilidades ───────────────────────────────────────────────────────────────
+function GymFormatDate(ds) {
+  if (!ds) return '';
+  const today = new Date().toISOString().slice(0,10);
+  const yest  = new Date(Date.now()-864e5).toISOString().slice(0,10);
+  if (ds === today) return 'Hoy';
+  if (ds === yest)  return 'Ayer';
+  const d = new Date(ds + 'T12:00:00');
+  return d.toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+}
+
+function fmt1rm(w, r) { return Math.round(w * (1 + r / 30) * 10) / 10; }
 
 // ════════════════════════════════════════════════════════════════════════════
-// GimnasioModule — Raíz del módulo
+// GymBottomNav
+// ════════════════════════════════════════════════════════════════════════════
+function GymBottomNav({ tab, setTab }) {
+  const items = [
+    { id: 'inicio',      icon: 'home',     label: 'Inicio'   },
+    { id: 'plan',        icon: 'calendar', label: 'Plan'     },
+    { id: 'entrenos',    icon: 'history',  label: 'Entrenos' },
+    { id: 'progreso',    icon: 'chart',    label: 'Progreso' },
+    { id: 'ia',          icon: 'brain',    label: 'IA'       },
+    { id: 'ajustes',     icon: 'gear',     label: 'Ajustes'  },
+  ];
+  return d.jsx('nav', {
+    style: {
+      position: 'fixed', bottom: 0, left: 0, right: 0,
+      background: 'rgba(15,23,42,0.96)',
+      backdropFilter: 'blur(20px)',
+      borderTop: '1px solid rgba(225,29,72,0.15)',
+      padding: '6px 0 10px',
+      display: 'flex', justifyContent: 'space-around',
+      zIndex: 50,
+    },
+    children: items.map(function(it) {
+      const active = tab === it.id;
+      return d.jsxs('button', {
+        key: it.id,
+        onClick: function() { setTab(it.id); },
+        style: {
+          flex: 1, background: 'none', border: 'none', cursor: 'pointer',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+          padding: '4px 2px',
+        },
+        children: [
+          d.jsx('div', {
+            style: {
+              width: 38, height: 30, borderRadius: 10,
+              background: active ? GYM_RED_SOFT : 'transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            },
+            children: d.jsx(GymIcon, { icon: it.icon, size: 20, color: active ? GYM_RED : '#475569', sw: active ? 2.5 : 1.8 }),
+          }),
+          d.jsx('span', {
+            style: {
+              fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em',
+              color: active ? GYM_RED : '#475569',
+            },
+            children: it.label,
+          }),
+        ],
+      }, it.id);
+    }),
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GimnasioModule — Raíz
 // ════════════════════════════════════════════════════════════════════════════
 function GimnasioModule() {
   const { user } = ls();
-  const uid = user && user.uid;
-  const nav = gf();
-  const loc = ru();
+  const uid  = user && user.uid;
+  const nav  = gf();
 
-  // ── Estado global del módulo ────────────────────────────────────────────
-  const [tab, setTab]           = b.useState('inicio');
-  const [routines, setRoutines] = b.useState([]);
-  const [logs, setLogs]         = b.useState([]);
-  const [activeWorkout, setActiveWorkout] = b.useState(null); // rutina en curso
-  const [loading, setLoading]   = b.useState(true);
+  const [tab, setTab]                 = b.useState('inicio');
+  const [routines, setRoutines]       = b.useState([]);
+  const [logs, setLogs]               = b.useState([]);
+  const [weightLog, setWeightLog]     = b.useState([]);
+  const [activeWorkout, setActiveWorkout] = b.useState(null);
+  const [loading, setLoading]         = b.useState(true);
 
-  // ── Firebase subscriptions ──────────────────────────────────────────────
   b.useEffect(function() {
     if (!uid) return;
-    const u1 = gymSub(uid, 'gym_routines', function(data) {
-      setRoutines(Array.isArray(data) ? data : []);
-      setLoading(false);
-    });
-    const u2 = gymSub(uid, 'gym_logs', function(data) {
-      setLogs(Array.isArray(data)
-        ? data.slice().sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); })
-        : []);
-    });
-    return function() { u1(); u2(); };
+    const u1 = gymSub(uid, 'gym_routines', function(d) { setRoutines(Array.isArray(d) ? d : []); setLoading(false); });
+    const u2 = gymSub(uid, 'gym_logs',     function(d) { setLogs(Array.isArray(d) ? d.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); }) : []); });
+    const u3 = gymSub(uid, 'gym_weight',   function(d) { setWeightLog(Array.isArray(d) ? d.slice().sort(function(a,b){ return b.date.localeCompare(a.date); }) : []); });
+    return function() { u1(); u2(); u3(); };
   }, [uid]);
 
-  // ── Si hay entreno activo → pantalla de entreno ─────────────────────────
   if (activeWorkout) {
     return d.jsx(GymActiveWorkout, {
-      routine: activeWorkout,
-      logs: logs,
-      uid: uid,
+      routine: activeWorkout, logs, uid,
       onFinish: function(log) {
         if (uid && log) gymSet(uid, 'gym_logs', log);
-        setActiveWorkout(null);
-        setTab('progreso');
+        setActiveWorkout(null); setTab('entrenos');
       },
       onCancel: function() { setActiveWorkout(null); },
     });
   }
 
+  const renderTab = function() {
+    if (tab === 'inicio')   return d.jsx(GymInicio,   { routines, logs, uid, onStart: setActiveWorkout, setTab });
+    if (tab === 'plan')     return d.jsx(GymPlan,     { routines, logs, onStart: setActiveWorkout });
+    if (tab === 'entrenos') return d.jsx(GymEntrenos, { logs, routines });
+    if (tab === 'progreso') return d.jsx(GymProgreso, { logs, routines });
+    if (tab === 'ia')       return d.jsx(GymIA,       { logs, routines });
+    if (tab === 'ajustes')  return d.jsx(GymAjustes,  { logs, uid, weightLog });
+    return null;
+  };
+
   return d.jsxs('div', {
-    className: 'min-h-screen flex flex-col',
+    style: { minHeight: '100vh', paddingBottom: 72 },
     children: [
-
-      // ── Header ──────────────────────────────────────────────────────────
-      d.jsxs(Y.div, {
-        initial: { opacity: 0, y: -8 }, animate: { opacity: 1, y: 0 },
-        className: 'flex items-start justify-between gap-4',
-        children: [
-          d.jsxs('div', { children: [
-            d.jsx('h1', { className: 'page-header', children: 'Gimnasio' }),
-            d.jsx('p', { className: 'page-subtitle', children: loading ? 'Cargando...' : GymSubtitle({ logs, routines }) }),
-          ] }),
-          d.jsx('button', {
-            onClick: function() { setTab(tab === 'rutinas' ? 'inicio' : 'rutinas'); },
-            className: 'p-2.5 rounded-xl glass-card text-muted-foreground hover:text-primary transition-colors',
-            children: d.jsx(pt, { className: 'w-4 h-4' }),
-          }),
-        ],
-      }),
-
-      // ── Tabs ────────────────────────────────────────────────────────────
-      d.jsx('div', {
-        className: 'glass-card p-1 mb-4',
-        style: { borderRadius: '0.875rem', overflowX: 'auto', display: 'flex', gap: 4, scrollbarWidth: 'none' },
-        children: ['inicio', 'planificador', 'historial', 'rutinas', 'progreso', 'ia', 'ajustes'].map(function(t) {
-          const labels = { inicio: 'Inicio', planificador: 'Plan', historial: 'Historial', rutinas: 'Rutinas', progreso: 'Progreso', ia: 'IA', ajustes: 'Ajustes' };
-          const active = tab === t;
-          return d.jsx('button', {
-            key: t,
-            onClick: function() { setTab(t); },
-            className: 'flex-1 text-xs font-semibold uppercase tracking-wider py-2 rounded-xl transition-all duration-200',
-            style: {
-              background: active ? 'var(--gradient-primary)' : 'transparent',
-              color: active ? '#fff' : 'hsl(var(--muted-foreground))',
-              boxShadow: active ? '0 2px 8px rgba(37,99,235,0.25)' : 'none',
-            },
-            children: labels[t],
-          });
-        }),
-      }),
-
-      // ── Contenido ────────────────────────────────────────────────────────
-      d.jsx('div', {
-        className: 'flex-1 space-y-4',
-        children: tab === 'inicio'   ? d.jsx(GymInicio,   { routines, logs, uid, onStart: setActiveWorkout, onNewRoutine: function() { setTab('rutinas'); } })
-               : tab === 'rutinas'   ? d.jsx(GymRutinas,  { routines, uid, onStart: setActiveWorkout })
-               : tab === 'progreso'  ? d.jsx(GymProgreso, { logs, routines })
-               : tab === 'ia'        ? d.jsx(GymIA,         { logs, routines })
-               : tab === 'planificador' ? d.jsx(GymPlanificador, { routines, logs, onStart: setActiveWorkout })
-               : tab === 'historial'   ? d.jsx(GymHistorial,   { logs, routines })
-               : tab === 'ajustes'   ? d.jsx(GymConfig,     { logs, uid })
-               : null,
-      }),
-
+      d.jsx('div', { className: 'max-w-lg mx-auto px-4 py-5', children: renderTab() }),
+      d.jsx(GymBottomNav, { tab, setTab }),
     ],
   });
-}
-
-// ── Subtítulo dinámico ────────────────────────────────────────────────────────
-function GymSubtitle({ logs, routines }) {
-  const today = new Date().toISOString().slice(0, 10);
-  const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
-  const weekLogs = logs.filter(function(l) { return l.date >= weekAgo; });
-  if (!routines.length) return 'Crea tu primera rutina';
-  if (!logs.length) return routines.length + ' rutina' + (routines.length > 1 ? 's' : '') + ' guardada' + (routines.length > 1 ? 's' : '');
-  return weekLogs.length + ' entreno' + (weekLogs.length !== 1 ? 's' : '') + ' esta semana';
 }
 
 // ════════════════════════════════════════════════════════════════════════════
 // GymInicio
 // ════════════════════════════════════════════════════════════════════════════
-function GymInicio({ routines, logs, uid, onStart, onNewRoutine }) {
-  const today = new Date().toISOString().slice(0, 10);
-  const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+function GymInicio({ routines, logs, uid, onStart, setTab }) {
+  const today   = new Date().toISOString().slice(0,10);
+  const weekAgo = new Date(Date.now() - 7*864e5).toISOString().slice(0,10);
+  const todayIdx = (new Date().getDay() + 6) % 7;
 
   // Racha
   const streak = b.useMemo(function() {
-    if (!logs.length) return 0;
     let s = 0;
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 90; i++) {
       const d = new Date(); d.setDate(d.getDate() - i);
-      const ds = d.toISOString().slice(0, 10);
-      if (logs.some(function(l) { return l.date === ds; })) s++;
+      const ds = d.toISOString().slice(0,10);
+      if (logs.some(function(l){ return l.date === ds; })) s++;
       else if (i > 0) break;
     }
     return s;
   }, [logs]);
 
-  // Volumen total semana (kg × reps)
-  const weekVolume = b.useMemo(function() {
-    return logs.filter(function(l) { return l.date >= weekAgo; })
-      .reduce(function(acc, l) {
-        (l.sets || []).forEach(function(s) { acc += (s.weight || 0) * (s.reps || 0); });
-        return acc;
-      }, 0);
-  }, [logs, weekAgo]);
+  const weekLogs = logs.filter(function(l){ return l.date >= weekAgo; });
+  const weekVol  = weekLogs.reduce(function(a,l){ return a+(l.sets||[]).reduce(function(b,s){ return b+(s.weight||0)*(s.reps||0);},0); }, 0);
+  const trainedToday = logs.some(function(l){ return l.date === today; });
 
-  const weekCount = logs.filter(function(l) { return l.date >= weekAgo; }).length;
-  const trainedToday = logs.some(function(l) { return l.date === today; });
-  const suggested = routines[0] || null;
-  const recentLogs = logs.slice(0, 5);
+  // Rutina sugerida para hoy
+  const todayRoutine = routines.find(function(r){ return (r.days||[]).includes(todayIdx); }) || routines[0];
 
-  return d.jsxs('div', { className: 'space-y-4', children: [
+  // Calendario de actividad: últimas 10 semanas
+  const calWeeks = b.useMemo(function() {
+    const weeks = [];
+    const now = new Date();
+    for (let w = 9; w >= 0; w--) {
+      const week = [];
+      for (let d = 6; d >= 0; d--) {
+        const date = new Date(now); date.setDate(now.getDate() - w*7 - d);
+        const ds = date.toISOString().slice(0,10);
+        week.push({ ds, trained: logs.some(function(l){ return l.date===ds; }), isToday: ds===today, future: date>now });
+      }
+      weeks.push(week);
+    }
+    return weeks;
+  }, [logs, today]);
 
-    // ── Stats strip ────────────────────────────────────────────────────────
-    d.jsx('div', {
-      className: 'grid grid-cols-4 gap-2',
+  return d.jsxs('div', { className: 'space-y-5', children: [
+
+    // ── Greeting ────────────────────────────────────────────────────────
+    d.jsxs(Y.div, {
+      initial: {opacity:0,y:-8}, animate: {opacity:1,y:0},
       children: [
-        { label: 'Racha', value: streak + 'd', accent: GYM_RED },
-        { label: 'Semana', value: weekCount + ' ent.', accent: '#7c3aed' },
-        { label: 'Volumen', value: weekVolume >= 1000 ? (weekVolume / 1000).toFixed(1) + 'k' : weekVolume + '', suffix: 'kg', accent: '#0891b2' },
-        { label: 'Total', value: logs.length + '', suffix: 'ses.', accent: '#d97706' },
-      ].map(function(stat, i) {
+        d.jsx('h1', { className: 'page-header', children: trainedToday ? 'Buen trabajo hoy' : 'Listo para entrenar' }),
+        d.jsx('p', { className: 'page-subtitle', children:
+          !routines.length ? 'Crea tu primera rutina para empezar'
+          : weekLogs.length === 0 ? 'Aún no has entrenado esta semana'
+          : weekLogs.length + (weekLogs.length === 1 ? ' entreno' : ' entrenos') + ' esta semana',
+        }),
+      ],
+    }),
+
+    // ── Stats 4 columnas ────────────────────────────────────────────────
+    d.jsx('div', {
+      style: { display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 },
+      children: [
+        { label: 'Racha',   value: streak,             unit: 'd',    color: GYM_RED },
+        { label: 'Semana',  value: weekLogs.length,    unit: 'ses',  color: '#7c3aed' },
+        { label: 'Volumen', value: weekVol>=1000?(weekVol/1000).toFixed(1)+'k':weekVol, unit: 'kg', color: '#0891b2' },
+        { label: 'Total',   value: logs.length,        unit: 'ses',  color: '#d97706' },
+      ].map(function(s, i) {
         return d.jsxs('div', {
           key: i,
-          className: 'glass-card p-3 flex flex-col gap-1',
+          className: 'glass-card p-3',
+          style: { textAlign: 'center' },
           children: [
-            d.jsxs('span', { style: { fontSize: '1.25rem', fontWeight: 800, color: stat.accent, lineHeight: 1 }, children: [stat.value, stat.suffix ? d.jsx('span', { style: { fontSize: '0.7rem', fontWeight: 600, marginLeft: 2, opacity: 0.7 }, children: stat.suffix }) : null] }),
-            d.jsx('span', { className: 'section-label', children: stat.label }),
+            d.jsxs('p', { style: { fontSize: 20, fontWeight: 800, color: s.color, lineHeight: 1, letterSpacing: '-0.02em' }, children: [s.value] }),
+            d.jsx('p', { style: { fontSize: 9, fontWeight: 700, color: 'hsl(var(--muted-foreground))', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }, children: s.label }),
           ],
         });
       }),
     }),
 
-    // ── Entreno de hoy ─────────────────────────────────────────────────────
-    d.jsxs('div', {
-      className: 'glass-card p-4',
+    // ── Entreno del día ─────────────────────────────────────────────────
+    todayRoutine ? d.jsxs(Y.div, {
+      initial: {opacity:0,y:8}, animate: {opacity:1,y:0}, transition:{delay:0.05},
+      style: {
+        borderRadius: 16, overflow: 'hidden',
+        background: 'linear-gradient(135deg, ' + GYM_RED + ', #9f1239)',
+        boxShadow: '0 8px 32px rgba(225,29,72,0.35)',
+      },
       children: [
-        d.jsxs('div', {
-          className: 'flex items-center justify-between mb-3',
-          children: [
-            d.jsx('span', { className: 'section-label', children: trainedToday ? 'Ya entrenaste hoy' : 'Entreno de hoy' }),
-            trainedToday ? d.jsx('span', {
-              style: { fontSize: 11, fontWeight: 700, color: '#16a34a', background: 'rgba(22,163,74,0.1)', padding: '2px 8px', borderRadius: 999 },
-              children: 'Completado',
-            }) : null,
-          ],
-        }),
-        suggested ? d.jsxs('div', { children: [
-          d.jsxs('div', { className: 'flex items-start justify-between gap-3 mb-3', children: [
-            d.jsxs('div', { children: [
-              d.jsx('p', { style: { fontSize: 15, fontWeight: 700, color: 'hsl(var(--foreground))' }, children: suggested.name }),
-              d.jsx('p', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))' }, children: (suggested.exercises || []).length + ' ejercicios' + (suggested.days && suggested.days.length ? ' · ' + suggested.days.map(function(i) { return DAYS[i]; }).join(', ') : '') }),
-            ] }),
-            d.jsx('div', {
-              style: { display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: 140 },
-              children: Array.from(new Set((suggested.exercises || []).map(function(e) { return e.muscleGroup; }))).slice(0, 3).map(function(g) {
-                const mg = MUSCLE_GROUPS.find(function(m) { return m.id === g; });
-                return d.jsx('span', {
-                  key: g,
-                  style: { fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', background: GYM_RED_SOFT, color: GYM_RED, padding: '2px 6px', borderRadius: 6 },
-                  children: mg ? mg.short : g.slice(0, 3).toUpperCase(),
-                });
-              }),
-            }),
-          ] }),
-          !trainedToday && d.jsx('button', {
-            onClick: function() { onStart(suggested); },
-            className: 'w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95',
-            style: { background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 4px 16px rgba(220,38,38,0.3)' },
-            children: 'Empezar — ' + suggested.name,
-          }),
-        ] }) : d.jsxs('div', { className: 'text-center py-4 space-y-3', children: [
-          d.jsx('p', { style: { fontSize: 13, color: 'hsl(var(--muted-foreground))' }, children: 'Crea tu primera rutina para empezar' }),
-          d.jsx('button', {
-            onClick: onNewRoutine,
-            className: 'input-premium text-sm font-semibold',
-            style: { borderStyle: 'dashed', color: GYM_RED, borderColor: GYM_RED_MID, width: '100%', textAlign: 'center', cursor: 'pointer' },
-            children: 'Nueva rutina',
+        d.jsxs('div', { style: { padding: '16px 18px 12px' }, children: [
+          d.jsx('p', { style: { fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }, children: trainedToday ? 'Entrenaste hoy' : 'Entreno de hoy' }),
+          d.jsx('p', { style: { fontSize: 20, fontWeight: 800, color: '#fff', fontFamily: 'var(--font-serif)' }, children: todayRoutine.name }),
+          d.jsx('p', { style: { fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }, children:
+            (todayRoutine.exercises||[]).length + ' ejercicios · ' +
+            Array.from(new Set((todayRoutine.exercises||[]).map(function(e){ return e.muscleGroup; }))).slice(0,3).map(function(g){ const mg=MUSCLE_GROUPS.find(function(m){ return m.id===g; }); return mg?mg.short:g; }).join(', '),
           }),
         ] }),
+        !trainedToday && d.jsx('button', {
+          onClick: function(){ onStart(todayRoutine); },
+          style: { width:'100%', padding:'12px 18px', background:'rgba(0,0,0,0.2)', border:'none', borderTop:'1px solid rgba(255,255,255,0.12)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', textAlign:'left', display:'flex', alignItems:'center', justifyContent:'space-between' },
+          children: [
+            'Empezar ahora',
+            d.jsx(GymIcon, { icon:'back', size:16, color:'#fff', sw:2.5, style:{transform:'rotate(180deg)'} }),
+          ],
+        }),
+        trainedToday && d.jsx('div', {
+          style: { padding:'10px 18px', borderTop:'1px solid rgba(255,255,255,0.12)', display:'flex', alignItems:'center', gap:6 },
+          children: [
+            d.jsx(GymIcon, { icon:'check', size:14, color:'rgba(255,255,255,0.7)' }),
+            d.jsx('span', { style:{ fontSize:12, color:'rgba(255,255,255,0.7)', fontWeight:600 }, children:'Completado — buen trabajo' }),
+          ],
+        }),
+      ],
+    }) : d.jsxs('div', {
+      className: 'glass-card p-5 text-center space-y-3',
+      children: [
+        d.jsx(GymIcon, { icon:'dumbbell', size:28, color:'hsl(var(--muted-foreground))' }),
+        d.jsx('p', { style:{fontSize:13,fontWeight:600,color:'hsl(var(--foreground))',marginTop:8}, children:'Sin rutinas todavía' }),
+        d.jsx('p', { style:{fontSize:12,color:'hsl(var(--muted-foreground))',opacity:0.8}, children:'Crea tu primera rutina para empezar a registrar tus entrenos' }),
+        d.jsx('button', {
+          onClick: function(){ setTab('ajustes'); },
+          style:{ background:GYM_RED, color:'#fff', border:'none', borderRadius:10, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer', marginTop:4 },
+          children: 'Crear rutina',
+        }),
       ],
     }),
 
-    // ── Últimos entrenos ───────────────────────────────────────────────────
-    d.jsx(GymCalendario, { logs }),
+    // ── Calendario de actividad ─────────────────────────────────────────
+    d.jsxs(Y.div, {
+      initial:{opacity:0}, animate:{opacity:1}, transition:{delay:0.1},
+      className: 'glass-card p-4',
+      children: [
+        d.jsxs('div', { style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}, children:[
+          d.jsx('p', { className:'section-label', children:'Actividad — 10 semanas' }),
+          streak > 0 && d.jsxs('span', { style:{fontSize:11,fontWeight:700,color:GYM_RED}, children:[streak,' días seguidos'] }),
+        ]}),
+        d.jsx('div', { style:{display:'flex',gap:3}, children:
+          calWeeks.map(function(week,wi){
+            return d.jsx('div',{ key:wi, style:{flex:1,display:'flex',flexDirection:'column',gap:3}, children:
+              week.map(function(day,di){
+                return d.jsx('div',{
+                  key:di,
+                  style:{
+                    aspectRatio:'1', borderRadius:3,
+                    background: day.future?'transparent': day.trained?GYM_RED:'rgba(255,255,255,0.05)',
+                    border: day.isToday?'1.5px solid '+GYM_RED:'1px solid rgba(255,255,255,0.06)',
+                    opacity: day.future?0:1,
+                    transition:'background 0.2s',
+                  },
+                });
+              }),
+            });
+          }),
+        }),
+      ],
+    }),
 
-    // ── Planificador inline ───────────────────────────────────────────────────
-    routines.some(function(r){ return (r.days||[]).length > 0; }) && d.jsx(GymPlanificador, { routines, logs, onStart }),
-
-    recentLogs.length > 0 && d.jsxs('div', { className: 'space-y-2', children: [
-      d.jsx('p', { className: 'section-label px-1', children: 'Historial reciente' }),
-      ...recentLogs.map(function(log, i) {
-        const vol = (log.sets || []).reduce(function(a, s) { return a + (s.weight || 0) * (s.reps || 0); }, 0);
-        const rName = routines.find(function(r) { return r.id === log.routineId; });
-        return d.jsxs(Y.div, {
-          key: log.id || i,
-          initial: { opacity: 0, x: -8 }, animate: { opacity: 1, x: 0 },
-          transition: { delay: i * 0.04 },
-          className: 'glass-card px-4 py-3 flex items-center justify-between',
-          children: [
-            d.jsxs('div', { children: [
-              d.jsx('p', { style: { fontSize: 13, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: log.routineName || (rName && rName.name) || 'Entreno libre' }),
-              d.jsx('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: GymFormatDate(log.date) }),
-            ] }),
-            d.jsxs('div', { style: { textAlign: 'right' }, children: [
-              d.jsx('p', { style: { fontSize: 13, fontWeight: 700, color: GYM_RED }, children: (log.durationMin || 0) + ' min' }),
-              d.jsx('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))' }, children: vol >= 1000 ? (vol / 1000).toFixed(1) + 'k kg' : vol + ' kg' }),
-            ] }),
-          ],
-        }, log.id || i);
+    // ── Historial reciente ──────────────────────────────────────────────
+    logs.length > 0 && d.jsxs('div', { className:'space-y-2', children:[
+      d.jsxs('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'},children:[
+        d.jsx('p',{className:'section-label',children:'Últimas sesiones'}),
+        d.jsx('button',{onClick:function(){setTab('entrenos');},style:{fontSize:11,color:GYM_RED,fontWeight:600,background:'none',border:'none',cursor:'pointer'},children:'Ver todo'}),
+      ]}),
+      d.jsx('div',{className:'space-y-2', children:
+        logs.slice(0,3).map(function(log,i){
+          const vol=(log.sets||[]).reduce(function(a,s){return a+(s.weight||0)*(s.reps||0);},0);
+          return d.jsxs(Y.div,{
+            key:log.id||i, initial:{opacity:0,x:-6}, animate:{opacity:1,x:0}, transition:{delay:i*0.05},
+            className:'glass-card px-4 py-3',
+            style:{display:'flex',alignItems:'center',justifyContent:'space-between'},
+            children:[
+              d.jsxs('div',{children:[
+                d.jsx('p',{style:{fontSize:13,fontWeight:700,color:'hsl(var(--foreground))'},children:log.routineName||'Entreno libre'}),
+                d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:GymFormatDate(log.date)+' · '+(log.durationMin||0)+' min'}),
+              ]}),
+              d.jsxs('div',{style:{textAlign:'right'},children:[
+                d.jsx('p',{style:{fontSize:13,fontWeight:700,color:GYM_RED},children:vol>=1000?(vol/1000).toFixed(1)+'t':vol+'kg'}),
+                d.jsx('p',{style:{fontSize:10,color:'hsl(var(--muted-foreground))'},children:'vol'}),
+              ]}),
+            ],
+          },log.id||i);
+        }),
       }),
-    ] }),
+    ]}),
 
   ] });
 }
 
-// ── Formatear fecha ───────────────────────────────────────────────────────────
-function GymFormatDate(dateStr) {
-  if (!dateStr) return '';
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
-  if (dateStr === today) return 'Hoy';
-  if (dateStr === yesterday) return 'Ayer';
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+// ════════════════════════════════════════════════════════════════════════════
+// GymPlan — Vista semanal
+// ════════════════════════════════════════════════════════════════════════════
+function GymPlan({ routines, logs, onStart }) {
+  const today    = new Date().toISOString().slice(0,10);
+  const todayIdx = (new Date().getDay() + 6) % 7;
+  const weekDates = Array.from({length:7}, function(_,i){
+    const d = new Date(); d.setDate(d.getDate() - todayIdx + i);
+    return d.toISOString().slice(0,10);
+  });
+
+  return d.jsxs('div', { className:'space-y-4', children:[
+    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
+      d.jsx('h1',{className:'page-header',children:'Plan semanal'}),
+      d.jsx('p',{className:'page-subtitle',children:'Semana del '+new Date(weekDates[0]+'T12:00').toLocaleDateString('es-ES',{day:'numeric',month:'long'})}),
+    ]}),
+
+    !routines.some(function(r){return (r.days||[]).length>0;}) && d.jsxs('div',{className:'glass-card p-6 text-center space-y-2',children:[
+      d.jsx('p',{style:{fontSize:13,fontWeight:600,color:'hsl(var(--muted-foreground))'},children:'Asigna días a tus rutinas para ver el plan semanal'}),
+    ]}),
+
+    d.jsx('div',{className:'space-y-2', children:
+      DAYS.map(function(dayLabel, dayIdx){
+        const date = weekDates[dayIdx];
+        const assigned = routines.filter(function(r){return (r.days||[]).includes(dayIdx);});
+        const done = logs.some(function(l){return l.date===date;});
+        const isToday = dayIdx === todayIdx;
+        const isPast = date < today;
+        const exCount = assigned.reduce(function(a,r){return a+(r.exercises||[]).length;},0);
+        const muscles = Array.from(new Set(assigned.flatMap(function(r){return (r.exercises||[]).map(function(e){return e.muscleGroup;});})));
+
+        return d.jsxs(Y.div,{
+          key:date,
+          initial:{opacity:0,y:4}, animate:{opacity:1,y:0}, transition:{delay:dayIdx*0.04},
+          style:{
+            borderRadius:14, overflow:'hidden',
+            border: isToday?'1.5px solid '+GYM_RED: done?'1px solid rgba(22,163,74,0.3)':'1px solid var(--glass-border)',
+            background: isToday?GYM_RED_SOFT: done?'rgba(22,163,74,0.04)':'var(--glass-bg)',
+          },
+          children:[
+            d.jsxs('div',{style:{padding:'12px 14px',display:'flex',alignItems:'center',gap:12},children:[
+              // Día
+              d.jsxs('div',{style:{width:44,flexShrink:0,textAlign:'center'},children:[
+                d.jsx('p',{style:{fontSize:11,fontWeight:700,color:isToday?GYM_RED:isPast?'hsl(var(--muted-foreground))':'hsl(var(--foreground))',textTransform:'uppercase',letterSpacing:'0.06em'},children:dayLabel}),
+                d.jsx('p',{style:{fontSize:18,fontWeight:800,color:isToday?GYM_RED:isPast?'hsl(var(--muted-foreground))':'hsl(var(--foreground))',lineHeight:1},children:new Date(date+'T12:00').getDate()}),
+              ]}),
+              // Separador
+              d.jsx('div',{style:{width:1,height:36,background:'var(--glass-border)',flexShrink:0}}),
+              // Contenido
+              d.jsx('div',{style:{flex:1,minWidth:0},children:
+                assigned.length>0 ? d.jsxs('div',{children:[
+                  d.jsx('p',{style:{fontSize:13,fontWeight:700,color:'hsl(var(--foreground))',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},children:assigned.map(function(r){return r.name;}).join(' + ')}),
+                  d.jsxs('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:[exCount,' ej.',muscles.length>0?' · ':'',(function(){const mg=MUSCLE_GROUPS.find(function(m){return m.id===muscles[0];});return mg?mg.short:'';})()]}),
+                ]}) : d.jsx('p',{style:{fontSize:12,color:'hsl(var(--muted-foreground))',opacity:0.5},children:'Descanso'}),
+              }),
+              // Estado
+              done ? d.jsx('div',{style:{width:26,height:26,borderRadius:'50%',background:'rgba(22,163,74,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0},children:
+                d.jsx(GymIcon,{icon:'check',size:14,color:'#16a34a'}),
+              }) :
+              isToday && assigned.length>0 ? d.jsx('button',{
+                onClick:function(){onStart(assigned[0]);},
+                style:{height:28,padding:'0 12px',borderRadius:8,border:'none',background:GYM_RED,color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',flexShrink:0},
+                children:'Empezar',
+              }) : null,
+            ]}),
+          ],
+        },date);
+      }),
+    }),
+  ]});
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// GymRutinas — Gestión de rutinas
+// GymEntrenos — Historial detallado con buscador
 // ════════════════════════════════════════════════════════════════════════════
-function GymRutinas({ routines, uid, onStart }) {
-  const [view, setView]         = b.useState('list'); // list | form
+function GymEntrenos({ logs, routines }) {
+  const [expanded, setExpanded] = b.useState(null);
+  const [page, setPage]         = b.useState(0);
+  const PER = 10;
+
+  if (!logs.length) return d.jsxs('div',{className:'space-y-4',children:[
+    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
+      d.jsx('h1',{className:'page-header',children:'Historial'}),
+      d.jsx('p',{className:'page-subtitle',children:'Tus sesiones registradas'}),
+    ]}),
+    d.jsxs('div',{className:'glass-card p-8 text-center',children:[
+      d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))'},children:'Completa tu primer entreno para verlo aquí'}),
+    ]}),
+  ]});
+
+  const totalPages = Math.ceil(logs.length / PER);
+  const paged = logs.slice(page*PER,(page+1)*PER);
+
+  return d.jsxs('div',{className:'space-y-4',children:[
+    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
+      d.jsx('h1',{className:'page-header',children:'Historial'}),
+      d.jsx('p',{className:'page-subtitle',children:logs.length+' sesiones registradas'}),
+    ]}),
+
+    // Resumen rápido
+    d.jsx('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8},children:[
+      {label:'Total',value:logs.length,unit:'ses'},
+      {label:'Tiempo',value:Math.round(logs.reduce(function(a,l){return a+(l.durationMin||0);},0)/60),unit:'h'},
+      {label:'Vol. total',value:Math.round(logs.reduce(function(a,l){return a+(l.sets||[]).reduce(function(b,s){return b+(s.weight||0)*(s.reps||0);},0);},0)/1000),unit:'ton'},
+    ].map(function(s,i){
+      return d.jsxs('div',{key:i,className:'glass-card p-3 text-center',children:[
+        d.jsxs('p',{style:{fontSize:20,fontWeight:800,color:'hsl(var(--foreground))',lineHeight:1},children:[s.value]}),
+        d.jsx('p',{style:{fontSize:9,fontWeight:700,color:'hsl(var(--muted-foreground))',textTransform:'uppercase',letterSpacing:'0.06em',marginTop:2},children:s.label}),
+      ]});
+    })}),
+
+    // Lista
+    d.jsx('div',{className:'space-y-2',children:
+      paged.map(function(log){
+        const isExp = expanded===log.id;
+        const vol = (log.sets||[]).reduce(function(a,s){return a+(s.weight||0)*(s.reps||0);},0);
+        const muscles = Array.from(new Set((log.sets||[]).map(function(s){return s.muscleGroup;}).filter(Boolean)));
+        const byEx = {};
+        (log.sets||[]).forEach(function(s){
+          const k=s.exerciseName||'Ejercicio';
+          if(!byEx[k]) byEx[k]=[];
+          byEx[k].push(s);
+        });
+
+        return d.jsxs(Y.div,{
+          key:log.id,
+          initial:{opacity:0},animate:{opacity:1},
+          className:'glass-card overflow-hidden',
+          children:[
+            d.jsxs('div',{
+              onClick:function(){setExpanded(isExp?null:log.id);},
+              style:{padding:'12px 16px',display:'flex',alignItems:'center',gap:12,cursor:'pointer'},
+              children:[
+                d.jsx('div',{style:{width:36,height:36,borderRadius:10,background:GYM_RED_SOFT,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0},children:
+                  d.jsx(GymIcon,{icon:'dumbbell',size:16,color:GYM_RED}),
+                }),
+                d.jsxs('div',{style:{flex:1,minWidth:0},children:[
+                  d.jsx('p',{style:{fontSize:14,fontWeight:700,color:'hsl(var(--foreground))',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},children:log.routineName||'Entreno libre'}),
+                  d.jsxs('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:[GymFormatDate(log.date),' · ',(log.durationMin||0),' min · ',(log.sets||[]).length,' series']}),
+                ]}),
+                d.jsxs('div',{style:{textAlign:'right',flexShrink:0},children:[
+                  d.jsx('p',{style:{fontSize:13,fontWeight:700,color:GYM_RED},children:vol>=1000?(vol/1000).toFixed(1)+'t':vol+'kg'}),
+                  d.jsx(GymIcon,{icon:isExp?'up':'down',size:12,color:'hsl(var(--muted-foreground))',sw:2}),
+                ]}),
+              ],
+            }),
+
+            isExp && d.jsxs('div',{style:{borderTop:'1px solid var(--glass-border)',padding:'12px 16px',background:'rgba(0,0,0,0.015)'},children:[
+              muscles.length>0 && d.jsx('div',{style:{display:'flex',gap:4,flexWrap:'wrap',marginBottom:10},children:
+                muscles.map(function(g){
+                  const mg=MUSCLE_GROUPS.find(function(m){return m.id===g;});
+                  return d.jsx('span',{key:g,style:{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:6,background:GYM_RED_SOFT,color:GYM_RED},children:mg?mg.label:g});
+                }),
+              }),
+              d.jsx('div',{style:{display:'flex',flexDirection:'column',gap:10},children:
+                Object.entries(byEx).map(function(entry){
+                  const name=entry[0], sets=entry[1];
+                  const best = sets.reduce(function(a,s){return fmt1rm(s.weight||0,s.reps||0)>fmt1rm(a.weight||0,a.reps||0)?s:a;},sets[0]);
+                  return d.jsxs('div',{key:name,children:[
+                    d.jsxs('div',{style:{display:'flex',justifyContent:'space-between',marginBottom:4},children:[
+                      d.jsx('p',{style:{fontSize:12,fontWeight:700,color:'hsl(var(--foreground))'},children:name}),
+                      d.jsxs('p',{style:{fontSize:10,color:GYM_RED,fontWeight:600},children:['Mejor: ',best.weight,'kg×',best.reps,' (',fmt1rm(best.weight||0,best.reps||0),' 1RM)']}),
+                    ]}),
+                    d.jsx('div',{style:{display:'flex',gap:4,flexWrap:'wrap'},children:
+                      sets.map(function(s,si){
+                        return d.jsxs('span',{key:si,style:{fontSize:11,padding:'2px 8px',borderRadius:6,background:'var(--glass-bg)',border:'1px solid var(--glass-border)',color:'hsl(var(--muted-foreground))',fontVariantNumeric:'tabular-nums'},children:[s.weight,'kg×',s.reps]});
+                      }),
+                    }),
+                  ]});
+                }),
+              }),
+              log.note && d.jsx('p',{style:{fontSize:12,color:'hsl(var(--muted-foreground))',fontStyle:'italic',marginTop:10,padding:'8px 10px',borderRadius:8,background:'var(--glass-bg)',border:'1px solid var(--glass-border)'},children:log.note}),
+            ]}),
+          ],
+        },log.id);
+      }),
+    }),
+
+    totalPages>1 && d.jsxs('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',gap:10},children:[
+      d.jsx('button',{onClick:function(){setPage(function(p){return Math.max(0,p-1);});},disabled:page===0,style:{width:34,height:34,borderRadius:10,border:'1px solid var(--glass-border)',background:'var(--glass-bg)',cursor:page===0?'default':'pointer',opacity:page===0?0.4:1,display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(GymIcon,{icon:'back',size:14,color:'hsl(var(--foreground))'})}),
+      d.jsxs('span',{style:{fontSize:12,color:'hsl(var(--muted-foreground))'},children:[page+1,' / ',totalPages]}),
+      d.jsx('button',{onClick:function(){setPage(function(p){return Math.min(totalPages-1,p+1);});},disabled:page===totalPages-1,style:{width:34,height:34,borderRadius:10,border:'1px solid var(--glass-border)',background:'var(--glass-bg)',cursor:page===totalPages-1?'default':'pointer',opacity:page===totalPages-1?0.4:1,display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(GymIcon,{icon:'back',size:14,color:'hsl(var(--foreground))',style:{transform:'rotate(180deg)'}})}),
+    ]}),
+  ]});
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymProgreso — Análisis y proyecciones
+// ════════════════════════════════════════════════════════════════════════════
+function GymProgreso({ logs, routines }) {
+  const [selEx, setSelEx] = b.useState(null);
+  const [range, setRange] = b.useState(90);
+
+  const cutoff = b.useMemo(function(){const d=new Date();d.setDate(d.getDate()-range);return d.toISOString().slice(0,10);},[range]);
+  const fLogs  = b.useMemo(function(){return logs.filter(function(l){return l.date>=cutoff;});},[logs,cutoff]);
+
+  const totalVol = logs.reduce(function(a,l){return a+(l.sets||[]).reduce(function(b,s){return b+(s.weight||0)*(s.reps||0);},0);},0);
+  const totalMin = logs.reduce(function(a,l){return a+(l.durationMin||0);},0);
+
+  // Volumen semanal — 8 semanas
+  const weeklyVol = b.useMemo(function(){
+    return Array.from({length:8},function(_,w){
+      const start=new Date();start.setDate(start.getDate()-(7-w)*7);
+      const end=new Date();end.setDate(end.getDate()-(6-w)*7);
+      const ds=start.toISOString().slice(0,10), de=end.toISOString().slice(0,10);
+      const wl=logs.filter(function(l){return l.date>=ds&&l.date<=de;});
+      return {
+        label:'S'+(w+1),
+        vol:Math.round(wl.reduce(function(a,l){return a+(l.sets||[]).reduce(function(b,s){return b+(s.weight||0)*(s.reps||0);},0);},0)/100)/10,
+        sessions:wl.length,
+      };
+    });
+  },[logs]);
+  const maxWVol = Math.max.apply(null,weeklyVol.map(function(w){return w.vol;}).concat([0.1]));
+
+  // Volumen mensual — 6 meses
+  const monthlyVol = b.useMemo(function(){
+    return Array.from({length:6},function(_,i){
+      const d=new Date();d.setMonth(d.getMonth()-(5-i));
+      const ms=d.toISOString().slice(0,7);
+      const label=d.toLocaleDateString('es-ES',{month:'short'});
+      const ml=logs.filter(function(l){return l.date.startsWith(ms);});
+      return {label,vol:Math.round(ml.reduce(function(a,l){return a+(l.sets||[]).reduce(function(b,s){return b+(s.weight||0)*(s.reps||0);},0);},0)/100)/10,sessions:ml.length};
+    });
+  },[logs]);
+  const maxMVol = Math.max.apply(null,monthlyVol.map(function(m){return m.vol;}).concat([0.1]));
+
+  // Frecuencia muscular
+  const muscleFreq = b.useMemo(function(){
+    const map={};
+    fLogs.forEach(function(l){(l.sets||[]).forEach(function(s){if(s.muscleGroup)map[s.muscleGroup]=(map[s.muscleGroup]||0)+1;});});
+    return Object.entries(map).sort(function(a,b){return b[1]-a[1];}).map(function(e){return {id:e[0],sets:e[1]};});
+  },[fLogs]);
+  const maxFreq = muscleFreq[0]?muscleFreq[0].sets:1;
+
+  // Progreso por ejercicio (1RM)
+  const exProgress = b.useMemo(function(){
+    const map={};
+    logs.slice().reverse().forEach(function(l){
+      (l.sets||[]).forEach(function(s){
+        if(!s.exerciseName||!s.done)return;
+        if(!map[s.exerciseName])map[s.exerciseName]={name:s.exerciseName,mg:s.muscleGroup,pts:[]};
+        const e1=fmt1rm(s.weight||0,s.reps||0);
+        const last=map[s.exerciseName].pts;
+        if(!last.length||last[last.length-1].date!==l.date) last.push({date:l.date,w:s.weight,r:s.reps,e1});
+        else if(e1>last[last.length-1].e1) last[last.length-1]={date:l.date,w:s.weight,r:s.reps,e1};
+      });
+    });
+    return Object.values(map).filter(function(e){return e.pts.length>=2;}).sort(function(a,b){return b.pts.length-a.pts.length;});
+  },[logs]);
+
+  // Análisis
+  const analysis = b.useMemo(function(){
+    if(muscleFreq.length<2)return null;
+    const upper=['pecho','espalda','hombros','biceps','triceps'];
+    const lower=['cuadriceps','femoral','gluteos','gemelos'];
+    const worked=new Set(muscleFreq.map(function(m){return m.id;}));
+    const missing=MUSCLE_GROUPS.filter(function(m){return m.id!=='cardio'&&m.id!=='fullbody'&&!worked.has(m.id);});
+    const upperS=muscleFreq.filter(function(m){return upper.includes(m.id);}).reduce(function(a,m){return a+m.sets;},0);
+    const lowerS=muscleFreq.filter(function(m){return lower.includes(m.id);}).reduce(function(a,m){return a+m.sets;},0);
+    return {
+      strong:muscleFreq.slice(0,3),
+      weak:muscleFreq.filter(function(m){return m.sets<maxFreq*0.35;}).slice(-3),
+      missing:missing.slice(0,4),
+      upperS,lowerS,
+      balance:upperS+lowerS>0?Math.round(upperS/(upperS+lowerS)*100):50,
+    };
+  },[muscleFreq,maxFreq]);
+
+  // Proyecciones
+  const projections = b.useMemo(function(){
+    return exProgress.slice(0,4).map(function(ex){
+      const pts=ex.pts;
+      if(pts.length<2)return null;
+      const n=pts.length;
+      let sx=0,sy=0,sxy=0,sx2=0;
+      pts.forEach(function(p,i){sx+=i;sy+=p.e1;sxy+=i*p.e1;sx2+=i*i;});
+      const slope=(n*sxy-sx*sy)/(n*sx2-sx*sx);
+      const cur=pts[pts.length-1].e1;
+      const proj=Math.max(cur,Math.round((cur+slope*8)*10)/10);
+      return {name:ex.name,cur,proj,pct:Math.round((proj-cur)/cur*100),up:slope>0};
+    }).filter(Boolean);
+  },[exProgress]);
+
+  if(!logs.length) return d.jsxs('div',{className:'space-y-4',children:[
+    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
+      d.jsx('h1',{className:'page-header',children:'Progreso'}),
+      d.jsx('p',{className:'page-subtitle',children:'Tu evolución en el tiempo'}),
+    ]}),
+    d.jsxs('div',{className:'glass-card p-8 text-center',children:[
+      d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))'},children:'Completa entrenos para ver tu progreso, análisis y proyecciones'}),
+    ]}),
+  ]});
+
+  const SVGBar = function(data,maxVal,H,W,labelY,colorFn) {
+    const count=data.length;
+    const barW=Math.floor(W/count)-3;
+    return data.map(function(item,i){
+      const x=i*(barW+3)+2;
+      const h=Math.max(2,item.vol/maxVal*(H-16));
+      const y=H-16-h;
+      const col=colorFn?colorFn(item,i):GYM_RED;
+      return d.jsxs('g',{key:i,children:[
+        d.jsx('rect',{x,y,width:barW,height:h,rx:3,fill:col,opacity:item.sessions>0?1:0.18}),
+        d.jsx('text',{x:x+barW/2,y:H-2,textAnchor:'middle',style:{fontSize:8,fill:'hsl(var(--muted-foreground))',fontFamily:'var(--font-sans)'},children:item.label}),
+        item.sessions>0&&item.vol>=0.1&&d.jsx('text',{x:x+barW/2,y:y-3,textAnchor:'middle',style:{fontSize:7,fill:GYM_RED,fontFamily:'var(--font-sans)',fontWeight:700},children:item.vol+'t'}),
+      ]},i);
+    });
+  };
+
+  return d.jsxs('div',{className:'space-y-5',children:[
+
+    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
+      d.jsx('h1',{className:'page-header',children:'Progreso'}),
+      d.jsx('p',{className:'page-subtitle',children:'Tu evolución en el tiempo'}),
+    ]}),
+
+    // Selector rango
+    d.jsx('div',{className:'flex gap-1 glass-card p-1',style:{borderRadius:'0.875rem'},children:
+      [{l:'30 días',v:30},{l:'90 días',v:90},{l:'1 año',v:365}].map(function(o){
+        const active=range===o.v;
+        return d.jsx('button',{key:o.v,onClick:function(){setRange(o.v);},className:'flex-1 text-xs font-semibold py-1.5 rounded-xl transition-all',style:{background:active?'var(--gradient-primary)':'transparent',color:active?'#fff':'hsl(var(--muted-foreground))',boxShadow:active?'0 2px 8px rgba(37,99,235,0.25)':'none'},children:o.l});
+      }),
+    }),
+
+    // Stats globales
+    d.jsx('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8},children:
+      [
+        {l:'Sesiones',v:logs.length},
+        {l:'Horas',v:Math.round(totalMin/60)},
+        {l:'Toneladas',v:(totalVol/1000).toFixed(1)},
+        {l:'Min/ses',v:logs.length?Math.round(totalMin/logs.length):0},
+      ].map(function(s,i){
+        return d.jsxs('div',{key:i,className:'glass-card p-3 text-center',children:[
+          d.jsx('p',{style:{fontSize:18,fontWeight:800,color:'hsl(var(--foreground))',lineHeight:1},children:s.v}),
+          d.jsx('p',{style:{fontSize:9,fontWeight:700,color:'hsl(var(--muted-foreground))',textTransform:'uppercase',letterSpacing:'0.05em',marginTop:2},children:s.l}),
+        ]});
+      }),
+    }),
+
+    // Volumen semanal SVG
+    d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsx('p',{className:'section-label',children:'Volumen semanal (ton)'}),
+      d.jsx('svg',{width:'100%',height:80,viewBox:'0 0 288 80',preserveAspectRatio:'none',children:SVGBar(weeklyVol,maxWVol,80,288,72,null)}),
+    ]}),
+
+    // Volumen mensual SVG
+    d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsx('p',{className:'section-label',children:'Volumen mensual (ton)'}),
+      d.jsx('svg',{width:'100%',height:80,viewBox:'0 0 264 80',preserveAspectRatio:'none',children:SVGBar(monthlyVol,maxMVol,80,264,72,function(m,i){return 'hsl('+(200+i*20)+',70%,55%)'; })}),
+    ]}),
+
+    // Análisis fuertes/débiles
+    analysis && d.jsxs('div',{className:'glass-card p-4 space-y-4',children:[
+      d.jsx('p',{className:'section-label',children:'Análisis de tu entrenamiento'}),
+
+      // Balance superior/inferior
+      d.jsxs('div',{className:'space-y-1',children:[
+        d.jsxs('div',{style:{display:'flex',justifyContent:'space-between',marginBottom:4},children:[
+          d.jsxs('span',{style:{fontSize:11,fontWeight:600,color:'hsl(var(--foreground))'},children:['Superior · ',analysis.upperS,' series']}),
+          d.jsxs('span',{style:{fontSize:11,fontWeight:600,color:'hsl(var(--foreground))'},children:['Inferior · ',analysis.lowerS,' series']}),
+        ]}),
+        d.jsx('div',{style:{height:8,borderRadius:4,overflow:'hidden',background:'var(--glass-bg)',border:'1px solid var(--glass-border)'},children:
+          d.jsx('div',{style:{height:'100%',width:analysis.balance+'%',background:'linear-gradient(90deg,#3b82f6,#8b5cf6)',borderRadius:4,transition:'width 0.6s'}}),
+        }),
+        d.jsx('p',{style:{fontSize:10,color:'hsl(var(--muted-foreground))',textAlign:'center',marginTop:2},children:
+          analysis.balance>65?'Tren superior dominante — trabaja más la parte inferior':
+          analysis.balance<35?'Tren inferior dominante — trabaja más la parte superior':
+          'Balance superior/inferior correcto',
+        }),
+      ]}),
+
+      // Puntos fuertes
+      analysis.strong.length>0 && d.jsxs('div',{className:'space-y-1',children:[
+        d.jsx('p',{style:{fontSize:10,fontWeight:700,color:'#16a34a',textTransform:'uppercase',letterSpacing:'0.07em'},children:'Puntos fuertes'}),
+        d.jsx('div',{style:{display:'flex',gap:6,flexWrap:'wrap'},children:
+          analysis.strong.map(function(m){
+            const mg=MUSCLE_GROUPS.find(function(x){return x.id===m.id;});
+            return d.jsx('span',{key:m.id,style:{fontSize:11,fontWeight:600,padding:'3px 10px',borderRadius:999,background:'rgba(22,163,74,0.1)',color:'#16a34a',border:'1px solid rgba(22,163,74,0.2)'},children:mg?mg.label:m.id});
+          }),
+        }),
+      ]}),
+
+      // Necesitan trabajo
+      analysis.weak.length>0 && d.jsxs('div',{className:'space-y-1',children:[
+        d.jsx('p',{style:{fontSize:10,fontWeight:700,color:GYM_RED,textTransform:'uppercase',letterSpacing:'0.07em'},children:'Necesitan más trabajo'}),
+        d.jsx('div',{style:{display:'flex',gap:6,flexWrap:'wrap'},children:
+          analysis.weak.map(function(m){
+            const mg=MUSCLE_GROUPS.find(function(x){return x.id===m.id;});
+            return d.jsx('span',{key:m.id,style:{fontSize:11,fontWeight:600,padding:'3px 10px',borderRadius:999,background:GYM_RED_SOFT,color:GYM_RED,border:'1px solid '+GYM_RED_MID},children:mg?mg.label:m.id});
+          }),
+        }),
+      ]}),
+
+      // Sin trabajar
+      analysis.missing.length>0 && d.jsxs('div',{className:'space-y-1',children:[
+        d.jsx('p',{style:{fontSize:10,fontWeight:700,color:'hsl(var(--muted-foreground))',textTransform:'uppercase',letterSpacing:'0.07em'},children:'Sin trabajar'}),
+        d.jsx('div',{style:{display:'flex',gap:6,flexWrap:'wrap'},children:
+          analysis.missing.map(function(m){
+            return d.jsx('span',{key:m.id,style:{fontSize:11,fontWeight:600,padding:'3px 10px',borderRadius:999,background:'rgba(100,116,139,0.08)',color:'hsl(var(--muted-foreground))',border:'1px solid var(--glass-border)'},children:m.label});
+          }),
+        }),
+      ]}),
+    ]}),
+
+    // Frecuencia muscular
+    muscleFreq.length>0 && d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsx('p',{className:'section-label',children:'Frecuencia por grupo muscular'}),
+      d.jsx('div',{className:'space-y-2',children:
+        muscleFreq.map(function(m){
+          const mg=MUSCLE_GROUPS.find(function(x){return x.id===m.id;});
+          const pct=m.sets/maxFreq;
+          const col=mg?mg.color:GYM_RED;
+          return d.jsxs('div',{key:m.id,style:{display:'flex',alignItems:'center',gap:10},children:[
+            d.jsx('span',{style:{fontSize:12,fontWeight:600,color:'hsl(var(--foreground))',width:88,flexShrink:0},children:mg?mg.label:m.id}),
+            d.jsx('div',{style:{flex:1,height:6,background:'var(--glass-bg)',borderRadius:3,border:'1px solid var(--glass-border)',overflow:'hidden'},children:
+              d.jsx('div',{style:{height:'100%',width:(pct*100)+'%',background:col,borderRadius:3,transition:'width 0.6s'}}),
+            }),
+            d.jsx('span',{style:{fontSize:11,color:'hsl(var(--muted-foreground))',width:24,textAlign:'right',fontVariantNumeric:'tabular-nums'},children:m.sets}),
+          ]});
+        }),
+      }),
+    ]}),
+
+    // Gráfica 1RM por ejercicio
+    exProgress.length>0 && d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsxs('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'},children:[
+        d.jsx('p',{className:'section-label',children:'Evolución 1RM estimado'}),
+        selEx && d.jsx('button',{onClick:function(){setSelEx(null);},style:{fontSize:10,color:GYM_RED,background:'none',border:'none',cursor:'pointer',fontWeight:600},children:'Ver todos'}),
+      ]}),
+      d.jsx('div',{style:{display:'flex',gap:5,overflowX:'auto',paddingBottom:2},children:
+        exProgress.slice(0,8).map(function(ex){
+          const active=selEx===ex.name||(selEx===null&&ex===exProgress[0]);
+          return d.jsx('button',{key:ex.name,onClick:function(){setSelEx(active?null:ex.name);},style:{height:26,padding:'0 10px',borderRadius:8,border:'none',flexShrink:0,background:active?GYM_RED:GYM_RED_SOFT,color:active?'#fff':GYM_RED,fontSize:11,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'},children:ex.name});
+        }),
+      }),
+      (function(){
+        const ex=selEx?exProgress.find(function(e){return e.name===selEx;}):exProgress[0];
+        if(!ex||ex.pts.length<2)return null;
+        const pts=ex.pts.slice(-12);
+        const min1=Math.min.apply(null,pts.map(function(p){return p.e1;}));
+        const max1=Math.max.apply(null,pts.map(function(p){return p.e1;}));
+        const range1=Math.max(max1-min1,1);
+        const W=280,H=80,P=10;
+        const gx=function(i){return P+(i/(pts.length-1))*(W-P*2);};
+        const gy=function(v){return H-P-((v-min1)/range1)*(H-P*2);};
+        const path=pts.map(function(p,i){return (i?'L':'M')+gx(i).toFixed(1)+','+gy(p.e1).toFixed(1);}).join(' ');
+        const area=path+' L'+gx(pts.length-1).toFixed(1)+','+(H-P)+' L'+P+','+(H-P)+' Z';
+        const delta=ex.pts[ex.pts.length-1].e1-ex.pts[0].e1;
+        const dcol=delta>0?'#16a34a':delta<0?GYM_RED:'hsl(var(--muted-foreground))';
+        return d.jsxs('div',{className:'space-y-1',children:[
+          d.jsxs('div',{style:{display:'flex',alignItems:'baseline',gap:8},children:[
+            d.jsx('span',{style:{fontSize:14,fontWeight:700,color:'hsl(var(--foreground))'},children:ex.name}),
+            d.jsxs('span',{style:{fontSize:12,fontWeight:700,color:dcol},children:[delta>0?'+':'',delta.toFixed(1),' kg']}),
+            d.jsx('span',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:'1RM est.'}),
+          ]}),
+          d.jsxs('svg',{width:'100%',height:H,viewBox:'0 0 '+W+' '+H,children:[
+            d.jsxs('defs',{children:[d.jsxs('linearGradient',{id:'g1rm',x1:'0',y1:'0',x2:'0',y2:'1',children:[d.jsx('stop',{offset:'0%',stopColor:GYM_RED,stopOpacity:0.2}),d.jsx('stop',{offset:'100%',stopColor:GYM_RED,stopOpacity:0})]})]}),
+            d.jsx('path',{d:area,fill:'url(#g1rm)'}),
+            d.jsx('path',{d:path,fill:'none',stroke:GYM_RED,strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'}),
+            pts.map(function(p,i){return d.jsx('circle',{key:i,cx:gx(i),cy:gy(p.e1),r:3,fill:GYM_RED});}),
+            d.jsx('text',{x:P,y:P+6,style:{fontSize:7,fill:'hsl(var(--muted-foreground))',fontFamily:'var(--font-sans)'},children:max1+'kg'}),
+            d.jsx('text',{x:P,y:H-1,style:{fontSize:7,fill:'hsl(var(--muted-foreground))',fontFamily:'var(--font-sans)'},children:min1+'kg'}),
+          ]}),
+        ]});
+      })(),
+    ]}),
+
+    // Proyecciones
+    projections.length>0 && d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsx('p',{className:'section-label',children:'Proyección a 8 semanas'}),
+      d.jsx('div',{className:'space-y-2',children:
+        projections.map(function(p){
+          return d.jsxs('div',{key:p.name,style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 12px',borderRadius:10,background:p.up?'rgba(22,163,74,0.06)':GYM_RED_SOFT,border:'1px solid '+(p.up?'rgba(22,163,74,0.15)':GYM_RED_MID)},children:[
+            d.jsxs('div',{children:[
+              d.jsx('p',{style:{fontSize:13,fontWeight:700,color:'hsl(var(--foreground))'},children:p.name}),
+              d.jsxs('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:[p.cur,' kg → ',p.proj,' kg']}),
+            ]}),
+            d.jsxs('span',{style:{fontSize:16,fontWeight:800,color:p.up?'#16a34a':GYM_RED},children:[p.up?'+':'',p.pct,'%']}),
+          ]});
+        }),
+      }),
+      d.jsx('p',{style:{fontSize:10,color:'hsl(var(--muted-foreground))',opacity:0.7,textAlign:'center'},children:'Basado en la progresión de tu 1RM estimado. Solo indicativo.'}),
+    ]}),
+
+  ]});
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymIA — Entrenador con Gemini
+// ════════════════════════════════════════════════════════════════════════════
+function GymIA({ logs, routines }) {
+  const [messages, setMessages] = b.useState([{role:'assistant',text:'Soy tu entrenador personal. Tengo acceso completo a tu historial de entrenos, rutinas y progreso. Pregúntame lo que quieras sobre tu rendimiento, evolución o planificación.'}]);
+  const [input, setInput]   = b.useState('');
+  const [loading, setLoading] = b.useState(false);
+  const bottomRef = b.useRef(null);
+
+  b.useEffect(function(){ if(bottomRef.current) bottomRef.current.scrollIntoView({behavior:'smooth'}); },[messages]);
+
+  const buildCtx = function() {
+    const tot=logs.length, min=logs.reduce(function(a,l){return a+(l.durationMin||0);},0);
+    const vol=logs.reduce(function(a,l){return a+(l.sets||[]).reduce(function(b,s){return b+(s.weight||0)*(s.reps||0);},0);},0);
+    const mf={};logs.forEach(function(l){(l.sets||[]).forEach(function(s){if(s.muscleGroup)mf[s.muscleGroup]=(mf[s.muscleGroup]||0)+1;});});
+    const top=Object.entries(mf).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(e){return e[0]+'('+e[1]+')';}).join(',');
+    const recent=logs.slice(0,8).map(function(l){const v=(l.sets||[]).reduce(function(a,s){return a+(s.weight||0)*(s.reps||0);},0);return l.date+' '+l.routineName+' '+(l.durationMin||0)+'min '+Math.round(v/100)/10+'t';}).join('\n');
+    return 'Sesiones:'+tot+'\nHoras:'+Math.round(min/60)+'\nVolumen:'+Math.round(vol/1000)+'t\nGrupos principales:'+top+'\nRutinas:'+routines.map(function(r){return r.name;}).join(',')+'\nÚltimas sesiones:\n'+recent;
+  };
+
+  const send = async function() {
+    if(!input.trim()||loading)return;
+    const q=input.trim(); setInput('');
+    setMessages(function(p){return p.concat([{role:'user',text:q}]);});
+    setLoading(true);
+    try {
+      const key=await getGeminiKey();
+      if(!key)throw new Error('Sin clave Gemini');
+      const sys='Eres un entrenador personal experto integrado en Mebistium. Directo, técnico, motivador. Español siempre. Sin emojis.\n\n'+buildCtx();
+      const hist=messages.slice(1).map(function(m){return {role:m.role==='assistant'?'model':'user',parts:[{text:m.text}]};});
+      hist.push({role:'user',parts:[{text:q}]});
+      const res=await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sys}]},contents:hist,generationConfig:{temperature:0.5,maxOutputTokens:1024}})});
+      if(!res.ok){const e=await res.json();throw new Error(e.error?e.error.message:'Error '+res.status);}
+      const data=await res.json();
+      const text=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]?data.candidates[0].content.parts[0].text:'Sin respuesta';
+      setMessages(function(p){return p.concat([{role:'assistant',text}]);});
+    } catch(e) {
+      setMessages(function(p){return p.concat([{role:'assistant',text:'Error: '+(e.message||'Inténtalo de nuevo')}]);});
+    }
+    setLoading(false);
+  };
+
+  const suggestions=['Analiza mi progreso del último mes','Qué músculos debo trabajar más','Diseña un plan para las próximas 4 semanas','Cómo mejorar mi volumen de entrenamiento'];
+
+  return d.jsxs('div',{style:{display:'flex',flexDirection:'column',height:'calc(100vh - 140px)',minHeight:400},children:[
+
+    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},style:{marginBottom:12},children:[
+      d.jsx('h1',{className:'page-header',children:'Entrenador IA'}),
+      d.jsx('p',{className:'page-subtitle',children:'Con acceso a tu historial real'}),
+    ]}),
+
+    d.jsxs('div',{style:{flex:1,overflowY:'auto',display:'flex',flexDirection:'column',gap:8,paddingBottom:8},children:[
+      messages.map(function(msg,i){
+        const isAI=msg.role==='assistant';
+        return d.jsx('div',{key:i,style:{alignSelf:isAI?'flex-start':'flex-end',maxWidth:'88%',background:isAI?'var(--glass-bg)':GYM_RED,color:isAI?'hsl(var(--foreground))':'#fff',border:isAI?'1px solid var(--glass-border)':'none',borderRadius:isAI?'4px 16px 16px 16px':'16px 16px 4px 16px',padding:'10px 14px',fontSize:13,lineHeight:1.55,backdropFilter:isAI?'blur(16px)':'none',whiteSpace:'pre-wrap'},children:msg.text});
+      }),
+      loading && d.jsx('div',{style:{alignSelf:'flex-start',background:'var(--glass-bg)',border:'1px solid var(--glass-border)',borderRadius:'4px 16px 16px 16px',padding:'10px 14px'},children:
+        d.jsx('div',{style:{display:'flex',gap:4},children:[0,1,2].map(function(i){return d.jsx('div',{key:i,style:{width:6,height:6,borderRadius:'50%',background:GYM_RED,opacity:0.7,animation:'pulse '+(0.8+i*0.15)+'s ease-in-out infinite'}});})}),
+      }),
+      d.jsx('div',{ref:bottomRef}),
+    ]}),
+
+    messages.length<=1 && d.jsx('div',{style:{display:'flex',gap:5,flexWrap:'wrap',paddingBottom:6},children:
+      suggestions.map(function(s,i){return d.jsx('button',{key:i,onClick:function(){setInput(s);},style:{padding:'5px 10px',fontSize:11,fontWeight:500,color:GYM_RED,border:'1px solid '+GYM_RED_SOFT,background:GYM_RED_SOFT,borderRadius:8,cursor:'pointer'},children:s});})
+    }),
+
+    d.jsxs('div',{style:{display:'flex',gap:8,paddingTop:6},children:[
+      d.jsx('input',{className:'input-premium',value:input,onChange:function(e){setInput(e.target.value);},onKeyDown:function(e){if(e.key==='Enter'&&!e.shiftKey)send();},placeholder:'Pregunta a tu entrenador...',style:{flex:1}}),
+      d.jsx('button',{onClick:send,disabled:loading||!input.trim(),style:{width:44,height:44,borderRadius:12,border:'none',flexShrink:0,background:input.trim()&&!loading?GYM_RED:'hsl(var(--muted))',display:'flex',alignItems:'center',justifyContent:'center',cursor:input.trim()&&!loading?'pointer':'default',transition:'background 0.2s'},children:
+        d.jsx(GymIcon,{icon:'send',size:16,color:input.trim()&&!loading?'#fff':'hsl(var(--muted-foreground))'}),
+      }),
+    ]}),
+
+  ]});
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymAjustes — Rutinas + Peso + Récords + Health
+// ════════════════════════════════════════════════════════════════════════════
+function GymAjustes({ logs, uid, weightLog }) {
+  const [view, setView] = b.useState('menu'); // menu | rutinas | peso | records
+  const [routines, setRoutines] = b.useState([]);
+  const [newWeight, setNewWeight] = b.useState('');
+  const [restDur, setRestDur] = b.useState(function(){ try{return parseInt(localStorage.getItem('gym-rest-duration'))||90;}catch(e){return 90;} });
+
+  b.useEffect(function(){
+    if(!uid)return;
+    return gymSub(uid,'gym_routines',function(d){setRoutines(Array.isArray(d)?d:[]);});
+  },[uid]);
+
+  const saveWeight=function(){
+    const v=parseFloat(newWeight.replace(',','.'));
+    if(!v||v<20||v>300||!uid)return;
+    gymSet(uid,'gym_weight',{id:Date.now().toString(36),date:new Date().toISOString().slice(0,10),weight:v,createdAt:Date.now()});
+    setNewWeight('');
+  };
+  const saveRest=function(v){setRestDur(v);try{localStorage.setItem('gym-rest-duration',v);}catch(e){}};
+
+  const records=b.useMemo(function(){
+    const map={};
+    logs.forEach(function(l){(l.sets||[]).forEach(function(s){
+      if(!s.exerciseName||!s.done)return;
+      const e1=fmt1rm(s.weight||0,s.reps||0);
+      if(!map[s.exerciseName]||e1>map[s.exerciseName].e1) map[s.exerciseName]={name:s.exerciseName,w:s.weight,r:s.reps,e1:Math.round(e1*10)/10,date:l.date};
+    });});
+    return Object.values(map).sort(function(a,b){return b.e1-a.e1;}).slice(0,10);
+  },[logs]);
+
+  const weightTrend=weightLog.length>=2?{cur:weightLog[0].weight,delta:Math.round((weightLog[0].weight-weightLog[Math.min(6,weightLog.length-1)].weight)*10)/10}:null;
+
+  if(view==='rutinas') return d.jsx(GymRutinas,{routines,uid,onStart:function(){},onBack:function(){setView('menu');}});
+
+  return d.jsxs('div',{className:'space-y-5',children:[
+
+    d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
+      d.jsx('h1',{className:'page-header',children:'Ajustes'}),
+      d.jsx('p',{className:'page-subtitle',children:'Rutinas, seguimiento y configuración'}),
+    ]}),
+
+    // Rutinas
+    d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsxs('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'},children:[
+        d.jsx('p',{className:'section-label',children:'Mis rutinas'}),
+        d.jsxs('span',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:[routines.length,' rutinas']}),
+      ]}),
+      routines.slice(0,3).map(function(r){
+        return d.jsxs('div',{key:r.id,style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid var(--glass-border)'},children:[
+          d.jsxs('div',{children:[
+            d.jsx('p',{style:{fontSize:13,fontWeight:600,color:'hsl(var(--foreground))'},children:r.name}),
+            d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:(r.exercises||[]).length+' ejercicios'+(r.days&&r.days.length?' · '+r.days.map(function(i){return DAYS[i];}).join(', '):'')}),
+          ]}),
+        ]});
+      }),
+      d.jsx('button',{
+        onClick:function(){setView('rutinas');},
+        style:{width:'100%',padding:'10px',borderRadius:10,border:'1px dashed var(--glass-border)',background:'transparent',color:GYM_RED,fontSize:13,fontWeight:600,cursor:'pointer'},
+        children:'Gestionar rutinas',
+      }),
+    ]}),
+
+    // Peso corporal
+    d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsxs('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'},children:[
+        d.jsx('p',{className:'section-label',children:'Peso corporal'}),
+        weightTrend && d.jsxs('span',{style:{fontSize:11,fontWeight:700,color:weightTrend.delta<=0?'#16a34a':GYM_RED,background:weightTrend.delta<=0?'rgba(22,163,74,0.1)':GYM_RED_SOFT,padding:'2px 8px',borderRadius:999},children:[weightTrend.delta>0?'+':'',weightTrend.delta,' kg']}),
+      ]}),
+      weightTrend && d.jsxs('p',{style:{fontSize:28,fontWeight:800,color:'hsl(var(--foreground))',lineHeight:1},children:[weightTrend.cur,' ',d.jsx('span',{style:{fontSize:14,fontWeight:500,color:'hsl(var(--muted-foreground))'},children:'kg'})]}),
+      d.jsxs('div',{style:{display:'flex',gap:8},children:[
+        d.jsx('input',{className:'input-premium flex-1',type:'number',step:'0.1',min:'20',max:'300',placeholder:'Añadir peso (kg)',value:newWeight,onChange:function(e){setNewWeight(e.target.value);},onKeyDown:function(e){if(e.key==='Enter')saveWeight();}}),
+        d.jsx('button',{onClick:saveWeight,disabled:!newWeight.trim(),style:{padding:'0 16px',borderRadius:10,border:'none',background:newWeight.trim()?GYM_RED:'hsl(var(--muted))',color:'#fff',fontSize:13,fontWeight:700,cursor:newWeight.trim()?'pointer':'default'},children:'Guardar'}),
+      ]}),
+      weightLog.length>0 && d.jsx('div',{style:{display:'flex',gap:5,overflowX:'auto'},children:
+        weightLog.slice(0,8).map(function(w,i){
+          return d.jsxs('div',{key:w.id||i,style:{flexShrink:0,textAlign:'center',padding:'5px 10px',background:i===0?GYM_RED_SOFT:'var(--glass-bg)',border:'1px solid '+(i===0?GYM_RED_MID:'var(--glass-border)'),borderRadius:10},children:[
+            d.jsx('p',{style:{fontSize:13,fontWeight:700,color:i===0?GYM_RED:'hsl(var(--foreground))'},children:w.weight+'kg'}),
+            d.jsx('p',{style:{fontSize:9,color:'hsl(var(--muted-foreground))'},children:GymFormatDate(w.date)}),
+          ]});
+        }),
+      }),
+    ]}),
+
+    // Timer de descanso
+    d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsxs('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'},children:[
+        d.jsx('p',{className:'section-label',children:'Descanso entre series'}),
+        d.jsxs('span',{style:{fontSize:15,fontWeight:800,color:GYM_RED},children:[restDur,'s']}),
+      ]}),
+      d.jsx('input',{type:'range',min:30,max:300,step:15,value:restDur,onChange:function(e){saveRest(parseInt(e.target.value));},style:{width:'100%',accentColor:GYM_RED}}),
+      d.jsx('div',{style:{display:'flex',justifyContent:'space-between'},children:
+        [30,60,90,120,180,240,300].map(function(v){
+          return d.jsx('span',{key:v,onClick:function(){saveRest(v);},style:{fontSize:10,color:restDur===v?GYM_RED:'hsl(var(--muted-foreground))',fontWeight:restDur===v?700:400,cursor:'pointer'},children:v+'s'});
+        }),
+      }),
+    ]}),
+
+    // Récords personales
+    records.length>0 && d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsx('p',{className:'section-label',children:'Récords personales (1RM est.)'}),
+      d.jsx('div',{className:'space-y-2',children:
+        records.map(function(r,i){
+          return d.jsxs('div',{key:r.name,style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 10px',borderRadius:10,background:i===0?GYM_RED_SOFT:'var(--glass-bg)',border:'1px solid '+(i===0?GYM_RED_MID:'var(--glass-border)')},children:[
+            d.jsxs('div',{children:[
+              d.jsx('p',{style:{fontSize:13,fontWeight:700,color:'hsl(var(--foreground))'},children:r.name}),
+              d.jsxs('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:[r.w,'kg × ',r.r,' reps · ',GymFormatDate(r.date)]}),
+            ]}),
+            d.jsxs('span',{style:{fontSize:16,fontWeight:800,color:GYM_RED},children:[r.e1,' kg']}),
+          ]});
+        }),
+      }),
+    ]}),
+
+    // Datos de salud
+    d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsx('p',{className:'section-label',children:'Datos de salud'}),
+      [{name:'Samsung Health',desc:'Pasos, sueño, frecuencia cardíaca'},{name:'Apple Health',desc:'Pasos, sueño, frecuencia cardíaca'}].map(function(src){
+        return d.jsxs('div',{key:src.name,style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 12px',borderRadius:10,background:'var(--glass-bg)',border:'1px solid var(--glass-border)'},children:[
+          d.jsxs('div',{children:[
+            d.jsx('p',{style:{fontSize:13,fontWeight:600,color:'hsl(var(--foreground))'},children:src.name}),
+            d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:src.desc}),
+          ]}),
+          d.jsx('span',{style:{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:999,background:'rgba(100,116,139,0.1)',color:'hsl(var(--muted-foreground))'},children:'Próximamente'}),
+        ]});
+      }),
+    ]}),
+
+  ]});
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GymRutinas — Gestión completa de rutinas (con onBack)
+// ════════════════════════════════════════════════════════════════════════════
+function GymRutinas({ routines, uid, onStart, onBack }) {
+  const [view, setView]         = b.useState('list');
   const [editing, setEditing]   = b.useState(null);
   const [name, setName]         = b.useState('');
   const [days, setDays]         = b.useState([]);
@@ -3796,1663 +4558,261 @@ function GymRutinas({ routines, uid, onStart }) {
   const [exReps, setExReps]     = b.useState('10');
   const [exNote, setExNote]     = b.useState('');
 
-  const openNew = function() {
-    setEditing(null); setName(''); setDays([]); setExercises([]); setShowExForm(false); setView('form');
+  const openNew=function(){ setEditing(null);setName('');setDays([]);setExercises([]);setShowExForm(false);setView('form'); };
+  const openEdit=function(r){ setEditing(r);setName(r.name);setDays(r.days||[]);setExercises(r.exercises||[]);setShowExForm(false);setView('form'); };
+  const delRoutine=function(r){ if(!confirm('Eliminar "'+r.name+'"?'))return; gymDel(uid,'gym_routines',r.id); };
+  const addEx=function(){
+    if(!exName.trim())return;
+    setExercises(function(p){return p.concat([{id:Date.now().toString(36)+Math.random().toString(36).slice(2),name:exName.trim(),muscleGroup:exGroup,sets:parseInt(exSets)||3,reps:parseInt(exReps)||10,note:exNote.trim()}]);});
+    setExName('');setExNote('');setShowExForm(false);
   };
-  const openEdit = function(r) {
-    setEditing(r); setName(r.name); setDays(r.days || []); setExercises(r.exercises || []); setShowExForm(false); setView('form');
-  };
-  const deleteRoutine = function(r) {
-    if (!confirm('Eliminar "' + r.name + '"?')) return;
-    gymDel(uid, 'gym_routines', r.id);
-  };
-  const addExercise = function() {
-    if (!exName.trim()) return;
-    setExercises(function(prev) {
-      return prev.concat([{
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-        name: exName.trim(),
-        muscleGroup: exGroup,
-        sets: parseInt(exSets) || 3,
-        reps: parseInt(exReps) || 10,
-        note: exNote.trim(),
-      }]);
+  const rmEx=function(id){setExercises(function(p){return p.filter(function(e){return e.id!==id;});});};
+  const moveEx=function(i,dir){
+    setExercises(function(p){
+      if(i+dir<0||i+dir>=p.length)return p;
+      const a=p.slice();const t=a[i+dir];a[i+dir]=a[i];a[i]=t;return a;
     });
-    setExName(''); setExNote(''); setShowExForm(false);
   };
-  const removeExercise = function(id) {
-    setExercises(function(prev) { return prev.filter(function(e) { return e.id !== id; }); });
-  };
-  const save = function() {
-    if (!name.trim() || !uid) return;
-    const routine = {
-      id: editing ? editing.id : Date.now().toString(36) + Math.random().toString(36).slice(2),
-      name: name.trim(),
-      days: days,
-      exercises: exercises,
-      createdAt: editing ? (editing.createdAt || Date.now()) : Date.now(),
-      updatedAt: Date.now(),
-    };
-    gymSet(uid, 'gym_routines', routine);
+  const save=function(){
+    if(!name.trim()||!uid)return;
+    gymSet(uid,'gym_routines',{id:editing?editing.id:Date.now().toString(36)+Math.random().toString(36).slice(2),name:name.trim(),days,exercises,createdAt:editing?(editing.createdAt||Date.now()):Date.now(),updatedAt:Date.now()});
     setView('list');
   };
 
-  // ── Formulario ─────────────────────────────────────────────────────────
-  if (view === 'form') return d.jsxs('div', { className: 'space-y-4', children: [
+  if(view==='form') return d.jsxs('div',{className:'space-y-4',children:[
+    d.jsxs('div',{style:{display:'flex',alignItems:'center',gap:10},children:[
+      d.jsx('button',{onClick:function(){setView('list');},style:{width:34,height:34,borderRadius:10,border:'1px solid var(--glass-border)',background:'var(--glass-bg)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:d.jsx(GymIcon,{icon:'back',size:16,color:'hsl(var(--foreground))'})}),
+      d.jsx('h2',{style:{fontSize:16,fontWeight:700,color:'hsl(var(--foreground))',fontFamily:'var(--font-serif)'},children:editing?'Editar rutina':'Nueva rutina'}),
+    ]}),
 
-    // Back + title
-    d.jsxs('div', { className: 'flex items-center gap-3', children: [
-      d.jsx('button', {
-        onClick: function() { setView('list'); },
-        className: 'p-2 rounded-xl glass-card text-muted-foreground hover:text-foreground transition-colors',
-        children: d.jsx(vh, { className: 'w-4 h-4' }),
-      }),
-      d.jsx('h2', { style: { fontSize: 16, fontWeight: 700, color: 'hsl(var(--foreground))', fontFamily: 'var(--font-serif)' }, children: editing ? 'Editar rutina' : 'Nueva rutina' }),
-    ] }),
+    d.jsxs('div',{className:'space-y-1',children:[
+      d.jsx('label',{className:'section-label',children:'Nombre'}),
+      d.jsx('input',{className:'input-premium w-full',placeholder:'Ej. Push A, Piernas martes...',value:name,onChange:function(e){setName(e.target.value);}}),
+    ]}),
 
-    // Nombre
-    d.jsxs('div', { className: 'space-y-1', children: [
-      d.jsx('label', { className: 'section-label', children: 'Nombre' }),
-      d.jsx('input', {
-        className: 'input-premium w-full',
-        placeholder: 'Ej. Push A, Fuerza lunes...',
-        value: name,
-        onChange: function(e) { setName(e.target.value); },
-      }),
-    ] }),
-
-    // Días
-    d.jsxs('div', { className: 'space-y-2', children: [
-      d.jsx('label', { className: 'section-label', children: 'Días' }),
-      d.jsx('div', {
-        className: 'flex gap-2',
-        children: DAYS.map(function(day, i) {
-          const active = days.includes(i);
-          return d.jsx('button', {
-            key: i,
-            onClick: function() { setDays(function(prev) { return active ? prev.filter(function(d) { return d !== i; }) : prev.concat([i]); }); },
-            style: {
-              flex: 1, height: 36, borderRadius: 10, border: 'none', fontSize: 11, fontWeight: 700,
-              background: active ? GYM_RED : 'var(--glass-bg)',
-              color: active ? '#fff' : 'hsl(var(--muted-foreground))',
-              border: active ? 'none' : '1px solid var(--glass-border)',
-              cursor: 'pointer', transition: 'all 0.15s',
-            },
-            children: day,
-          });
+    d.jsxs('div',{className:'space-y-2',children:[
+      d.jsx('label',{className:'section-label',children:'Días'}),
+      d.jsx('div',{style:{display:'flex',gap:4},children:
+        DAYS.map(function(day,i){
+          const active=days.includes(i);
+          return d.jsx('button',{key:i,onClick:function(){setDays(function(p){return active?p.filter(function(d){return d!==i;}):p.concat([i]);});},style:{flex:1,height:36,borderRadius:10,border:active?'none':'1px solid var(--glass-border)',background:active?GYM_RED:'var(--glass-bg)',color:active?'#fff':'hsl(var(--muted-foreground))',fontSize:10,fontWeight:700,cursor:'pointer',transition:'all 0.15s'},children:day});
         }),
       }),
-    ] }),
+    ]}),
 
-    // Ejercicios añadidos
-    exercises.length > 0 && d.jsxs('div', { className: 'space-y-2', children: [
-      d.jsx('label', { className: 'section-label', children: 'Ejercicios (' + exercises.length + ')' }),
-      d.jsx('div', {
-        className: 'space-y-2',
-        children: exercises.map(function(ex, i) {
-          const mg = MUSCLE_GROUPS.find(function(m) { return m.id === ex.muscleGroup; });
-          return d.jsxs('div', {
-            key: ex.id,
-            className: 'glass-card px-4 py-3 flex items-center justify-between',
-            children: [
-              d.jsxs('div', { children: [
-                d.jsx('p', { style: { fontSize: 13, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: ex.name }),
-                d.jsxs('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: [(mg ? mg.label : ex.muscleGroup), ' · ', ex.sets, '×', ex.reps, ex.note ? ' · ' + ex.note : ''] }),
-              ] }),
-              d.jsxs('div', { className: 'flex gap-1 items-center', children: [
-                d.jsx('button', {
-                  onClick: function() { setExercises(function(p) { if(i===0) return p; const a=p.slice(); const t=a[i-1]; a[i-1]=a[i]; a[i]=t; return a; }); },
-                  disabled: i===0,
-                  className: 'p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30',
-                  children: d.jsx(vh, { className: 'w-3.5 h-3.5' }),
-                }),
-                d.jsx('button', {
-                  onClick: function() { setExercises(function(p) { if(i===p.length-1) return p; const a=p.slice(); const t=a[i+1]; a[i+1]=a[i]; a[i]=t; return a; }); },
-                  disabled: i===exercises.length-1,
-                  className: 'p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30',
-                  children: d.jsx(na, { className: 'w-3.5 h-3.5' }),
-                }),
-                d.jsx('button', {
-                  onClick: function() { removeExercise(ex.id); },
-                  className: 'p-1.5 rounded-lg text-muted-foreground hover:text-destructive transition-colors',
-                  children: d.jsx(Zn, { className: 'w-4 h-4' }),
-                }),
-              ] }),
-            ],
-          }, ex.id);
+    exercises.length>0 && d.jsxs('div',{className:'space-y-2',children:[
+      d.jsxs('label',{className:'section-label',children:['Ejercicios (',exercises.length,')']}),
+      d.jsx('div',{className:'space-y-2',children:
+        exercises.map(function(ex,i){
+          const mg=MUSCLE_GROUPS.find(function(m){return m.id===ex.muscleGroup;});
+          return d.jsxs('div',{key:ex.id,className:'glass-card px-3 py-2.5 flex items-center gap-2',children:[
+            d.jsxs('div',{style:{flex:1,minWidth:0},children:[
+              d.jsx('p',{style:{fontSize:13,fontWeight:600,color:'hsl(var(--foreground))'},children:ex.name}),
+              d.jsxs('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:[mg?mg.label:ex.muscleGroup,' · ',ex.sets,'×',ex.reps,ex.note?' · '+ex.note:'']}),
+            ]}),
+            d.jsxs('div',{style:{display:'flex',gap:2},children:[
+              d.jsx('button',{onClick:function(){moveEx(i,-1);},disabled:i===0,style:{width:26,height:26,borderRadius:6,border:'none',background:'var(--glass-bg)',cursor:i===0?'default':'pointer',opacity:i===0?0.3:1,display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(GymIcon,{icon:'up',size:12,color:'hsl(var(--foreground))'})}),
+              d.jsx('button',{onClick:function(){moveEx(i,1);},disabled:i===exercises.length-1,style:{width:26,height:26,borderRadius:6,border:'none',background:'var(--glass-bg)',cursor:i===exercises.length-1?'default':'pointer',opacity:i===exercises.length-1?0.3:1,display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(GymIcon,{icon:'down',size:12,color:'hsl(var(--foreground))'})}),
+              d.jsx('button',{onClick:function(){rmEx(ex.id);},style:{width:26,height:26,borderRadius:6,border:'none',background:'var(--glass-bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(GymIcon,{icon:'trash',size:12,color:GYM_RED})}),
+            ]}),
+          ]},ex.id);
         }),
       }),
-    ] }),
+    ]}),
 
-    // Añadir ejercicio
-    showExForm ? d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsx('p', { className: 'section-label', children: 'Nuevo ejercicio' }),
-      d.jsx('input', {
-        className: 'input-premium w-full',
-        placeholder: 'Nombre del ejercicio',
-        value: exName,
-        onChange: function(e) { setExName(e.target.value); },
-        autoFocus: true,
-      }),
-      d.jsxs('div', { className: 'grid grid-cols-2 gap-2', children: [
-        d.jsxs('div', { className: 'space-y-1', children: [
-          d.jsx('label', { className: 'section-label', children: 'Grupo muscular' }),
-          d.jsx('select', {
-            className: 'input-premium w-full',
-            value: exGroup,
-            onChange: function(e) { setExGroup(e.target.value); },
-            children: MUSCLE_GROUPS.map(function(m) { return d.jsx('option', { key: m.id, value: m.id, children: m.label }); }),
+    showExForm ? d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsx('p',{className:'section-label',children:'Nuevo ejercicio'}),
+      d.jsx('input',{className:'input-premium w-full',placeholder:'Nombre del ejercicio',value:exName,onChange:function(e){setExName(e.target.value);},autoFocus:true}),
+      d.jsxs('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8},children:[
+        d.jsxs('div',{className:'space-y-1',children:[
+          d.jsx('label',{className:'section-label',children:'Grupo muscular'}),
+          d.jsx('select',{className:'input-premium w-full',value:exGroup,onChange:function(e){setExGroup(e.target.value);},children:MUSCLE_GROUPS.map(function(m){return d.jsx('option',{key:m.id,value:m.id,children:m.label});})}),
+        ]}),
+        d.jsxs('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6},children:[
+          d.jsxs('div',{className:'space-y-1',children:[d.jsx('label',{className:'section-label',children:'Series'}),d.jsx('input',{className:'input-premium w-full text-center',type:'number',min:1,max:20,value:exSets,onChange:function(e){setExSets(e.target.value);}})]}),
+          d.jsxs('div',{className:'space-y-1',children:[d.jsx('label',{className:'section-label',children:'Reps'}),d.jsx('input',{className:'input-premium w-full text-center',type:'number',min:1,max:100,value:exReps,onChange:function(e){setExReps(e.target.value);}})]}),
+        ]}),
+      ]}),
+      d.jsx('input',{className:'input-premium w-full',placeholder:'Nota (técnica, variante...)',value:exNote,onChange:function(e){setExNote(e.target.value);}}),
+      d.jsxs('div',{style:{display:'flex',gap:8},children:[
+        d.jsx('button',{onClick:function(){setShowExForm(false);},style:{flex:1,padding:'10px',borderRadius:10,border:'1px solid var(--glass-border)',background:'var(--glass-bg)',fontSize:13,fontWeight:600,cursor:'pointer',color:'hsl(var(--muted-foreground))'},children:'Cancelar'}),
+        d.jsx('button',{onClick:addEx,disabled:!exName.trim(),style:{flex:1,padding:'10px',borderRadius:10,border:'none',background:exName.trim()?GYM_RED:'hsl(var(--muted))',color:'#fff',fontSize:13,fontWeight:700,cursor:exName.trim()?'pointer':'default'},children:'Añadir'}),
+      ]}),
+    ]}) : d.jsx('button',{onClick:function(){setShowExForm(true);},style:{width:'100%',padding:'10px',borderRadius:10,border:'1px dashed var(--glass-border)',background:'transparent',color:GYM_RED,fontSize:13,fontWeight:600,cursor:'pointer'},children:'+ Añadir ejercicio'}),
+
+    d.jsx('button',{onClick:save,disabled:!name.trim()||exercises.length===0,style:{width:'100%',padding:'14px',borderRadius:12,border:'none',background:name.trim()&&exercises.length>0?'linear-gradient(135deg,'+GYM_RED+',#9f1239)':'hsl(var(--muted))',color:'#fff',fontSize:14,fontWeight:700,cursor:name.trim()&&exercises.length>0?'pointer':'default',boxShadow:name.trim()&&exercises.length>0?'0 4px 16px rgba(225,29,72,0.3)':'none'},children:editing?'Guardar cambios':'Crear rutina'}),
+  ]});
+
+  return d.jsxs('div',{className:'space-y-4',children:[
+
+    d.jsxs('div',{style:{display:'flex',alignItems:'center',gap:10},children:[
+      onBack && d.jsx('button',{onClick:onBack,style:{width:34,height:34,borderRadius:10,border:'1px solid var(--glass-border)',background:'var(--glass-bg)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:d.jsx(GymIcon,{icon:'back',size:16,color:'hsl(var(--foreground))'})}),
+      d.jsx('h2',{style:{fontSize:20,fontWeight:700,color:'hsl(var(--foreground))',fontFamily:'var(--font-serif)'},children:'Rutinas'}),
+    ]}),
+
+    d.jsx('button',{onClick:openNew,style:{width:'100%',padding:'12px',borderRadius:12,border:'none',background:'linear-gradient(135deg,'+GYM_RED+',#9f1239)',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 16px rgba(225,29,72,0.3)',display:'flex',alignItems:'center',justifyContent:'center',gap:8},children:[d.jsx(GymIcon,{icon:'plus',size:16,color:'#fff'}),'Nueva rutina']}),
+
+    routines.length===0 ? d.jsxs('div',{className:'glass-card p-8 text-center space-y-2',children:[
+      d.jsx(GymIcon,{icon:'dumbbell',size:32,color:'hsl(var(--muted-foreground))'}),
+      d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',marginTop:8},children:'Sin rutinas todavía'}),
+    ]}) : d.jsx('div',{className:'space-y-3',children:
+      routines.map(function(r){
+        const muscles=Array.from(new Set((r.exercises||[]).map(function(e){return e.muscleGroup;})));
+        return d.jsxs(Y.div,{key:r.id,initial:{opacity:0,y:4},animate:{opacity:1,y:0},className:'glass-card p-4',children:[
+          d.jsxs('div',{style:{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:10},children:[
+            d.jsxs('div',{style:{flex:1},children:[
+              d.jsx('p',{style:{fontSize:15,fontWeight:700,color:'hsl(var(--foreground))'},children:r.name}),
+              d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:(r.exercises||[]).length+' ejercicios'+(r.days&&r.days.length?' · '+r.days.map(function(i){return DAYS[i];}).join(', '):'')   }),
+            ]}),
+            d.jsxs('div',{style:{display:'flex',gap:4},children:[
+              d.jsx('button',{onClick:function(){openEdit(r);},style:{width:30,height:30,borderRadius:8,border:'1px solid var(--glass-border)',background:'var(--glass-bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(GymIcon,{icon:'edit',size:13,color:'hsl(var(--muted-foreground))'})}),
+              d.jsx('button',{onClick:function(){delRoutine(r);},style:{width:30,height:30,borderRadius:8,border:'1px solid var(--glass-border)',background:'var(--glass-bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'},children:d.jsx(GymIcon,{icon:'trash',size:13,color:GYM_RED})}),
+            ]}),
+          ]}),
+          muscles.length>0 && d.jsx('div',{style:{display:'flex',gap:4,flexWrap:'wrap',marginBottom:10},children:
+            muscles.slice(0,5).map(function(g){
+              const mg=MUSCLE_GROUPS.find(function(m){return m.id===g;});
+              const col=mg?mg.color:GYM_RED;
+              return d.jsx('span',{key:g,style:{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:6,background:col+'18',color:col},children:mg?mg.label:g});
+            }),
           }),
-        ] }),
-        d.jsxs('div', { className: 'grid grid-cols-2 gap-2', children: [
-          d.jsxs('div', { className: 'space-y-1', children: [
-            d.jsx('label', { className: 'section-label', children: 'Series' }),
-            d.jsx('input', { className: 'input-premium w-full text-center', type: 'number', min: 1, max: 20, value: exSets, onChange: function(e) { setExSets(e.target.value); } }),
-          ] }),
-          d.jsxs('div', { className: 'space-y-1', children: [
-            d.jsx('label', { className: 'section-label', children: 'Reps' }),
-            d.jsx('input', { className: 'input-premium w-full text-center', type: 'number', min: 1, max: 100, value: exReps, onChange: function(e) { setExReps(e.target.value); } }),
-          ] }),
-        ] }),
-      ] }),
-      d.jsx('input', {
-        className: 'input-premium w-full',
-        placeholder: 'Nota (opcional): técnica, variante...',
-        value: exNote,
-        onChange: function(e) { setExNote(e.target.value); },
-      }),
-      d.jsxs('div', { className: 'flex gap-2', children: [
-        d.jsx('button', {
-          onClick: function() { setShowExForm(false); },
-          className: 'flex-1 py-2.5 rounded-xl text-sm font-semibold glass-card text-muted-foreground',
-          children: 'Cancelar',
-        }),
-        d.jsx('button', {
-          onClick: addExercise,
-          disabled: !exName.trim(),
-          className: 'flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all',
-          style: { background: exName.trim() ? GYM_RED : 'hsl(var(--muted))' },
-          children: 'Añadir',
-        }),
-      ] }),
-    ] }) : d.jsx('button', {
-      onClick: function() { setShowExForm(true); },
-      className: 'w-full py-2.5 rounded-xl text-sm font-semibold text-muted-foreground glass-card',
-      style: { borderStyle: 'dashed', borderColor: 'var(--glass-border)' },
-      children: '+ Añadir ejercicio',
-    }),
-
-    // Guardar
-    d.jsx('button', {
-      onClick: save,
-      disabled: !name.trim() || exercises.length === 0,
-      className: 'w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all active:scale-95',
-      style: {
-        background: name.trim() && exercises.length > 0 ? 'linear-gradient(135deg, #dc2626, #b91c1c)' : 'hsl(var(--muted))',
-        boxShadow: name.trim() && exercises.length > 0 ? '0 4px 16px rgba(220,38,38,0.3)' : 'none',
-      },
-      children: editing ? 'Guardar cambios' : 'Crear rutina',
-    }),
-
-  ] });
-
-  // ── Lista de rutinas ────────────────────────────────────────────────────
-  return d.jsxs('div', { className: 'space-y-3', children: [
-
-    d.jsx('button', {
-      onClick: openNew,
-      className: 'w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all active:scale-95 flex items-center justify-center gap-2',
-      style: { background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 4px 16px rgba(220,38,38,0.3)' },
-      children: [d.jsx(pt, { className: 'w-4 h-4' }), 'Nueva rutina'],
-    }),
-
-    routines.length === 0 ? d.jsxs('div', {
-      className: 'glass-card p-8 text-center space-y-2',
-      children: [
-        d.jsx(GymDumbbellIcon, { size: 32, color: 'hsl(var(--muted-foreground))' }),
-        d.jsx('p', { style: { fontSize: 14, fontWeight: 600, color: 'hsl(var(--muted-foreground))', marginTop: 8 }, children: 'Sin rutinas todavía' }),
-        d.jsx('p', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))', opacity: 0.7 }, children: 'Crea tu primera rutina y empieza a registrar tus entrenos' }),
-      ],
-    }) : d.jsx('div', {
-      className: 'space-y-3',
-      children: routines.map(function(r) {
-        const muscleGroups = Array.from(new Set((r.exercises || []).map(function(e) { return e.muscleGroup; })));
-        return d.jsxs(Y.div, {
-          key: r.id,
-          initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 },
-          className: 'glass-card p-4',
-          children: [
-            d.jsxs('div', { className: 'flex items-start justify-between mb-3', children: [
-              d.jsxs('div', { children: [
-                d.jsx('p', { style: { fontSize: 15, fontWeight: 700, color: 'hsl(var(--foreground))' }, children: r.name }),
-                d.jsx('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: (r.exercises || []).length + ' ejercicios' + (r.days && r.days.length ? ' · ' + r.days.map(function(i) { return DAYS[i]; }).join(', ') : '') }),
-              ] }),
-              d.jsxs('div', { className: 'flex gap-1', children: [
-                d.jsx('button', {
-                  onClick: function() { openEdit(r); },
-                  className: 'p-2 rounded-xl glass-card text-muted-foreground hover:text-primary transition-colors',
-                  children: d.jsx(iV, { className: 'w-3.5 h-3.5' }),
-                }),
-                d.jsx('button', {
-                  onClick: function() { deleteRoutine(r); },
-                  className: 'p-2 rounded-xl glass-card text-muted-foreground hover:text-destructive transition-colors',
-                  children: d.jsx(Zn, { className: 'w-3.5 h-3.5' }),
-                }),
-              ] }),
-            ] }),
-            muscleGroups.length > 0 && d.jsx('div', {
-              className: 'flex gap-1.5 flex-wrap mb-3',
-              children: muscleGroups.slice(0, 5).map(function(g) {
-                const mg = MUSCLE_GROUPS.find(function(m) { return m.id === g; });
-                return d.jsx('span', {
-                  key: g,
-                  className: 'badge-glow',
-                  style: { background: GYM_RED_SOFT, color: GYM_RED },
-                  children: mg ? mg.label : g,
-                });
-              }),
-            }),
-            d.jsx('button', {
-              onClick: function() { onStart(r); },
-              className: 'w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all active:scale-95',
-              style: { background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 2px 10px rgba(220,38,38,0.25)' },
-              children: 'Empezar entreno',
-            }),
-          ],
-        }, r.id);
+          onStart && d.jsx('button',{onClick:function(){onStart(r);},style:{width:'100%',padding:'10px',borderRadius:10,border:'none',background:'linear-gradient(135deg,'+GYM_RED+',#9f1239)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',boxShadow:'0 2px 10px rgba(225,29,72,0.25)'},children:'Empezar entreno'}),
+        ]},r.id);
       }),
     }),
-
-  ] });
+  ]});
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// GymActiveWorkout — Pantalla de entreno activo
+// GymActiveWorkout — Pantalla dark de entreno activo
 // ════════════════════════════════════════════════════════════════════════════
 function GymActiveWorkout({ routine, logs, uid, onFinish, onCancel }) {
   const exercises = routine.exercises || [];
-
-  // Estado del entreno
   const [exIdx, setExIdx]       = b.useState(0);
   const [elapsed, setElapsed]   = b.useState(0);
-  const [restTime, setRestTime] = b.useState(null); // segundos de descanso
-  const [sets, setSets]         = b.useState(function() {
-    return exercises.map(function(ex) {
-      // Pre-cargar el último peso/reps registrado para este ejercicio
-      let lastWeight = 0, lastReps = ex.reps || 10;
-      for (let li = 0; li < logs.length; li++) {
-        const found = (logs[li].sets || []).find(function(s) { return s.exerciseName === ex.name && s.done; });
-        if (found) { lastWeight = found.weight || 0; lastReps = found.reps || ex.reps || 10; break; }
-      }
-      return Array.from({ length: ex.sets || 3 }, function() {
-        return { reps: lastReps, weight: lastWeight, done: false };
-      });
-    });
-  });
-
-  const startRef = b.useRef(Date.now());
-  const DEFAULT_REST = b.useMemo(function() {
-    try { return parseInt(localStorage.getItem('gym-rest-duration')) || 90; } catch(e) { return 90; }
-  }, []);
-
-  // Timer global
-  b.useEffect(function() {
-    const id = setInterval(function() { setElapsed(Math.floor((Date.now() - startRef.current) / 1000)); }, 1000);
-    return function() { clearInterval(id); };
-  }, []);
-
-  // Timer de descanso
-  b.useEffect(function() {
-    if (restTime === null || restTime <= 0) { if (restTime === 0) setRestTime(null); return; }
-    const id = setTimeout(function() { setRestTime(function(t) { return t - 1; }); }, 1000);
-    return function() { clearTimeout(id); };
-  }, [restTime]);
-
-  const fmt = function(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-
-  const curEx = exercises[exIdx];
-  const curSets = sets[exIdx] || [];
-
-  const updateSet = function(si, field, val) {
-    setSets(function(prev) {
-      return prev.map(function(exSets, ei) {
-        if (ei !== exIdx) return exSets;
-        return exSets.map(function(s, i) { return i === si ? Object.assign({}, s, { [field]: parseFloat(val) || 0 }) : s; });
-      });
-    });
-  };
-
-  const toggleDone = function(si) {
-    setSets(function(prev) {
-      return prev.map(function(exSets, ei) {
-        if (ei !== exIdx) return exSets;
-        return exSets.map(function(s, i) {
-          if (i !== si) return s;
-          if (!s.done) setRestTime(DEFAULT_REST); // iniciar descanso al completar
-          return Object.assign({}, s, { done: !s.done });
-        });
-      });
-    });
-  };
-
+  const [restTime, setRestTime] = b.useState(null);
   const [sessionNote, setSessionNote] = b.useState('');
-
-  const finish = function() {
-    const durationMin = Math.round((Date.now() - startRef.current) / 60000);
-    // Construir sets planos para el log
-    const allSets = [];
-    exercises.forEach(function(ex, ei) {
-      (sets[ei] || []).forEach(function(s) {
-        if (s.done) allSets.push({
-          exerciseId: ex.id,
-          exerciseName: ex.name,
-          muscleGroup: ex.muscleGroup,
-          weight: s.weight,
-          reps: s.reps,
-        });
-      });
-    });
-    const log = {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-      date: new Date().toISOString().slice(0, 10),
-      routineId: routine.id,
-      routineName: routine.name,
-      durationMin: durationMin,
-      sets: allSets,
-      note: sessionNote.trim(),
-      createdAt: Date.now(),
-    };
-    onFinish(log);
-  };
-
-  const totalDone = sets.flat().filter(function(s) { return s.done; }).length;
-  const totalSets = sets.flat().length;
-  const progress = totalSets > 0 ? totalDone / totalSets : 0;
-
-  return d.jsxs('div', {
-    style: { position: 'fixed', inset: 0, zIndex: 60, display: 'flex', flexDirection: 'column', background: 'hsl(220 40% 8%)' },
-    children: [
-
-      // ── Header ────────────────────────────────────────────────────────
-      d.jsxs('div', {
-        style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 },
-        children: [
-          d.jsx('button', {
-            onClick: function() { if (confirm('Cancelar el entreno en curso?')) onCancel(); },
-            style: { width: 32, height: 32, borderRadius: 10, border: 'none', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
-            children: d.jsx(er, { size: 14, color: '#94a3b8' }),
-          }),
-          d.jsxs('div', { style: { textAlign: 'center' }, children: [
-            d.jsx('p', { style: { fontSize: 13, fontWeight: 700, color: '#f1f5f9' }, children: routine.name }),
-            d.jsx('p', { style: { fontSize: 12, color: GYM_RED, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }, children: fmt(elapsed) }),
-          ] }),
-          d.jsx('button', {
-            onClick: finish,
-            style: { height: 32, padding: '0 14px', borderRadius: 10, border: 'none', background: GYM_RED, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' },
-            children: 'Terminar',
-          }),
-        ],
-      }),
-
-      // ── Barra de progreso ──────────────────────────────────────────────
-      d.jsx('div', {
-        style: { height: 3, background: 'rgba(255,255,255,0.08)', flexShrink: 0 },
-        children: d.jsx('div', { style: { height: '100%', background: GYM_RED, width: (progress * 100) + '%', transition: 'width 0.3s ease' } }),
-      }),
-
-      // ── Rest timer ────────────────────────────────────────────────────
-      restTime !== null && restTime > 0 && d.jsxs('div', {
-        style: { padding: '8px 16px', background: 'rgba(220,38,38,0.12)', borderBottom: '1px solid rgba(220,38,38,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 },
-        children: [
-          d.jsx('span', { style: { fontSize: 13, fontWeight: 600, color: GYM_RED }, children: 'Descanso' }),
-          d.jsxs('span', { style: { fontSize: 18, fontWeight: 800, color: '#f1f5f9', fontVariantNumeric: 'tabular-nums' }, children: fmt(restTime) }),
-          d.jsx('button', {
-            onClick: function() { setRestTime(null); },
-            style: { fontSize: 11, fontWeight: 600, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer' },
-            children: 'Saltar',
-          }),
-        ],
-      }),
-
-      // ── Navegación de ejercicios ───────────────────────────────────────
-      d.jsx('div', {
-        style: { display: 'flex', gap: 6, padding: '10px 16px', overflowX: 'auto', flexShrink: 0 },
-        children: exercises.map(function(ex, i) {
-          const exDone = (sets[i] || []).every(function(s) { return s.done; });
-          const active = i === exIdx;
-          return d.jsx('button', {
-            key: ex.id,
-            onClick: function() { setExIdx(i); },
-            style: {
-              height: 28, padding: '0 10px', borderRadius: 8, border: 'none',
-              background: exDone ? 'rgba(22,163,74,0.2)' : active ? GYM_RED : 'rgba(255,255,255,0.06)',
-              color: exDone ? '#4ade80' : active ? '#fff' : '#64748b',
-              fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-              boxShadow: active ? '0 2px 8px rgba(220,38,38,0.3)' : 'none',
-            },
-            children: ex.name,
-          }, ex.id);
-        }),
-      }),
-
-      // ── Ejercicio actual ───────────────────────────────────────────────
-      d.jsxs('div', {
-        style: { flex: 1, overflowY: 'auto', padding: '16px' },
-        children: [
-          curEx && d.jsxs('div', { children: [
-            // Nombre + grupo
-            d.jsxs('div', { style: { marginBottom: 16 }, children: [
-              d.jsx('h2', { style: { fontSize: 22, fontWeight: 700, color: '#f1f5f9', margin: 0, fontFamily: 'var(--font-serif)' }, children: curEx.name }),
-              d.jsxs('p', { style: { fontSize: 12, color: GYM_RED, margin: '4px 0 0', fontWeight: 600 }, children: [MUSCLE_GROUPS.find(function(m) { return m.id === curEx.muscleGroup; })?.label || curEx.muscleGroup, curEx.note ? ' · ' + curEx.note : ''] }),
-            ] }),
-
-            // Cabecera de tabla
-            d.jsxs('div', {
-              style: { display: 'grid', gridTemplateColumns: '28px 1fr 1fr 36px', gap: 8, padding: '0 4px', marginBottom: 6 },
-              children: ['#', 'KG', 'REPS', ''].map(function(h, i) {
-                return d.jsx('span', { key: i, style: { fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: '#475569', textAlign: 'center' }, children: h });
-              }),
-            }),
-
-            // Sets
-            d.jsx('div', {
-              style: { display: 'flex', flexDirection: 'column', gap: 6 },
-              children: curSets.map(function(set, si) {
-                return d.jsxs('div', {
-                  key: si,
-                  style: {
-                    display: 'grid', gridTemplateColumns: '28px 1fr 1fr 36px', gap: 8, alignItems: 'center',
-                    background: set.done ? 'rgba(22,163,74,0.10)' : 'rgba(255,255,255,0.04)',
-                    borderRadius: 10, padding: '8px 4px',
-                    border: set.done ? '1px solid rgba(22,163,74,0.2)' : '1px solid rgba(255,255,255,0.05)',
-                    transition: 'all 0.2s',
-                  },
-                  children: [
-                    d.jsx('span', { style: { fontSize: 12, fontWeight: 700, color: '#475569', textAlign: 'center' }, children: si + 1 }),
-                    d.jsx('input', {
-                      type: 'number', value: set.weight, min: 0, step: 0.5,
-                      onChange: function(e) { updateSet(si, 'weight', e.target.value); },
-                      style: { height: 38, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.06)', color: '#f1f5f9', textAlign: 'center', fontSize: 15, fontWeight: 700, fontVariantNumeric: 'tabular-nums', outline: 'none', width: '100%', fontFamily: 'var(--font-sans)' },
-                    }),
-                    d.jsx('input', {
-                      type: 'number', value: set.reps, min: 1,
-                      onChange: function(e) { updateSet(si, 'reps', e.target.value); },
-                      style: { height: 38, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.06)', color: '#f1f5f9', textAlign: 'center', fontSize: 15, fontWeight: 700, fontVariantNumeric: 'tabular-nums', outline: 'none', width: '100%', fontFamily: 'var(--font-sans)' },
-                    }),
-                    d.jsx('button', {
-                      onClick: function() { toggleDone(si); },
-                      style: { width: 36, height: 36, borderRadius: 8, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: set.done ? 'rgba(22,163,74,0.2)' : 'rgba(255,255,255,0.06)', transition: 'all 0.2s' },
-                      children: d.jsx(H5, { size: 16, color: set.done ? '#4ade80' : '#475569' }),
-                    }),
-                  ],
-                }, si);
-              }),
-            }),
-
-            // Nota de sesión
-            d.jsx('textarea', {
-              value: sessionNote,
-              onChange: function(e) { setSessionNote(e.target.value); },
-              placeholder: 'Nota de sesión (sensaciones, peso nuevo, técnica...)',
-              rows: 2,
-              style: {
-                width: '100%', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)',
-                background: 'rgba(255,255,255,0.04)', color: '#f1f5f9', fontSize: 12,
-                padding: '8px 12px', resize: 'none', outline: 'none', marginTop: 12,
-                fontFamily: 'var(--font-sans)', lineHeight: 1.4, boxSizing: 'border-box',
-              },
-            }),
-
-            // Añadir serie extra
-            d.jsx('button', {
-              onClick: function() {
-                setSets(function(prev) {
-                  return prev.map(function(exSets, ei) {
-                    if (ei !== exIdx) return exSets;
-                    const last = exSets[exSets.length - 1];
-                    return exSets.concat([{ reps: last ? last.reps : 10, weight: last ? last.weight : 0, done: false }]);
-                  });
-                });
-              },
-              style: { width: '100%', height: 36, borderRadius: 10, border: '1px dashed rgba(255,255,255,0.12)', background: 'transparent', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginTop: 8 },
-              children: '+ Serie extra',
-            }),
-
-            // Siguiente ejercicio
-            d.jsx('button', {
-              onClick: function() {
-                if (exIdx < exercises.length - 1) setExIdx(exIdx + 1);
-                else finish();
-              },
-              style: {
-                width: '100%', height: 48, borderRadius: 12, border: 'none', marginTop: 20,
-                background: exIdx < exercises.length - 1 ? GYM_RED : 'linear-gradient(135deg, #16a34a, #15803d)',
-                color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                boxShadow: '0 4px 16px ' + (exIdx < exercises.length - 1 ? 'rgba(220,38,38,0.3)' : 'rgba(22,163,74,0.3)'),
-              },
-              children: exIdx < exercises.length - 1
-                ? 'Siguiente: ' + exercises[exIdx + 1].name
-                : 'Finalizar entreno',
-            }),
-          ] }),
-        ],
-      }),
-
-    ],
-  });
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// GymProgreso v28.2 — Tracking, análisis y proyecciones
-// ════════════════════════════════════════════════════════════════════════════
-function GymProgreso({ logs, routines }) {
-
-  const [selectedExercise, setSelectedExercise] = b.useState(null);
-  const [timeRange, setTimeRange] = b.useState(90); // días
-
-  // ── Métricas globales ─────────────────────────────────────────────────
-  const totalSessions = logs.length;
-  const totalMin      = logs.reduce(function(a, l) { return a + (l.durationMin || 0); }, 0);
-  const totalVol      = logs.reduce(function(a, l) {
-    return a + (l.sets || []).reduce(function(b, s) { return b + (s.weight || 0) * (s.reps || 0); }, 0);
-  }, 0);
-
-  // ── Volumen mensual (últimos 6 meses) ───────────────────────────────────────
-  const monthlyData = b.useMemo(function() {
-    const months = [];
-    const now = new Date();
-    for (let m = 5; m >= 0; m--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - m, 1);
-      const monthStr = d.toISOString().slice(0, 7);
-      const label = d.toLocaleDateString('es-ES', { month: 'short' });
-      const mLogs = logs.filter(function(l) { return l.date.startsWith(monthStr); });
-      const vol = mLogs.reduce(function(a, l) {
-        return a + (l.sets||[]).reduce(function(b,s){ return b+(s.weight||0)*(s.reps||0); }, 0);
-      }, 0);
-      months.push({ label, vol: Math.round(vol/100)/10, sessions: mLogs.length });
-    }
-    return months;
-  }, [logs]);
-  const maxMonthVol = Math.max.apply(null, monthlyData.map(function(m){ return m.vol; }).concat([0.1]));
-
-  const cutoff = b.useMemo(function() {
-    const d = new Date(); d.setDate(d.getDate() - timeRange);
-    return d.toISOString().slice(0, 10);
-  }, [timeRange]);
-
-  const filteredLogs = b.useMemo(function() {
-    return logs.filter(function(l) { return l.date >= cutoff; });
-  }, [logs, cutoff]);
-
-  // ── Volumen por semana (últimas 8 semanas) ────────────────────────────
-  const weeklyData = b.useMemo(function() {
-    const weeks = [];
-    for (let w = 7; w >= 0; w--) {
-      const start = new Date(); start.setDate(start.getDate() - w * 7 - 6);
-      const end   = new Date(); end.setDate(end.getDate() - w * 7);
-      const ds    = start.toISOString().slice(0, 10);
-      const de    = end.toISOString().slice(0, 10);
-      const wLogs = logs.filter(function(l) { return l.date >= ds && l.date <= de; });
-      const vol   = wLogs.reduce(function(a, l) {
-        return a + (l.sets || []).reduce(function(b, s) { return b + (s.weight || 0) * (s.reps || 0); }, 0);
-      }, 0);
-      weeks.push({
-        label: 'S' + (8 - w),
-        vol: Math.round(vol / 100) / 10, // toneladas
-        sessions: wLogs.length,
-      });
-    }
-    return weeks;
-  }, [logs]);
-
-  const maxVol = Math.max.apply(null, weeklyData.map(function(w) { return w.vol; }).concat([0.1]));
-
-  // ── Frecuencia por grupo muscular (para análisis de puntos fuertes) ───
-  const muscleStats = b.useMemo(function() {
-    const stats = {};
-    filteredLogs.forEach(function(l) {
-      (l.sets || []).forEach(function(s) {
-        if (!s.muscleGroup) return;
-        if (!stats[s.muscleGroup]) stats[s.muscleGroup] = { sets: 0, volume: 0 };
-        stats[s.muscleGroup].sets   += 1;
-        stats[s.muscleGroup].volume += (s.weight || 0) * (s.reps || 0);
-      });
-    });
-    return Object.entries(stats)
-      .map(function(e) { return { id: e[0], sets: e[1].sets, volume: e[1].volume }; })
-      .sort(function(a, b) { return b.sets - a.sets; });
-  }, [filteredLogs]);
-
-  const maxSets = muscleStats[0] ? muscleStats[0].sets : 1;
-
-  // ── Análisis puntos fuertes / débiles ─────────────────────────────────
-  const analysis = b.useMemo(function() {
-    if (muscleStats.length < 2) return null;
-
-    const allGroups = MUSCLE_GROUPS.filter(function(m) { return m.id !== 'cardio' && m.id !== 'fullbody'; });
-    const worked    = new Set(muscleStats.map(function(m) { return m.id; }));
-    const missing   = allGroups.filter(function(m) { return !worked.has(m.id); });
-
-    // Grupos del tren superior vs inferior
-    const upper = ['pecho', 'espalda', 'hombros', 'biceps', 'triceps'];
-    const lower = ['cuadriceps', 'femoral', 'gluteos', 'gemelos'];
-    const upperSets = muscleStats.filter(function(m) { return upper.includes(m.id); })
-                                  .reduce(function(a, m) { return a + m.sets; }, 0);
-    const lowerSets = muscleStats.filter(function(m) { return lower.includes(m.id); })
-                                  .reduce(function(a, m) { return a + m.sets; }, 0);
-
-    const strong  = muscleStats.slice(0, 3);
-    const weak    = muscleStats.slice(-3).reverse().filter(function(m) { return m.sets < maxSets * 0.4; });
-
-    return { strong, weak, missing: missing.slice(0, 3), upperSets, lowerSets };
-  }, [muscleStats, maxSets]);
-
-  // ── Progreso por ejercicio ────────────────────────────────────────────
-  const exerciseProgress = b.useMemo(function() {
-    const map = {};
-    logs.slice().reverse().forEach(function(l) {
-      (l.sets || []).forEach(function(s) {
-        if (!s.exerciseName || !s.done) return;
-        if (!map[s.exerciseName]) map[s.exerciseName] = { name: s.exerciseName, muscleGroup: s.muscleGroup, points: [] };
-        const estMax = s.weight * (1 + s.reps / 30); // Epley 1RM
-        const last = map[s.exerciseName].points;
-        if (!last.length || last[last.length - 1].date !== l.date) {
-          map[s.exerciseName].points.push({ date: l.date, weight: s.weight, reps: s.reps, e1rm: Math.round(estMax * 10) / 10 });
-        } else {
-          // Tomar el mejor set del día
-          if (estMax > last[last.length - 1].e1rm) {
-            last[last.length - 1] = { date: l.date, weight: s.weight, reps: s.reps, e1rm: Math.round(estMax * 10) / 10 };
-          }
-        }
-      });
-    });
-    return Object.values(map).filter(function(e) { return e.points.length >= 2; })
-                             .sort(function(a, b) { return b.points.length - a.points.length; });
-  }, [logs]);
-
-  // ── Proyección lineal (si sigues así en 8 semanas) ────────────────────
-  const projection = b.useMemo(function() {
-    if (!exerciseProgress.length) return null;
-    return exerciseProgress.slice(0, 3).map(function(ex) {
-      const pts = ex.points;
-      if (pts.length < 2) return null;
-      // Regresión lineal simple sobre 1RM estimado
-      const n = pts.length;
-      let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-      pts.forEach(function(p, i) { sumX += i; sumY += p.e1rm; sumXY += i * p.e1rm; sumX2 += i * i; });
-      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-      const current = pts[pts.length - 1].e1rm;
-      const projected8w = Math.max(current, Math.round((current + slope * 8) * 10) / 10);
-      const pct = Math.round((projected8w - current) / current * 100);
-      return { name: ex.name, current, projected: projected8w, pct, trend: slope > 0 ? 'up' : slope < 0 ? 'down' : 'flat' };
-    }).filter(Boolean);
-  }, [exerciseProgress]);
-
-  if (!logs.length) return d.jsxs('div', {
-    className: 'glass-card p-8 text-center space-y-2',
-    children: [
-      d.jsx(o2, { size: 32, color: 'hsl(var(--muted-foreground))' }),
-      d.jsx('p', { style: { fontSize: 14, fontWeight: 600, color: 'hsl(var(--muted-foreground))', marginTop: 8 }, children: 'Sin datos todavía' }),
-      d.jsx('p', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))', opacity: 0.7 }, children: 'Completa entrenos para ver tu progreso, análisis y proyecciones' }),
-    ],
-  });
-
-  return d.jsxs('div', { className: 'space-y-5', children: [
-
-    // ── Selector de rango ─────────────────────────────────────────────
-    d.jsx('div', {
-      className: 'flex gap-1 glass-card p-1',
-      style: { borderRadius: '0.875rem' },
-      children: [
-        { label: '30 días', value: 30 },
-        { label: '90 días', value: 90 },
-        { label: '1 año',   value: 365 },
-      ].map(function(opt) {
-        const active = timeRange === opt.value;
-        return d.jsx('button', {
-          key: opt.value,
-          onClick: function() { setTimeRange(opt.value); },
-          className: 'flex-1 text-xs font-semibold py-1.5 rounded-xl transition-all duration-200',
-          style: {
-            background: active ? 'var(--gradient-primary)' : 'transparent',
-            color: active ? '#fff' : 'hsl(var(--muted-foreground))',
-            boxShadow: active ? '0 2px 8px rgba(37,99,235,0.25)' : 'none',
-          },
-          children: opt.label,
-        });
-      }),
-    }),
-
-    // ── Stats strip ───────────────────────────────────────────────────
-    d.jsx('div', {
-      className: 'grid grid-cols-4 gap-2',
-      children: [
-        { label: 'Sesiones', value: totalSessions },
-        { label: 'Horas', value: Math.round(totalMin / 60) },
-        { label: 'Ton.', value: (totalVol / 1000).toFixed(1) },
-        { label: 'Min/ses.', value: totalSessions ? Math.round(totalMin / totalSessions) : 0 },
-      ].map(function(s, i) {
-        return d.jsxs('div', {
-          key: i, className: 'glass-card p-2.5 text-center space-y-0.5',
-          children: [
-            d.jsx('p', { style: { fontSize: 18, fontWeight: 800, color: 'hsl(var(--foreground))', lineHeight: 1 }, children: s.value }),
-            d.jsx('p', { className: 'section-label', children: s.label }),
-          ],
-        });
-      }),
-    }),
-
-    // ── Volumen semanal (gráfica de barras SVG) ────────────────────────
-    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsx('p', { className: 'section-label', children: 'Volumen semanal (toneladas)' }),
-      d.jsxs('svg', {
-        width: '100%', height: 80, viewBox: '0 0 320 80', preserveAspectRatio: 'none',
-        children: [
-          weeklyData.map(function(w, i) {
-            const x      = i * 40 + 4;
-            const barH   = Math.max(2, w.vol / maxVol * 56);
-            const barY   = 62 - barH;
-            const active = w.sessions > 0;
-            return d.jsxs('g', { key: i, children: [
-              d.jsx('rect', {
-                x: x, y: barY, width: 32, height: barH,
-                rx: 4,
-                fill: active ? GYM_RED : 'rgba(220,38,38,0.15)',
-                opacity: active ? 1 : 0.5,
-              }),
-              d.jsx('text', {
-                x: x + 16, y: 76, textAnchor: 'middle',
-                style: { fontSize: 8, fill: 'hsl(var(--muted-foreground))', fontFamily: 'var(--font-sans)' },
-                children: w.label,
-              }),
-              active && d.jsx('text', {
-                x: x + 16, y: barY - 3, textAnchor: 'middle',
-                style: { fontSize: 7, fill: GYM_RED, fontFamily: 'var(--font-sans)', fontWeight: 700 },
-                children: w.vol + 't',
-              }),
-            ] }, i);
-          }),
-        ],
-      }),
-    ] }),
-
-    // ── Volumen mensual (últimos 6 meses) ──────────────────────────────────
-    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsx('p', { className: 'section-label', children: 'Volumen mensual (toneladas)' }),
-      d.jsxs('svg', {
-        width: '100%', height: 72, viewBox: '0 0 288 72', preserveAspectRatio: 'none',
-        children: monthlyData.map(function(m, i) {
-          const x = i * 48 + 2;
-          const barH = Math.max(2, m.vol / maxMonthVol * 52);
-          const barY = 58 - barH;
-          return d.jsxs('g', { key: i, children: [
-            d.jsx('rect', { x, y: barY, width: 44, height: barH, rx: 4, fill: m.sessions > 0 ? GYM_RED : 'rgba(220,38,38,0.15)' }),
-            d.jsx('text', { x: x+22, y: 70, textAnchor: 'middle', style: { fontSize: 8, fill: 'hsl(var(--muted-foreground))', fontFamily: 'var(--font-sans)' }, children: m.label }),
-            m.sessions > 0 ? d.jsx('text', { x: x+22, y: barY-3, textAnchor: 'middle', style: { fontSize: 7, fill: GYM_RED, fontFamily: 'var(--font-sans)', fontWeight: 700 }, children: m.vol+'t' }) : null,
-          ] }, i);
-        }),
-      }),
-    ] }),
-
-    // ── Análisis puntos fuertes / débiles ──────────────────────────────
-    analysis && d.jsxs('div', { className: 'glass-card p-4 space-y-4', children: [
-      d.jsx('p', { className: 'section-label', children: 'Análisis de tu entrenamiento' }),
-
-      // Tren superior vs inferior
-      d.jsxs('div', { className: 'space-y-2', children: [
-        d.jsxs('div', { className: 'flex items-center justify-between', children: [
-          d.jsx('span', { style: { fontSize: 12, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: 'Superior' }),
-          d.jsx('span', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: analysis.upperSets + ' series' }),
-        ] }),
-        d.jsx('div', {
-          style: { height: 6, background: 'var(--glass-bg)', borderRadius: 3, border: '1px solid var(--glass-border)', overflow: 'hidden' },
-          children: d.jsx('div', {
-            style: {
-              height: '100%', borderRadius: 3, transition: 'width 0.6s ease',
-              background: 'var(--gradient-primary)',
-              width: (analysis.upperSets + analysis.lowerSets > 0
-                ? Math.round(analysis.upperSets / (analysis.upperSets + analysis.lowerSets) * 100)
-                : 50) + '%',
-            },
-          }),
-        }),
-        d.jsxs('div', { className: 'flex items-center justify-between', children: [
-          d.jsx('span', { style: { fontSize: 12, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: 'Inferior' }),
-          d.jsx('span', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: analysis.lowerSets + ' series' }),
-        ] }),
-      ] }),
-
-      // Puntos fuertes
-      analysis.strong.length > 0 && d.jsxs('div', { className: 'space-y-1.5', children: [
-        d.jsx('p', { style: { fontSize: 11, fontWeight: 700, color: '#16a34a', letterSpacing: '0.06em', textTransform: 'uppercase' }, children: 'Puntos fuertes' }),
-        d.jsx('div', { className: 'flex gap-1.5 flex-wrap', children:
-          analysis.strong.map(function(m) {
-            const mg = MUSCLE_GROUPS.find(function(x) { return x.id === m.id; });
-            return d.jsx('span', {
-              key: m.id,
-              style: { fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(22,163,74,0.12)', color: '#16a34a' },
-              children: mg ? mg.label : m.id,
-            });
-          }),
-        }),
-      ] }),
-
-      // Puntos débiles
-      analysis.weak.length > 0 && d.jsxs('div', { className: 'space-y-1.5', children: [
-        d.jsx('p', { style: { fontSize: 11, fontWeight: 700, color: GYM_RED, letterSpacing: '0.06em', textTransform: 'uppercase' }, children: 'Necesitan más trabajo' }),
-        d.jsx('div', { className: 'flex gap-1.5 flex-wrap', children:
-          analysis.weak.map(function(m) {
-            const mg = MUSCLE_GROUPS.find(function(x) { return x.id === m.id; });
-            return d.jsx('span', {
-              key: m.id,
-              style: { fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: GYM_RED_SOFT, color: GYM_RED },
-              children: mg ? mg.label : m.id,
-            });
-          }),
-        }),
-      ] }),
-
-      // Grupos no trabajados
-      analysis.missing.length > 0 && d.jsxs('div', { className: 'space-y-1.5', children: [
-        d.jsx('p', { style: { fontSize: 11, fontWeight: 700, color: 'hsl(var(--muted-foreground))', letterSpacing: '0.06em', textTransform: 'uppercase' }, children: 'Sin trabajar' }),
-        d.jsx('div', { className: 'flex gap-1.5 flex-wrap', children:
-          analysis.missing.map(function(m) {
-            return d.jsx('span', {
-              key: m.id,
-              style: { fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(100,116,139,0.1)', color: 'hsl(var(--muted-foreground))' },
-              children: m.label,
-            });
-          }),
-        }),
-      ] }),
-    ] }),
-
-    // ── Frecuencia por grupo muscular ──────────────────────────────────
-    muscleStats.length > 0 && d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsx('p', { className: 'section-label', children: 'Frecuencia por grupo muscular' }),
-      d.jsx('div', { className: 'space-y-2', children:
-        muscleStats.map(function(m) {
-          const mg  = MUSCLE_GROUPS.find(function(x) { return x.id === m.id; });
-          const pct = m.sets / maxSets;
-          return d.jsxs('div', {
-            key: m.id, className: 'flex items-center gap-3',
-            children: [
-              d.jsx('span', { style: { fontSize: 12, fontWeight: 600, color: 'hsl(var(--foreground))', width: 88, flexShrink: 0 }, children: mg ? mg.label : m.id }),
-              d.jsx('div', {
-                style: { flex: 1, height: 6, background: 'var(--glass-bg)', borderRadius: 3, border: '1px solid var(--glass-border)', overflow: 'hidden' },
-                children: d.jsx('div', { style: { height: '100%', background: GYM_RED, width: (pct * 100) + '%', borderRadius: 3, transition: 'width 0.6s ease' } }),
-              }),
-              d.jsx('span', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))', width: 28, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }, children: m.sets }),
-            ],
-          });
-        }),
-      }),
-    ] }),
-
-    // ── Progreso por ejercicio ─────────────────────────────────────────
-    exerciseProgress.length > 0 && d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsxs('div', { className: 'flex items-center justify-between', children: [
-        d.jsx('p', { className: 'section-label', children: 'Progreso por ejercicio (1RM est.)' }),
-        selectedExercise && d.jsx('button', {
-          onClick: function() { setSelectedExercise(null); },
-          className: 'text-xs text-muted-foreground hover:text-foreground transition-colors',
-          children: 'Ver todos',
-        }),
-      ] }),
-
-      // Selector de ejercicio
-      d.jsx('div', {
-        style: { display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 },
-        children: exerciseProgress.slice(0, 8).map(function(ex) {
-          const active = selectedExercise === ex.name;
-          return d.jsx('button', {
-            key: ex.name,
-            onClick: function() { setSelectedExercise(active ? null : ex.name); },
-            style: {
-              height: 26, padding: '0 10px', borderRadius: 8, border: 'none', flexShrink: 0,
-              background: active ? GYM_RED : GYM_RED_SOFT,
-              color: active ? '#fff' : GYM_RED,
-              fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
-            },
-            children: ex.name,
-          });
-        }),
-      }),
-
-      // Gráfica del ejercicio seleccionado
-      (function() {
-        const exData = selectedExercise
-          ? exerciseProgress.find(function(e) { return e.name === selectedExercise; })
-          : exerciseProgress[0];
-        if (!exData || exData.points.length < 2) return null;
-
-        const pts   = exData.points.slice(-12); // últimos 12 puntos
-        const min1rm = Math.min.apply(null, pts.map(function(p) { return p.e1rm; }));
-        const max1rm = Math.max.apply(null, pts.map(function(p) { return p.e1rm; }));
-        const range  = Math.max(max1rm - min1rm, 1);
-        const W = 288, H = 72, PAD = 8;
-
-        const getX = function(i) { return PAD + (i / (pts.length - 1)) * (W - PAD * 2); };
-        const getY = function(v) { return H - PAD - ((v - min1rm) / range) * (H - PAD * 2); };
-
-        const pathD = pts.map(function(p, i) {
-          return (i === 0 ? 'M' : 'L') + getX(i).toFixed(1) + ',' + getY(p.e1rm).toFixed(1);
-        }).join(' ');
-
-        const first = pts[0].e1rm, last = pts[pts.length - 1].e1rm;
-        const delta = last - first;
-        const deltaColor = delta > 0 ? '#16a34a' : delta < 0 ? GYM_RED : 'hsl(var(--muted-foreground))';
-
-        return d.jsxs('div', { className: 'space-y-2', children: [
-          d.jsxs('div', { className: 'flex items-baseline gap-2', children: [
-            d.jsx('span', { style: { fontSize: 13, fontWeight: 700, color: 'hsl(var(--foreground))' }, children: exData.name }),
-            d.jsxs('span', { style: { fontSize: 12, fontWeight: 700, color: deltaColor }, children: [delta > 0 ? '+' : '', delta.toFixed(1), ' kg'] }),
-            d.jsx('span', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: '1RM estimado' }),
-          ] }),
-          d.jsxs('svg', {
-            width: '100%', height: H, viewBox: '0 0 ' + W + ' ' + H,
-            children: [
-              // Área bajo la curva
-              d.jsx('defs', { children:
-                d.jsxs('linearGradient', { id: 'gymGrad', x1: '0', y1: '0', x2: '0', y2: '1', children: [
-                  d.jsx('stop', { offset: '0%', stopColor: GYM_RED, stopOpacity: 0.18 }),
-                  d.jsx('stop', { offset: '100%', stopColor: GYM_RED, stopOpacity: 0 }),
-                ] }),
-              }),
-              d.jsx('path', {
-                d: pathD + ' L' + getX(pts.length - 1).toFixed(1) + ',' + (H - PAD) + ' L' + getX(0).toFixed(1) + ',' + (H - PAD) + ' Z',
-                fill: 'url(#gymGrad)',
-              }),
-              // Línea
-              d.jsx('path', { d: pathD, fill: 'none', stroke: GYM_RED, strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }),
-              // Puntos
-              pts.map(function(p, i) {
-                return d.jsx('circle', { key: i, cx: getX(i), cy: getY(p.e1rm), r: 3, fill: GYM_RED });
-              }),
-              // Min / Max labels
-              d.jsx('text', { x: PAD, y: PAD + 6, style: { fontSize: 7, fill: 'hsl(var(--muted-foreground))', fontFamily: 'var(--font-sans)' }, children: max1rm + ' kg' }),
-              d.jsx('text', { x: PAD, y: H - 1, style: { fontSize: 7, fill: 'hsl(var(--muted-foreground))', fontFamily: 'var(--font-sans)' }, children: min1rm + ' kg' }),
-            ],
-          }),
-        ] });
-      })(),
-    ] }),
-
-    // ── Proyecciones ──────────────────────────────────────────────────
-    projection && projection.length > 0 && d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsx('p', { className: 'section-label', children: 'Proyección a 8 semanas (si mantienes el ritmo)' }),
-      d.jsx('div', { className: 'space-y-2', children:
-        projection.map(function(proj) {
-          const up = proj.trend === 'up';
-          const flat = proj.trend === 'flat';
-          return d.jsxs('div', {
-            key: proj.name,
-            className: 'flex items-center justify-between',
-            style: { padding: '10px 12px', borderRadius: 10, background: up ? 'rgba(22,163,74,0.06)' : flat ? 'rgba(100,116,139,0.06)' : GYM_RED_SOFT, border: '1px solid ' + (up ? 'rgba(22,163,74,0.15)' : flat ? 'rgba(100,116,139,0.1)' : GYM_RED_MID) },
-            children: [
-              d.jsxs('div', { children: [
-                d.jsx('p', { style: { fontSize: 13, fontWeight: 700, color: 'hsl(var(--foreground))' }, children: proj.name }),
-                d.jsxs('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: ['Ahora: ', proj.current, ' kg  →  En 8 sem: ', proj.projected, ' kg'] }),
-              ] }),
-              d.jsxs('span', {
-                style: { fontSize: 14, fontWeight: 800, color: up ? '#16a34a' : flat ? 'hsl(var(--muted-foreground))' : GYM_RED },
-                children: [up ? '+' : '', proj.pct, '%'],
-              }),
-            ],
-          });
-        }),
-      }),
-      d.jsx('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))', opacity: 0.7, textAlign: 'center', marginTop: 4 }, children: 'Basado en la tendencia de tu 1RM estimado. Solo indicativo.' }),
-    ] }),
-
-  ] });
-}
-
-
-// ════════════════════════════════════════════════════════════════════════════
-// GymIA v28.3 — Entrenador personal con Gemini
-// ════════════════════════════════════════════════════════════════════════════
-function GymIA({ logs, routines }) {
-  const [messages, setMessages] = b.useState([{
-    role: 'assistant',
-    text: 'Soy tu entrenador personal. Tengo acceso completo a tu historial de entrenos, rutinas y progreso. Puedes preguntarme sobre tu evolución, pedirme que analice tu rendimiento, o que diseñe ajustes a tu plan.',
-  }]);
-  const [input, setInput]   = b.useState('');
-  const [loading, setLoading] = b.useState(false);
-  const bottomRef = b.useRef(null);
-
-  b.useEffect(function() {
-    if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  // Construir contexto real del historial
-  const buildContext = function() {
-    const totalSessions = logs.length;
-    const totalMin = logs.reduce(function(a, l) { return a + (l.durationMin || 0); }, 0);
-    const totalVol = logs.reduce(function(a, l) {
-      return a + (l.sets || []).reduce(function(b, s) { return b + (s.weight || 0) * (s.reps || 0); }, 0);
-    }, 0);
-    const recent = logs.slice(0, 10).map(function(l) {
-      const vol = (l.sets || []).reduce(function(a, s) { return a + (s.weight||0)*(s.reps||0); }, 0);
-      return l.date + ' — ' + (l.routineName || 'Entreno') + ' (' + (l.durationMin || 0) + ' min, ' + Math.round(vol/100)/10 + ' ton)';
-    }).join('\n');
-
-    const muscleFreq = {};
-    logs.forEach(function(l) {
-      (l.sets || []).forEach(function(s) {
-        if (s.muscleGroup) muscleFreq[s.muscleGroup] = (muscleFreq[s.muscleGroup] || 0) + 1;
-      });
-    });
-    const topMuscles = Object.entries(muscleFreq)
-      .sort(function(a, b) { return b[1] - a[1]; })
-      .slice(0, 5)
-      .map(function(e) { return e[0] + ' (' + e[1] + ' series)'; })
-      .join(', ');
-
-    const routineNames = routines.map(function(r) { return r.name + ' (' + (r.exercises || []).length + ' ejercicios)'; }).join(', ');
-
-    return 'DATOS DEL ATLETA:\n' +
-      '- Sesiones totales: ' + totalSessions + '\n' +
-      '- Tiempo total: ' + Math.round(totalMin / 60) + ' horas\n' +
-      '- Volumen total: ' + Math.round(totalVol / 1000) + ' toneladas\n' +
-      '- Grupos más trabajados: ' + (topMuscles || 'Sin datos') + '\n' +
-      '- Rutinas guardadas: ' + (routineNames || 'Ninguna') + '\n' +
-      '- Últimos 10 entrenos:\n' + (recent || 'Sin historial');
-  };
-
-  const send = async function() {
-    if (!input.trim() || loading) return;
-    const userText = input.trim();
-    setInput('');
-    setMessages(function(prev) { return prev.concat([{ role: 'user', text: userText }]); });
-    setLoading(true);
-
-    try {
-      const apiKey = await getGeminiKey();
-      if (!apiKey) throw new Error('No se pudo obtener la clave de Gemini');
-
-      const systemPrompt = 'Eres un entrenador personal experto integrado en Mebistium. ' +
-        'Eres directo, técnico y motivador. Respondes siempre en español. Sin emojis. ' +
-        'Usas los datos reales del atleta para dar consejos específicos y personalizados.\n\n' +
-        buildContext();
-
-      const history = messages.filter(function(m, i) {
-        return i > 0; // omitir el mensaje inicial del asistente
-      }).map(function(m) {
-        return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.text }] };
-      });
-
-      history.push({ role: 'user', parts: [{ text: userText }] });
-
-      const body = {
-        system_instruction: { parts: [{ text: systemPrompt }] },
-        contents: history,
-        generationConfig: { temperature: 0.5, maxOutputTokens: 1024 },
-      };
-
-      const res = await fetch(
-        'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + apiKey,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-      );
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ? err.error.message : 'Error Gemini ' + res.status);
+  const [sets, setSets] = b.useState(function() {
+    return exercises.map(function(ex) {
+      let lw=0, lr=ex.reps||10;
+      for(let i=0;i<logs.length;i++){
+        const f=(logs[i].sets||[]).find(function(s){return s.exerciseName===ex.name&&s.done;});
+        if(f){lw=f.weight||0;lr=f.reps||ex.reps||10;break;}
       }
+      return Array.from({length:ex.sets||3},function(){return {reps:lr,weight:lw,done:false};});
+    });
+  });
+  const startRef = b.useRef(Date.now());
+  const DEFAULT_REST = b.useMemo(function(){try{return parseInt(localStorage.getItem('gym-rest-duration'))||90;}catch(e){return 90;}});
 
-      const data = await res.json();
-      const text = data.candidates &&
-                   data.candidates[0] &&
-                   data.candidates[0].content &&
-                   data.candidates[0].content.parts &&
-                   data.candidates[0].content.parts[0]
-                   ? data.candidates[0].content.parts[0].text
-                   : 'Sin respuesta';
+  b.useEffect(function(){
+    const id=setInterval(function(){setElapsed(Math.floor((Date.now()-startRef.current)/1000));},1000);
+    return function(){clearInterval(id);};
+  },[]);
 
-      setMessages(function(prev) { return prev.concat([{ role: 'assistant', text }]); });
-    } catch (e) {
-      setMessages(function(prev) {
-        return prev.concat([{ role: 'assistant', text: 'Error: ' + (e.message || 'Inténtalo de nuevo.') }]);
-      });
-    }
-    setLoading(false);
+  b.useEffect(function(){
+    if(restTime===null||restTime<=0){if(restTime===0)setRestTime(null);return;}
+    const id=setTimeout(function(){setRestTime(function(t){return t-1;});},1000);
+    return function(){clearTimeout(id);};
+  },[restTime]);
+
+  const fmt=function(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+  const curEx=exercises[exIdx];
+  const curSets=sets[exIdx]||[];
+
+  const updateSet=function(si,field,val){
+    setSets(function(prev){return prev.map(function(es,ei){if(ei!==exIdx)return es;return es.map(function(s,i){return i===si?Object.assign({},s,{[field]:parseFloat(val)||0}):s;});});});
+  };
+  const toggleDone=function(si){
+    setSets(function(prev){return prev.map(function(es,ei){if(ei!==exIdx)return es;return es.map(function(s,i){if(i!==si)return s;if(!s.done)setRestTime(DEFAULT_REST);return Object.assign({},s,{done:!s.done});});});});
+  };
+  const addSet=function(){
+    setSets(function(prev){return prev.map(function(es,ei){if(ei!==exIdx)return es;const last=es[es.length-1];return es.concat([{reps:last?last.reps:10,weight:last?last.weight:0,done:false}]);});});
+  };
+  const finish=function(){
+    const dmin=Math.round((Date.now()-startRef.current)/60000);
+    const allSets=[];
+    exercises.forEach(function(ex,ei){(sets[ei]||[]).forEach(function(s){if(s.done)allSets.push({exerciseId:ex.id,exerciseName:ex.name,muscleGroup:ex.muscleGroup,weight:s.weight,reps:s.reps});});});
+    onFinish({id:Date.now().toString(36)+Math.random().toString(36).slice(2),date:new Date().toISOString().slice(0,10),routineId:routine.id,routineName:routine.name,durationMin:dmin,sets:allSets,note:sessionNote.trim(),createdAt:Date.now()});
   };
 
-  const suggestions = [
-    'Analiza mi progreso del último mes',
-    'Qué músculos debo trabajar más',
-    'Diseña un plan para las próximas 4 semanas',
-    'Cómo puedo mejorar mi volumen de entrenamiento',
-  ];
+  const totalDone=sets.flat().filter(function(s){return s.done;}).length;
+  const totalSets=sets.flat().length;
+  const progress=totalSets>0?totalDone/totalSets:0;
 
-  return d.jsxs('div', { style: { display: 'flex', flexDirection: 'column', height: 'calc(100vh - 220px)', minHeight: 400 }, children: [
+  return d.jsxs('div',{style:{position:'fixed',inset:0,zIndex:60,display:'flex',flexDirection:'column',background:GYM_DARK},children:[
 
-    // Mensajes
-    d.jsxs('div', {
-      style: { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, paddingBottom: 8 },
-      children: [
-        messages.map(function(msg, i) {
-          const isAI = msg.role === 'assistant';
-          return d.jsx('div', {
-            key: i,
-            style: {
-              alignSelf: isAI ? 'flex-start' : 'flex-end',
-              maxWidth: '88%',
-              background: isAI ? 'var(--glass-bg)' : GYM_RED,
-              color: isAI ? 'hsl(var(--foreground))' : '#fff',
-              border: isAI ? '1px solid var(--glass-border)' : 'none',
-              borderRadius: isAI ? '4px 16px 16px 16px' : '16px 16px 4px 16px',
-              padding: '10px 14px',
-              fontSize: 13,
-              lineHeight: 1.55,
-              backdropFilter: isAI ? 'blur(16px)' : 'none',
-              boxShadow: isAI ? 'var(--shadow-card)' : '0 2px 10px rgba(220,38,38,0.25)',
-              whiteSpace: 'pre-wrap',
-            },
-            children: msg.text,
-          });
+    // Header
+    d.jsxs('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0},children:[
+      d.jsx('button',{onClick:function(){if(confirm('Cancelar el entreno?'))onCancel();},style:{width:34,height:34,borderRadius:10,border:'none',background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},children:d.jsx(GymIcon,{icon:'back',size:14,color:'#94a3b8'})}),
+      d.jsxs('div',{style:{textAlign:'center'},children:[
+        d.jsx('p',{style:{fontSize:13,fontWeight:700,color:'#f1f5f9'},children:routine.name}),
+        d.jsxs('p',{style:{fontSize:14,color:GYM_RED,fontWeight:700,fontVariantNumeric:'tabular-nums'},children:[fmt(elapsed),' · ',totalDone,'/',totalSets,' series']}),
+      ]}),
+      d.jsx('button',{onClick:finish,style:{height:34,padding:'0 14px',borderRadius:10,border:'none',background:GYM_RED,color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer'},children:'Terminar'}),
+    ]}),
+
+    // Barra de progreso
+    d.jsx('div',{style:{height:3,background:'rgba(255,255,255,0.06)',flexShrink:0},children:
+      d.jsx('div',{style:{height:'100%',background:GYM_RED,width:(progress*100)+'%',transition:'width 0.3s'}}),
+    }),
+
+    // Rest timer
+    restTime!==null&&restTime>0 && d.jsxs('div',{style:{padding:'8px 16px',background:'rgba(225,29,72,0.12)',borderBottom:'1px solid rgba(225,29,72,0.2)',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0},children:[
+      d.jsx('span',{style:{fontSize:13,fontWeight:600,color:GYM_RED},children:'Descanso'}),
+      d.jsxs('span',{style:{fontSize:20,fontWeight:800,color:'#f1f5f9',fontVariantNumeric:'tabular-nums'},children:[fmt(restTime)]}),
+      d.jsx('button',{onClick:function(){setRestTime(null);},style:{fontSize:11,fontWeight:600,color:'#64748b',background:'none',border:'none',cursor:'pointer'},children:'Saltar'}),
+    ]}),
+
+    // Selector de ejercicios
+    d.jsx('div',{style:{display:'flex',gap:5,padding:'8px 16px',overflowX:'auto',flexShrink:0},children:
+      exercises.map(function(ex,i){
+        const done=(sets[i]||[]).every(function(s){return s.done;});
+        const active=i===exIdx;
+        return d.jsx('button',{key:ex.id,onClick:function(){setExIdx(i);},style:{height:26,padding:'0 10px',borderRadius:8,border:'none',background:done?'rgba(22,163,74,0.2)':active?GYM_RED:'rgba(255,255,255,0.06)',color:done?'#4ade80':active?'#fff':'#64748b',fontSize:11,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0,boxShadow:active?'0 2px 8px rgba(225,29,72,0.3)':'none'},children:ex.name});
+      }),
+    }),
+
+    // Ejercicio actual
+    d.jsxs('div',{style:{flex:1,overflowY:'auto',padding:'16px'},children:[
+      curEx && d.jsxs('div',{children:[
+        d.jsxs('div',{style:{marginBottom:14},children:[
+          d.jsx('h2',{style:{fontSize:22,fontWeight:700,color:'#f1f5f9',fontFamily:'var(--font-serif)',margin:0},children:curEx.name}),
+          d.jsxs('p',{style:{fontSize:12,color:GYM_RED,fontWeight:600,marginTop:3},children:[
+            (function(){const mg=MUSCLE_GROUPS.find(function(m){return m.id===curEx.muscleGroup;});return mg?mg.label:curEx.muscleGroup;})(),
+            curEx.note?' · '+curEx.note:'',
+          ]}),
+        ]}),
+
+        // Cabecera tabla
+        d.jsx('div',{style:{display:'grid',gridTemplateColumns:'28px 1fr 1fr 36px',gap:6,padding:'0 4px',marginBottom:4},children:
+          ['#','KG','REPS',''].map(function(h,i){return d.jsx('span',{key:i,style:{fontSize:9,fontWeight:700,letterSpacing:'0.08em',color:'#475569',textAlign:'center'},children:h});})
         }),
 
-        // Indicador de escritura
-        loading && d.jsx('div', {
-          style: { alignSelf: 'flex-start', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '4px 16px 16px 16px', padding: '10px 14px', backdropFilter: 'blur(16px)' },
-          children: d.jsx('div', {
-            style: { display: 'flex', gap: 4, alignItems: 'center' },
-            children: [0, 1, 2].map(function(i) {
-              return d.jsx('div', {
-                key: i,
-                style: { width: 6, height: 6, borderRadius: '50%', background: GYM_RED, opacity: 0.7, animation: 'pulse ' + (0.8 + i * 0.15) + 's ease-in-out infinite' },
-              });
-            }),
+        // Sets
+        d.jsx('div',{style:{display:'flex',flexDirection:'column',gap:5},children:
+          curSets.map(function(set,si){
+            return d.jsxs('div',{key:si,style:{display:'grid',gridTemplateColumns:'28px 1fr 1fr 36px',gap:6,alignItems:'center',background:set.done?'rgba(22,163,74,0.1)':'rgba(255,255,255,0.04)',borderRadius:10,padding:'7px 4px',border:set.done?'1px solid rgba(22,163,74,0.2)':'1px solid rgba(255,255,255,0.05)',transition:'all 0.2s'},children:[
+              d.jsx('span',{style:{fontSize:11,fontWeight:700,color:'#475569',textAlign:'center'},children:si+1}),
+              d.jsx('input',{type:'number',value:set.weight,min:0,step:0.5,onChange:function(e){updateSet(si,'weight',e.target.value);},style:{height:38,borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',background:'rgba(255,255,255,0.06)',color:'#f1f5f9',textAlign:'center',fontSize:15,fontWeight:700,outline:'none',width:'100%',fontVariantNumeric:'tabular-nums'}}),
+              d.jsx('input',{type:'number',value:set.reps,min:1,onChange:function(e){updateSet(si,'reps',e.target.value);},style:{height:38,borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',background:'rgba(255,255,255,0.06)',color:'#f1f5f9',textAlign:'center',fontSize:15,fontWeight:700,outline:'none',width:'100%',fontVariantNumeric:'tabular-nums'}}),
+              d.jsx('button',{onClick:function(){toggleDone(si);},style:{width:36,height:36,borderRadius:8,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',background:set.done?'rgba(22,163,74,0.2)':'rgba(255,255,255,0.06)',transition:'all 0.2s'},children:d.jsx(GymIcon,{icon:'check',size:16,color:set.done?'#4ade80':'#475569',sw:set.done?2.5:1.8})}),
+            ]},si);
           }),
         }),
 
-        d.jsx('div', { ref: bottomRef }),
-      ],
-    }),
+        // Añadir serie extra
+        d.jsx('button',{onClick:addSet,style:{width:'100%',height:34,borderRadius:10,border:'1px dashed rgba(255,255,255,0.12)',background:'transparent',color:'#64748b',fontSize:12,fontWeight:600,cursor:'pointer',marginTop:8},children:'+ Serie extra'}),
 
-    // Sugerencias (solo al inicio)
-    messages.length <= 1 && d.jsx('div', {
-      style: { display: 'flex', gap: 6, flexWrap: 'wrap', paddingBottom: 8 },
-      children: suggestions.map(function(s, i) {
-        return d.jsx('button', {
-          key: i,
-          onClick: function() { setInput(s); },
-          className: 'glass-card',
-          style: { padding: '5px 10px', fontSize: 11, fontWeight: 500, color: GYM_RED, border: '1px solid ' + GYM_RED_SOFT, background: GYM_RED_SOFT, borderRadius: 8, cursor: 'pointer' },
-          children: s,
-        });
-      }),
-    }),
+        // Nota de sesión
+        d.jsx('textarea',{value:sessionNote,onChange:function(e){setSessionNote(e.target.value);},placeholder:'Nota de sesión (sensaciones, técnica, récord...)',rows:2,style:{width:'100%',borderRadius:10,border:'1px solid rgba(255,255,255,0.08)',background:'rgba(255,255,255,0.04)',color:'#f1f5f9',fontSize:12,padding:'8px 12px',resize:'none',outline:'none',marginTop:12,fontFamily:'var(--font-sans)',lineHeight:1.4,boxSizing:'border-box'}}),
 
-    // Input
-    d.jsxs('div', {
-      style: { display: 'flex', gap: 8, paddingTop: 6 },
-      children: [
-        d.jsx('input', {
-          className: 'input-premium',
-          value: input,
-          onChange: function(e) { setInput(e.target.value); },
-          onKeyDown: function(e) { if (e.key === 'Enter' && !e.shiftKey) send(); },
-          placeholder: 'Pregunta a tu entrenador...',
-          style: { flex: 1 },
-        }),
-        d.jsx('button', {
-          onClick: send,
-          disabled: loading || !input.trim(),
-          style: {
-            width: 44, height: 44, borderRadius: 12, border: 'none', flexShrink: 0,
-            background: input.trim() && !loading ? GYM_RED : 'hsl(var(--muted))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: input.trim() && !loading ? 'pointer' : 'default',
-            transition: 'background 0.2s',
-          },
-          children: d.jsx(G5, { size: 16, color: input.trim() && !loading ? '#fff' : 'hsl(var(--muted-foreground))' }),
-        }),
-      ],
-    }),
+        // Siguiente
+        d.jsx('button',{onClick:function(){if(exIdx<exercises.length-1)setExIdx(exIdx+1);else finish();},style:{width:'100%',height:48,borderRadius:12,border:'none',marginTop:16,background:exIdx<exercises.length-1?GYM_RED:'linear-gradient(135deg,#16a34a,#15803d)',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 16px rgba(225,29,72,0.3)'},children:exIdx<exercises.length-1?'Siguiente: '+exercises[exIdx+1].name:'Finalizar entreno'}),
+      ]}),
+    ]}),
 
-  ] });
-}
-
-
-// ════════════════════════════════════════════════════════════════════════════
-// GymConfig — Ajustes, salud y récords personales
-// ════════════════════════════════════════════════════════════════════════════
-function GymConfig({ logs, uid }) {
-  const [weightLog, setWeightLog] = b.useState([]);
-  const [newWeight, setNewWeight] = b.useState('');
-  const [restDuration, setRestDuration] = b.useState(function() {
-    try { return parseInt(localStorage.getItem('gym-rest-duration')) || 90; } catch(e) { return 90; }
-  });
-
-  // Suscribir peso corporal de Firebase
-  b.useEffect(function() {
-    if (!uid) return;
-    const u = gymSub(uid, 'gym_weight', function(data) {
-      setWeightLog(Array.isArray(data) ? data.slice().sort(function(a,b) { return b.date.localeCompare(a.date); }) : []);
-    });
-    return u;
-  }, [uid]);
-
-  const saveWeight = function() {
-    const val = parseFloat(newWeight.replace(',', '.'));
-    if (!val || val < 20 || val > 300 || !uid) return;
-    gymSet(uid, 'gym_weight', { id: Date.now().toString(36), date: new Date().toISOString().slice(0,10), weight: val, createdAt: Date.now() });
-    setNewWeight('');
-  };
-
-  const saveRest = function(val) {
-    setRestDuration(val);
-    try { localStorage.setItem('gym-rest-duration', val); } catch(e) {}
-  };
-
-  // Récords personales (1RM máximo por ejercicio de todos los logs)
-  const records = b.useMemo(function() {
-    const map = {};
-    logs.forEach(function(l) {
-      (l.sets || []).forEach(function(s) {
-        if (!s.exerciseName || !s.done) return;
-        const e1rm = s.weight * (1 + s.reps / 30);
-        if (!map[s.exerciseName] || e1rm > map[s.exerciseName].e1rm) {
-          map[s.exerciseName] = { name: s.exerciseName, weight: s.weight, reps: s.reps, e1rm: Math.round(e1rm * 10) / 10, date: l.date };
-        }
-      });
-    });
-    return Object.values(map).sort(function(a,b) { return b.e1rm - a.e1rm; }).slice(0, 10);
-  }, [logs]);
-
-  // Tendencia de peso
-  const weightTrend = b.useMemo(function() {
-    if (weightLog.length < 2) return null;
-    const recent = weightLog.slice(0, 7);
-    const delta = recent[0].weight - recent[recent.length-1].weight;
-    return { current: recent[0].weight, delta: Math.round(delta * 10) / 10 };
-  }, [weightLog]);
-
-  return d.jsxs('div', { className: 'space-y-5', children: [
-
-    // ── Peso corporal ───────────────────────────────────────────────────
-    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsxs('div', { className: 'flex items-center justify-between', children: [
-        d.jsx('p', { className: 'section-label', children: 'Peso corporal' }),
-        weightTrend && d.jsxs('span', {
-          style: { fontSize: 11, fontWeight: 700, color: weightTrend.delta <= 0 ? '#16a34a' : GYM_RED, background: weightTrend.delta <= 0 ? 'rgba(22,163,74,0.1)' : GYM_RED_SOFT, padding: '2px 8px', borderRadius: 999 },
-          children: [(weightTrend.delta > 0 ? '+' : ''), weightTrend.delta, ' kg últimos registros'],
-        }),
-      ] }),
-      weightTrend && d.jsxs('p', { style: { fontSize: 22, fontWeight: 800, color: 'hsl(var(--foreground))' }, children: [weightTrend.current, ' ', d.jsx('span', { style: { fontSize: 13, fontWeight: 500, color: 'hsl(var(--muted-foreground))' }, children: 'kg' })] }),
-      d.jsxs('div', { className: 'flex gap-2', children: [
-        d.jsx('input', {
-          className: 'input-premium flex-1',
-          type: 'number', step: '0.1', min: '20', max: '300',
-          placeholder: 'Añadir peso (kg)',
-          value: newWeight,
-          onChange: function(e) { setNewWeight(e.target.value); },
-          onKeyDown: function(e) { if (e.key === 'Enter') saveWeight(); },
-        }),
-        d.jsx('button', {
-          onClick: saveWeight,
-          disabled: !newWeight.trim(),
-          className: 'py-2.5 px-4 rounded-xl text-sm font-bold text-white transition-all',
-          style: { background: newWeight.trim() ? GYM_RED : 'hsl(var(--muted))', minWidth: 80 },
-          children: 'Guardar',
-        }),
-      ] }),
-      weightLog.length > 0 && d.jsx('div', {
-        style: { display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 },
-        children: weightLog.slice(0, 8).map(function(w, i) {
-          return d.jsxs('div', {
-            key: w.id || i,
-            style: { flexShrink: 0, textAlign: 'center', padding: '6px 10px', background: i === 0 ? GYM_RED_SOFT : 'var(--glass-bg)', border: '1px solid ' + (i === 0 ? GYM_RED_MID : 'var(--glass-border)'), borderRadius: 10 },
-            children: [
-              d.jsx('p', { style: { fontSize: 14, fontWeight: 700, color: i === 0 ? GYM_RED : 'hsl(var(--foreground))' }, children: w.weight + ' kg' }),
-              d.jsx('p', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))' }, children: GymFormatDate(w.date) }),
-            ],
-          });
-        }),
-      }),
-    ] }),
-
-    // ── Timer de descanso ───────────────────────────────────────────────
-    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsxs('div', { className: 'flex items-center justify-between', children: [
-        d.jsx('p', { className: 'section-label', children: 'Descanso entre series' }),
-        d.jsxs('span', { style: { fontSize: 14, fontWeight: 700, color: GYM_RED }, children: [restDuration, 's'] }),
-      ] }),
-      d.jsx('input', {
-        type: 'range', min: 30, max: 300, step: 15, value: restDuration,
-        onChange: function(e) { saveRest(parseInt(e.target.value)); },
-        style: { width: '100%', accentColor: GYM_RED },
-      }),
-      d.jsx('div', {
-        className: 'flex justify-between',
-        children: [30, 60, 90, 120, 180, 240, 300].map(function(v) {
-          return d.jsx('span', {
-            key: v,
-            onClick: function() { saveRest(v); },
-            style: { fontSize: 10, color: restDuration === v ? GYM_RED : 'hsl(var(--muted-foreground))', fontWeight: restDuration === v ? 700 : 400, cursor: 'pointer' },
-            children: v + 's',
-          });
-        }),
-      }),
-    ] }),
-
-    // ── Récords personales ──────────────────────────────────────────────
-    records.length > 0 && d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsx('p', { className: 'section-label', children: 'Récords personales (1RM estimado)' }),
-      d.jsx('div', { className: 'space-y-2', children:
-        records.map(function(r, i) {
-          return d.jsxs('div', {
-            key: r.name,
-            className: 'flex items-center justify-between',
-            style: { padding: '8px 10px', borderRadius: 10, background: i === 0 ? GYM_RED_SOFT : 'var(--glass-bg)', border: '1px solid ' + (i === 0 ? GYM_RED_MID : 'var(--glass-border)') },
-            children: [
-              d.jsxs('div', { children: [
-                d.jsx('p', { style: { fontSize: 13, fontWeight: 700, color: 'hsl(var(--foreground))' }, children: r.name }),
-                d.jsxs('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: [r.weight, ' kg × ', r.reps, ' reps · ', GymFormatDate(r.date)] }),
-              ] }),
-              d.jsxs('span', { style: { fontSize: 16, fontWeight: 800, color: GYM_RED }, children: [r.e1rm, ' kg'] }),
-            ],
-          });
-        }),
-      }),
-    ] }),
-
-    // ── Integración salud (infraestructura para futuras APIs) ────────────
-    d.jsxs('div', { className: 'glass-card p-4 space-y-3', children: [
-      d.jsx('p', { className: 'section-label', children: 'Datos de salud' }),
-      [
-        { name: 'Samsung Health', desc: 'Pasos, sueño, frecuencia cardíaca', ready: false, key: 'samsung_health_token' },
-        { name: 'Apple Health', desc: 'Pasos, sueño, frecuencia cardíaca', ready: false, key: 'apple_health_token' },
-      ].map(function(source) {
-        const connected = false; // TODO: leer de Firebase cuando estén las APIs
-        return d.jsxs('div', {
-          key: source.name,
-          style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 10, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' },
-          children: [
-            d.jsxs('div', { children: [
-              d.jsx('p', { style: { fontSize: 13, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: source.name }),
-              d.jsx('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: source.desc }),
-            ] }),
-            d.jsx('span', {
-              style: { fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: 'rgba(100,116,139,0.1)', color: 'hsl(var(--muted-foreground))' },
-              children: 'Próximamente',
-            }),
-          ],
-        }, source.name);
-      }),
-    ] }),
-
-  ] });
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// GymCalendario — Racha visual (últimas 10 semanas)
-// ════════════════════════════════════════════════════════════════════════════
-function GymCalendario({ logs }) {
-  const weeks = b.useMemo(function() {
-    const result = [];
-    const today = new Date();
-    for (let w = 9; w >= 0; w--) {
-      const week = [];
-      for (let d = 6; d >= 0; d--) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - w * 7 - d);
-        const ds = date.toISOString().slice(0, 10);
-        const trained = logs.some(function(l) { return l.date === ds; });
-        const isToday = ds === today.toISOString().slice(0, 10);
-        const isFuture = date > today;
-        week.push({ ds, trained, isToday, isFuture });
-      }
-      result.push(week);
-    }
-    return result;
-  }, [logs]);
-
-  return d.jsxs('div', { className: 'glass-card p-4 space-y-2', children: [
-    d.jsxs('div', { className: 'flex items-center justify-between mb-1', children: [
-      d.jsx('p', { className: 'section-label', children: 'Actividad — últimas 10 semanas' }),
-      d.jsxs('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))' }, children: ['Lu', String.fromCharCode(160), 'Ma', String.fromCharCode(160), 'Mi', String.fromCharCode(160), 'Ju', String.fromCharCode(160), 'Vi', String.fromCharCode(160), 'Sa', String.fromCharCode(160), 'Do'] }),
-    ] }),
-    d.jsx('div', {
-      style: { display: 'flex', gap: 3 },
-      children: weeks.map(function(week, wi) {
-        return d.jsx('div', {
-          key: wi,
-          style: { display: 'flex', flexDirection: 'column', gap: 3, flex: 1 },
-          children: week.map(function(day, di) {
-            return d.jsx('div', {
-              key: di,
-              title: day.ds,
-              style: {
-                aspectRatio: '1',
-                borderRadius: 3,
-                background: day.isFuture ? 'transparent'
-                  : day.trained ? GYM_RED
-                  : 'var(--glass-bg)',
-                border: day.isToday ? '1.5px solid ' + GYM_RED
-                  : '1px solid var(--glass-border)',
-                opacity: day.isFuture ? 0 : 1,
-              },
-            });
-          }),
-        });
-      }),
-    }),
-    d.jsxs('div', { style: { display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }, children: [
-      d.jsx('div', { style: { width: 10, height: 10, borderRadius: 2, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' } }),
-      d.jsx('span', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))' }, children: 'Sin entrenar' }),
-      d.jsx('div', { style: { width: 10, height: 10, borderRadius: 2, background: GYM_RED, marginLeft: 8 } }),
-      d.jsx('span', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))' }, children: 'Entrenado' }),
-    ] }),
-  ] });
-}
-
-
-// ════════════════════════════════════════════════════════════════════════════
-// GymPlanificador — Vista semanal de qué toca cada día
-// ════════════════════════════════════════════════════════════════════════════
-function GymPlanificador({ routines, logs, onStart }) {
-  const today = new Date();
-  const todayIdx = (today.getDay() + 6) % 7; // 0=Lun ... 6=Dom
-  const thisWeekDates = Array.from({ length: 7 }, function(_, i) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - todayIdx + i);
-    return d.toISOString().slice(0, 10);
-  });
-
-  // Para cada día de la semana: qué rutinas le corresponden
-  const weekPlan = DAYS.map(function(dayLabel, dayIdx) {
-    const date = thisWeekDates[dayIdx];
-    const assigned = routines.filter(function(r) { return (r.days || []).includes(dayIdx); });
-    const done = logs.some(function(l) { return l.date === date; });
-    const isToday = dayIdx === todayIdx;
-    const isPast = date < today.toISOString().slice(0, 10);
-    return { dayLabel, date, assigned, done, isToday, isPast };
-  });
-
-  return d.jsxs('div', { className: 'space-y-2', children: [
-    d.jsx('p', { className: 'section-label px-1', children: 'Plan de la semana' }),
-    d.jsx('div', { className: 'space-y-2', children:
-      weekPlan.map(function(day) {
-        const hasPlan = day.assigned.length > 0;
-        return d.jsxs('div', {
-          key: day.date,
-          style: {
-            borderRadius: 12,
-            border: day.isToday ? '1.5px solid ' + GYM_RED : '1px solid var(--glass-border)',
-            background: day.isToday ? GYM_RED_SOFT : day.done ? 'rgba(22,163,74,0.06)' : 'var(--glass-bg)',
-            padding: '10px 14px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-          },
-          children: [
-            // Día y fecha
-            d.jsxs('div', { style: { width: 52, flexShrink: 0 }, children: [
-              d.jsx('p', { style: { fontSize: 12, fontWeight: 700, color: day.isToday ? GYM_RED : 'hsl(var(--foreground))' }, children: day.dayLabel }),
-              d.jsx('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))' }, children: day.date.slice(5).replace('-', '/') }),
-            ] }),
-            // Contenido
-            d.jsx('div', { style: { flex: 1 }, children:
-              hasPlan ? d.jsxs('div', { children: [
-                d.jsx('p', { style: { fontSize: 12, fontWeight: 600, color: 'hsl(var(--foreground))' }, children: day.assigned.map(function(r) { return r.name; }).join(', ') }),
-                d.jsx('p', { style: { fontSize: 10, color: 'hsl(var(--muted-foreground))' }, children:
-                  day.assigned.reduce(function(a, r) { return a + (r.exercises || []).length; }, 0) + ' ejercicios · ' +
-                  Array.from(new Set(day.assigned.flatMap(function(r) { return (r.exercises||[]).map(function(e){ return e.muscleGroup; }); }))).slice(0,3).map(function(g){ const mg=MUSCLE_GROUPS.find(function(m){ return m.id===g; }); return mg?mg.short:g; }).join(', '),
-                }),
-              ] }) : d.jsx('p', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))', opacity: 0.6 }, children: 'Descanso' }),
-            }),
-            // Estado / acción
-            day.done ? d.jsx('span', {
-              style: { fontSize: 10, fontWeight: 700, color: '#16a34a', background: 'rgba(22,163,74,0.12)', padding: '2px 8px', borderRadius: 999, flexShrink: 0 },
-              children: 'Hecho',
-            }) : day.isToday && hasPlan ? d.jsx('button', {
-              onClick: function() { onStart(day.assigned[0]); },
-              style: { height: 30, padding: '0 12px', borderRadius: 8, border: 'none', background: GYM_RED, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0 },
-              children: 'Empezar',
-            }) : hasPlan && !day.isPast ? d.jsx('span', {
-              style: { fontSize: 10, fontWeight: 600, color: 'hsl(var(--muted-foreground))', flexShrink: 0 },
-              children: 'Pendiente',
-            }) : null,
-          ],
-        });
-      }),
-    }),
-  ] });
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// GymHistorial — Historial detallado de sesiones
-// ════════════════════════════════════════════════════════════════════════════
-function GymHistorial({ logs, routines }) {
-  const [expanded, setExpanded] = b.useState(null);
-  const [page, setPage] = b.useState(0);
-  const PER_PAGE = 10;
-
-  const paged = logs.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
-  const totalPages = Math.ceil(logs.length / PER_PAGE);
-
-  if (!logs.length) return d.jsxs('div', {
-    className: 'glass-card p-8 text-center space-y-2',
-    children: [
-      d.jsx('p', { style: { fontSize: 14, fontWeight: 600, color: 'hsl(var(--muted-foreground))', marginTop: 8 }, children: 'Sin sesiones registradas' }),
-      d.jsx('p', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))', opacity: 0.7 }, children: 'Completa tu primer entreno para verlo aquí' }),
-    ],
-  });
-
-  return d.jsxs('div', { className: 'space-y-2', children: [
-
-    d.jsx('p', { className: 'section-label px-1', children: logs.length + ' sesiones registradas' }),
-
-    d.jsx('div', { className: 'space-y-2', children:
-      paged.map(function(log) {
-        const isExp = expanded === log.id;
-        const vol = (log.sets || []).reduce(function(a, s) { return a + (s.weight||0)*(s.reps||0); }, 0);
-        const totalSets = (log.sets || []).length;
-        const muscles = Array.from(new Set((log.sets||[]).map(function(s){ return s.muscleGroup; }).filter(Boolean)));
-
-        return d.jsxs(Y.div, {
-          key: log.id,
-          initial: { opacity: 0 }, animate: { opacity: 1 },
-          className: 'glass-card overflow-hidden',
-          children: [
-            // Cabecera
-            d.jsxs('div', {
-              onClick: function() { setExpanded(isExp ? null : log.id); },
-              style: { padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', gap: 10 },
-              children: [
-                d.jsxs('div', { style: { flex: 1, minWidth: 0 }, children: [
-                  d.jsx('p', { style: { fontSize: 14, fontWeight: 700, color: 'hsl(var(--foreground))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, children: log.routineName || 'Entreno libre' }),
-                  d.jsxs('p', { style: { fontSize: 11, color: 'hsl(var(--muted-foreground))' }, children: [GymFormatDate(log.date), ' · ', log.durationMin || 0, ' min · ', totalSets, ' series'] }),
-                ] }),
-                d.jsxs('div', { style: { display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }, children: [
-                  d.jsxs('div', { style: { textAlign: 'right' }, children: [
-                    d.jsx('p', { style: { fontSize: 13, fontWeight: 700, color: GYM_RED }, children: vol >= 1000 ? (vol/1000).toFixed(1)+'t' : vol+'kg' }),
-                    d.jsx('p', { style: { fontSize: 9, color: 'hsl(var(--muted-foreground))' }, children: 'vol.' }),
-                  ] }),
-                  d.jsx(isExp ? vh : G5, { size: 14, color: 'hsl(var(--muted-foreground))' }),
-                ] }),
-              ],
-            }),
-
-            // Detalle expandido
-            isExp && d.jsxs('div', {
-              style: { borderTop: '1px solid var(--glass-border)', padding: '12px 16px', background: 'rgba(0,0,0,0.02)' },
-              children: [
-                // Grupos musculares
-                muscles.length > 0 && d.jsx('div', {
-                  style: { display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 },
-                  children: muscles.map(function(g) {
-                    const mg = MUSCLE_GROUPS.find(function(m){ return m.id===g; });
-                    return d.jsx('span', {
-                      key: g,
-                      style: { fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 6, background: GYM_RED_SOFT, color: GYM_RED },
-                      children: mg ? mg.label : g,
-                    });
-                  }),
-                }),
-
-                // Ejercicios y sets
-                d.jsx('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 }, children:
-                  (function() {
-                    const byEx = {};
-                    (log.sets||[]).forEach(function(s) {
-                      const key = s.exerciseName || 'Ejercicio';
-                      if (!byEx[key]) byEx[key] = [];
-                      byEx[key].push(s);
-                    });
-                    return Object.entries(byEx).map(function(entry) {
-                      const exName = entry[0], sets = entry[1];
-                      const best = sets.reduce(function(a, s) { return (s.weight||0)*(1+(s.reps||0)/30) > (a.weight||0)*(1+(a.reps||0)/30) ? s : a; }, sets[0]);
-                      return d.jsxs('div', { key: exName, children: [
-                        d.jsxs('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }, children: [
-                          d.jsx('p', { style: { fontSize: 12, fontWeight: 700, color: 'hsl(var(--foreground))' }, children: exName }),
-                          d.jsxs('p', { style: { fontSize: 10, color: GYM_RED, fontWeight: 600 }, children: ['Mejor: ', best.weight, 'kg × ', best.reps] }),
-                        ] }),
-                        d.jsx('div', { style: { display: 'flex', gap: 4, flexWrap: 'wrap' }, children:
-                          sets.map(function(s, si) {
-                            return d.jsxs('span', {
-                              key: si,
-                              style: { fontSize: 11, padding: '2px 8px', borderRadius: 6, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: 'hsl(var(--muted-foreground))', fontVariantNumeric: 'tabular-nums' },
-                              children: [s.weight, 'kg × ', s.reps],
-                            });
-                          }),
-                        }),
-                      ] });
-                    });
-                  })(),
-                }),
-
-                // Nota de sesión
-                log.note && d.jsx('p', {
-                  style: { fontSize: 12, color: 'hsl(var(--muted-foreground))', fontStyle: 'italic', marginTop: 10, padding: '8px 10px', borderRadius: 8, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' },
-                  children: log.note,
-                }),
-              ],
-            }),
-          ],
-        }, log.id);
-      }),
-    }),
-
-    // Paginación
-    totalPages > 1 && d.jsxs('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, paddingTop: 4 }, children: [
-      d.jsx('button', {
-        onClick: function() { setPage(function(p) { return Math.max(0, p-1); }); },
-        disabled: page === 0,
-        style: { width: 32, height: 32, borderRadius: 8, border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', cursor: page===0 ? 'default' : 'pointer', opacity: page===0 ? 0.4 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-        children: d.jsx(vh, { size: 14, color: 'hsl(var(--foreground))' }),
-      }),
-      d.jsxs('span', { style: { fontSize: 12, color: 'hsl(var(--muted-foreground))' }, children: [page+1, ' / ', totalPages] }),
-      d.jsx('button', {
-        onClick: function() { setPage(function(p) { return Math.min(totalPages-1, p+1); }); },
-        disabled: page === totalPages-1,
-        style: { width: 32, height: 32, borderRadius: 8, border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', cursor: page===totalPages-1 ? 'default' : 'pointer', opacity: page===totalPages-1 ? 0.4 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-        children: d.jsx(G5, { size: 14, color: 'hsl(var(--foreground))' }),
-      }),
-    ] }),
-
-  ] });
+  ]});
 }
 
 function IW(){const t=ru(),e=gf(),{user:n,signOutUser:r}=ls(),[s,i]=b.useState(!1);b.useState(!1);const o=RE.some(l=>t.pathname===l.path),a=async()=>{await r(),e("/")};return d.jsxs("div",{className:"min-h-screen flex flex-col",children:[d.jsx(MebistiumFloatingButton,{}),d.jsx(VersionBadge,{}),d.jsx("main",{className:"flex-1 overflow-auto pb-24",children:d.jsx("div",{className:"max-w-lg mx-auto px-5 py-5",children:d.jsx(sM,{})})}),d.jsx(Nr,{children:s&&d.jsxs(d.Fragment,{children:[d.jsx(Y.div,{initial:{opacity:0},animate:{opacity:1},exit:{opacity:0},className:"fixed inset-0 bg-black/20 backdrop-blur-sm z-50",onClick:()=>i(!1)}),d.jsx(Y.div,{initial:{opacity:0,y:40},animate:{opacity:1,y:0},exit:{opacity:0,y:40},transition:{type:"spring",damping:28,stiffness:350},className:"fixed bottom-0 left-0 right-0 z-50 px-4 pb-4",children:d.jsxs("div",{className:"glass-card max-w-lg mx-auto p-4 !rounded-2xl",style:{background:"rgba(255,255,255,0.85)",backdropFilter:"blur(24px)"},children:[d.jsxs("div",{className:"flex items-center gap-3 mb-4 p-3 rounded-xl glass-card",children:[n!=null&&n.photoURL?d.jsx("img",{src:n.photoURL,className:"w-9 h-9 rounded-xl object-cover"}):d.jsx("div",{className:"w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center",children:d.jsx(c2,{className:"w-4 h-4 text-primary"})}),d.jsxs("div",{className:"flex-1 min-w-0",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground truncate",children:(n==null?void 0:n.displayName)||"Usuario"}),d.jsx("p",{className:"text-xs text-muted-foreground truncate",children:n==null?void 0:n.email})]}),d.jsx("button",{onClick:a,className:"p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors",children:d.jsx(l2,{className:"w-4 h-4"})})]}),d.jsxs("div",{className:"flex items-center justify-between mb-4",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground",children:"Más opciones"}),d.jsx("button",{onClick:()=>i(!1),className:"p-1 rounded-lg hover:bg-muted/20 transition-colors",children:d.jsx(er,{className:"w-4 h-4 text-muted-foreground"})})]}),d.jsx("div",{className:"grid grid-cols-4 gap-3",children:RE.map(l=>{const c=t.pathname===l.path;return d.jsxs("button",{onClick:()=>{e(l.path),i(!1)},className:"flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-primary/5 transition-colors",children:[d.jsx(l.icon,{className:`w-5 h-5 ${c?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.6rem] font-medium ${c?"text-primary":"text-muted-foreground"}`,children:l.label})]},l.path)})})]})})]})}),(t.pathname.startsWith("/finanzas")||t.pathname.startsWith("/gimnasio")?null:d.jsxs("nav",{className:"fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center px-6 pt-3 pb-7",style:{background:"rgba(255,255,255,0.6)",borderTop:"1px solid rgba(255,255,255,0.8)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)"},children:[CW.map(l=>{const c=t.pathname===l.path;return d.jsxs("button",{onClick:()=>e(l.path),className:"flex flex-col items-center gap-1 transition-opacity duration-200 hover:opacity-70",children:[d.jsx(l.icon,{className:`w-[22px] h-[22px] ${c?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.58rem] font-medium uppercase tracking-[0.06em] ${c?"text-primary":"text-muted-foreground"}`,children:l.label})]},l.path)}),d.jsxs("button",{onClick:()=>i(!s),className:"flex flex-col items-center gap-1 transition-opacity duration-200 hover:opacity-70",children:[d.jsx(Q5,{className:`w-[22px] h-[22px] ${o?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.58rem] font-medium uppercase tracking-[0.06em] ${o?"text-primary":"text-muted-foreground"}`,children:"Más"})]})]}))]})}function MIcon(props) {
@@ -13520,7 +12880,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v28.5",
+children: "v28.6",
 }),
 ],
 }),
@@ -13547,7 +12907,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v28.5",
+children: "v28.6",
 });
 }
 
