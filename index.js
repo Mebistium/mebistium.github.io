@@ -3853,90 +3853,107 @@ function GymInicio({ routines, logs, uid, onStart, setTab }) {
 
   // ── Body Map SVG ──────────────────────────────────────────────────────────
   // Silueta humana simplificada con paths por grupo muscular
+// ── Body Map SVG — anatomía detallada ───────────────────────────────────────
   const BodyMap = function() {
-    const muscle_paths = [
-      // Pecho
-      { id:'pecho',    d:'M 78 62 Q 82 58 90 60 Q 98 58 102 62 L 100 78 Q 90 82 80 78 Z', label:'PEC' },
-      // Hombros
-      { id:'hombros',  d:'M 66 58 Q 72 52 78 58 L 76 70 Q 70 72 66 68 Z', label:'DEL' },
-      { id:'hombros',  d:'M 102 58 Q 108 52 114 58 L 114 68 Q 110 72 104 70 Z', label:'' },
-      // Espalda (vista frontal — trapecio)
-      { id:'espalda',  d:'M 78 42 Q 90 38 102 42 L 102 58 Q 90 62 78 58 Z', label:'TRAP' },
-      // Bíceps
-      { id:'biceps',   d:'M 63 70 Q 66 68 68 72 L 66 86 Q 62 86 60 82 Z', label:'BIC' },
-      { id:'biceps',   d:'M 112 68 Q 114 72 117 70 L 120 82 Q 118 86 114 86 Z', label:'' },
-      // Tríceps (visible lateralmente)
-      { id:'triceps',  d:'M 115 70 Q 120 72 121 78 L 120 88 Q 116 88 114 84 Z', label:'TRI' },
-      { id:'triceps',  d:'M 59 70 Q 60 74 64 78 L 63 84 Q 60 86 58 82 Z', label:'' },
-      // Abdomen / core
-      { id:'core',     d:'M 83 82 Q 90 80 97 82 L 97 110 Q 90 114 83 110 Z', label:'ABS' },
-      // Cuádriceps
-      { id:'cuadriceps',d:'M 81 118 Q 87 116 90 118 L 90 152 Q 85 155 81 152 Z', label:'CUA' },
-      { id:'cuadriceps',d:'M 90 118 Q 93 116 99 118 L 99 152 Q 95 155 90 152 Z', label:'' },
-      // Femoral (detrás — semivisible)
-      { id:'femoral',  d:'M 81 118 Q 87 116 90 118 L 88 152 Q 83 150 80 145 Z', label:'HAM', opacity:0.5 },
-      // Glúteos
-      { id:'gluteos',  d:'M 82 112 Q 90 108 98 112 L 98 122 Q 90 126 82 122 Z', label:'GLU' },
-      // Gemelos
-      { id:'gemelos',  d:'M 82 156 Q 86 154 90 156 L 90 178 Q 86 182 82 178 Z', label:'CAL' },
-      { id:'gemelos',  d:'M 90 156 Q 94 154 98 156 L 98 178 Q 94 182 90 178 Z', label:'' },
+    const getColor = function(mgId) {
+      const mg = MUSCLE_GROUPS.find(function(m){return m.id===mgId;});
+      return mg ? mg.color : GYM_RED;
+    };
+    const getIntensity = function(mgId) {
+      const sets = weekMuscles.map[mgId]||0;
+      if (!sets) return 0;
+      return Math.max(0.25, Math.min(1, sets / weekMuscles.max));
+    };
+
+    // Definición de músculos con paths SVG más anatómicos
+    const muscles = [
+      // ── FRONTAL ──────────────────────────────────────────────────────────
+      { id:'pecho',      d:'M 55 72 Q 58 65 70 63 Q 78 61 82 65 L 82 82 Q 74 88 62 84 Q 55 80 55 72 Z' },
+      { id:'pecho',      d:'M 98 65 Q 102 61 110 63 Q 122 65 125 72 Q 125 80 118 84 Q 106 88 98 82 L 98 65 Z' },
+      { id:'hombros',    d:'M 42 62 Q 45 55 54 54 Q 60 53 64 58 L 60 72 Q 52 74 45 70 Z' },
+      { id:'hombros',    d:'M 116 58 Q 120 53 126 54 Q 135 55 138 62 Q 135 70 128 74 L 120 72 Z' },
+      { id:'espalda',    d:'M 64 54 Q 70 48 90 46 Q 110 48 116 54 L 114 62 Q 90 58 66 62 Z' },  // trapecio visible
+      { id:'biceps',     d:'M 40 73 Q 43 70 48 72 L 47 93 Q 43 95 39 91 Z' },
+      { id:'biceps',     d:'M 132 70 Q 137 72 140 73 Q 141 91 137 91 L 133 91 Z' },
+      { id:'triceps',    d:'M 136 72 Q 142 74 143 82 L 141 92 Q 137 92 136 85 Z' },
+      { id:'triceps',    d:'M 37 72 Q 38 80 39 91 Q 36 92 34 88 L 37 72 Z' },
+      { id:'core',       d:'M 73 90 Q 80 87 90 87 Q 100 87 107 90 L 106 116 Q 90 120 74 116 Z' },
+      { id:'cuadriceps', d:'M 67 120 Q 74 116 82 116 L 81 158 Q 73 160 66 156 Z' },
+      { id:'cuadriceps', d:'M 98 116 Q 106 116 113 120 Q 114 156 107 160 L 99 158 Z' },
+      { id:'gluteos',    d:'M 72 116 Q 82 112 90 113 Q 98 112 108 116 L 106 128 Q 90 133 74 128 Z' },
+      { id:'femoral',    d:'M 66 128 Q 72 124 80 124 L 79 158 Q 71 157 65 152 Z', opacity:0.5 },
+      { id:'femoral',    d:'M 100 124 Q 108 124 114 128 Q 115 152 109 157 L 101 158 Z', opacity:0.5 },
+      { id:'gemelos',    d:'M 66 162 Q 72 159 79 160 L 78 188 Q 71 191 65 187 Z' },
+      { id:'gemelos',    d:'M 101 160 Q 108 159 114 162 Q 115 187 109 191 L 102 188 Z' },
     ];
 
     return d.jsxs('svg', {
-      viewBox: '0 0 180 200', width: '100%', style: { maxWidth: 220, margin: '0 auto', display: 'block' },
+      viewBox: '0 0 180 210',
+      style: { width: '100%', maxWidth: 180, display: 'block', margin: '0 auto' },
       children: [
-        // Silueta base — contorno visible en cualquier tema
-        d.jsxs('g', { fill: 'none', stroke: GYM_RED, strokeWidth: 0.8, strokeOpacity: 0.25, children: [
-          d.jsx('circle', { cx: 90, cy: 24, r: 14, fill: 'rgba(100,116,139,0.08)', strokeOpacity: 0.3 }),
-          d.jsx('rect', { x: 85, y: 36, width: 10, height: 8, rx: 3, fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('path', { d: 'M 66 44 Q 60 70 62 112 Q 90 120 118 112 Q 120 70 114 44 Z', fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('path', { d: 'M 66 44 Q 55 50 50 90 Q 52 100 58 98 Q 68 60 78 58 Z', fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('path', { d: 'M 114 44 Q 125 50 130 90 Q 128 100 122 98 Q 112 60 102 58 Z', fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('ellipse', { cx: 52, cy: 100, rx: 6, ry: 8, fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('ellipse', { cx: 128, cy: 100, rx: 6, ry: 8, fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('path', { d: 'M 62 112 Q 60 150 62 182 Q 68 188 76 186 Q 80 150 82 118 Z', fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('path', { d: 'M 118 112 Q 120 150 118 182 Q 112 188 104 186 Q 100 150 98 118 Z', fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('ellipse', { cx: 69, cy: 185, rx: 9, ry: 5, fill: 'rgba(100,116,139,0.08)' }),
-          d.jsx('ellipse', { cx: 111, cy: 185, rx: 9, ry: 5, fill: 'rgba(100,116,139,0.08)' }),
+
+        // ── Silueta base anatómica ─────────────────────────────────────────
+        d.jsxs('g', { fill: 'rgba(100,116,139,0.10)', stroke: 'rgba(100,116,139,0.35)', strokeWidth: 1, children: [
+          // Cabeza
+          d.jsx('ellipse', { cx: 90, cy: 22, rx: 16, ry: 18 }),
+          // Cuello
+          d.jsx('path', { d: 'M 84 38 L 84 46 Q 90 48 96 46 L 96 38', fill: 'rgba(100,116,139,0.10)' }),
+          // Torso completo
+          d.jsx('path', { d: 'M 54 52 Q 42 60 40 90 Q 38 116 42 128 Q 56 138 90 140 Q 124 138 138 128 Q 142 116 140 90 Q 138 60 126 52 Q 110 46 90 44 Q 70 46 54 52 Z' }),
+          // Brazo izquierdo
+          d.jsx('path', { d: 'M 40 62 Q 30 70 26 92 Q 24 106 28 110 Q 32 106 36 96 L 42 128 Q 44 132 48 130 Q 50 110 48 90 Z' }),
+          // Brazo derecho
+          d.jsx('path', { d: 'M 140 62 Q 150 70 154 92 Q 156 106 152 110 Q 148 106 144 96 L 132 128 Q 130 132 132 128 Q 130 110 132 90 Z' }),
+          // Mano izquierda
+          d.jsx('ellipse', { cx: 36, cy: 115, rx: 7, ry: 10 }),
+          // Mano derecha
+          d.jsx('ellipse', { cx: 144, cy: 115, rx: 7, ry: 10 }),
+          // Pelvis / cadera
+          d.jsx('path', { d: 'M 58 128 Q 62 136 90 138 Q 118 136 122 128 L 118 142 Q 90 146 62 142 Z' }),
+          // Pierna izquierda
+          d.jsx('path', { d: 'M 62 138 Q 56 148 56 170 Q 56 186 60 196 Q 66 198 72 196 Q 74 180 74 162 L 78 162 Q 80 180 80 196 Q 86 198 90 196 Q 90 172 88 150 Q 84 140 74 138 Z' }),
+          // Pierna derecha
+          d.jsx('path', { d: 'M 118 138 Q 124 148 124 170 Q 124 186 120 196 Q 114 198 108 196 Q 106 180 106 162 L 102 162 Q 100 180 100 196 Q 94 198 90 196 Q 90 172 92 150 Q 96 140 106 138 Z' }),
+          // Pies
+          d.jsx('ellipse', { cx: 68, cy: 198, rx: 12, ry: 6 }),
+          d.jsx('ellipse', { cx: 112, cy: 198, rx: 12, ry: 6 }),
         ] }),
 
-        // Músculos con intensidad
-        ...muscle_paths.map(function(mp, i) {
-          const mg = MUSCLE_GROUPS.find(function(m){return m.id===mp.id;});
-          const col = mg ? mg.color : '#e11d48';
-          const intensity = getMuscleIntensity(mp.id);
-          const baseOpacity = mp.opacity || 1;
-          return d.jsxs('g', { key: i, children: [
-            d.jsx('path', {
-              d: mp.d,
-              fill: intensity > 0 ? col : 'rgba(255,255,255,0.06)',
-              opacity: intensity > 0 ? intensity * baseOpacity : baseOpacity,
-              style: { transition: 'fill 0.5s, opacity 0.5s' },
-            }),
-            // Label del músculo si tiene y está activo
-            intensity > 0.3 && mp.label && d.jsx('text', {
-              // Centrar el texto en el path aproximadamente
-              x: function(){
-                const nums = mp.d.match(/[\d.]+/g);
-                if(!nums||nums.length<2)return 90;
-                const xs = nums.filter(function(_,i){return i%2===0;}).map(Number);
-                return (Math.min.apply(null,xs)+Math.max.apply(null,xs))/2;
-              }(),
-              y: function(){
-                const nums = mp.d.match(/[\d.]+/g);
-                if(!nums||nums.length<2)return 100;
-                const ys = nums.filter(function(_,i){return i%2===1;}).map(Number);
-                return (Math.min.apply(null,ys)+Math.max.apply(null,ys))/2+3;
-              }(),
-              textAnchor: 'middle',
-              style: { fontSize: 5.5, fontWeight: 800, fill: '#fff', fontFamily: 'var(--font-sans)', letterSpacing: '0.08em' },
-              children: mp.label,
-            }),
-          ] }, i);
+        // ── Músculos con intensidad ────────────────────────────────────────
+        d.jsx('g', { children:
+          muscles.map(function(m, i) {
+            const col = getColor(m.id);
+            const intensity = getIntensity(m.id);
+            const baseOpacity = m.opacity || 1;
+            if (intensity === 0) return null;
+            return d.jsx('path', {
+              key: i, d: m.d,
+              fill: col,
+              opacity: Math.min(baseOpacity, intensity * 0.85 + 0.05),
+              style: { transition: 'opacity 0.6s, fill 0.4s' },
+            });
+          }),
+        }),
+
+        // ── Contorno de músculos no entrenados (outline sutil) ────────────
+        d.jsx('g', { children:
+          muscles.map(function(m, i) {
+            const col = getColor(m.id);
+            const intensity = getIntensity(m.id);
+            if (intensity > 0) return null;
+            return d.jsx('path', {
+              key: 'o'+i, d: m.d,
+              fill: 'none',
+              stroke: col,
+              strokeWidth: 0.6,
+              opacity: 0.18,
+            });
+          }),
         }),
       ],
     });
   };
+;
 
   // ── RENDER ─────────────────────────────────────────────────────────────────
   return d.jsxs('div', { className: 'space-y-6', children: [
@@ -4755,7 +4772,7 @@ function GymIA({ logs, routines }) {
       const sys='Eres un entrenador personal experto integrado en Mebistium. Directo, técnico, motivador. Español siempre. Sin emojis.\n\n'+buildCtx();
       const hist=messages.slice(1).map(function(m){return {role:m.role==='assistant'?'model':'user',parts:[{text:m.text}]};});
       hist.push({role:'user',parts:[{text:q}]});
-      const res=await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:hist,generationConfig:{temperature:0.5,maxOutputTokens:1024}})});
+      const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:hist,generationConfig:{temperature:0.5,maxOutputTokens:1024}})});
       if(!res.ok){const e=await res.json();throw new Error(e.error?e.error.message:'Error '+res.status);}
       const data=await res.json();
       const text=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]?data.candidates[0].content.parts[0].text:'Sin respuesta';
@@ -12149,7 +12166,7 @@ try {
   });
   history.push({ role: "user", parts: [{ text: q }] });
   const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + apiKey,
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey,
     { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents: history, generationConfig: { temperature: 0.4, maxOutputTokens: 1024 } }) }
   );
@@ -14639,7 +14656,7 @@ pdfBase64 ? { inline_data: { mime_type: mimeType || "application/pdf", data: pdf
 generationConfig: { temperature: 0.4, maxOutputTokens: 8192 },
 };
 const res = await fetch(
-"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + apiKey,
+"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey,
 { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
 );
 if (!res.ok) {
@@ -17808,7 +17825,7 @@ function NotebookEditor(props) {
         style: { flex: 1, position: 'relative', overflow: 'hidden', background: isDark ? '#0f172a' : '#dde3ed' },
         children: [
           // Dry canvas
-          d.jsx('canvas', { ref: dryRef, style: { position: 'absolute', top: 0, left: 0, zIndex: 2, background: 'transparent' } }),
+          d.jsx('canvas', { ref: dryRef, style: { position: 'absolute', top: 0, left: 0, zIndex: 2, background: isDark ? '#0f172a' : '#dde3ed' } }),
 
           // Wet canvas (recibe todos los eventos de puntero)
           d.jsx('canvas', {
