@@ -3856,133 +3856,137 @@ function GymInicio({ routines, logs, uid, onStart, setTab }) {
 // ── Body Map SVG — anatomía detallada ───────────────────────────────────────
 // ── Body Map SVG — silueta humana anatómica ────────────────────────────────
 // ── Body Map SVG ─────────────────────────────────────────────────────────
-  const BodyMap = function() {
-    const intensity = function(mgId) {
+const BodyMap = function() {
+    const getOpacity = function(mgId) {
       const s = weekMuscles.map[mgId] || 0;
       if (!s) return 0;
       return Math.max(0.25, Math.min(1, s / weekMuscles.max));
     };
-    const col = function(mgId) {
+    const getColor = function(mgId) {
       const mg = MUSCLE_GROUPS.find(function(m){ return m.id === mgId; });
       return mg ? mg.color : '#e11d48';
     };
+    const trained = function(mgId) { return (weekMuscles.map[mgId] || 0) > 0; };
 
-    // Músculo: fill si entrenado, stroke si no
-    const Muscle = function(props) {
-      const it = intensity(props.id);
-      const c  = col(props.id);
-      const op = props.opacity || 1;
-      if (it > 0) {
-        return d.jsx('path', { d: props.d, fill: c, opacity: it * op, style:{ transition:'opacity 0.6s' } });
-      }
-      return d.jsx('path', { d: props.d, fill: 'none', stroke: c, strokeWidth: '0.7', opacity: 0.2 });
-    };
+    // Mapeo ids Mebistium → ids del SVG
+    // pecho=chest, espalda=back, hombros=shoulders, biceps=biceps,
+    // triceps=triceps, core=core, cuadriceps=quads, gemelos=calves,
+    // gluteos=glutes, femoral=hamstrings
+
+    const fill = function(id) { return trained(id) ? getColor(id) : 'none'; };
+    const fo   = function(id) { return trained(id) ? getOpacity(id) : 0; };
+    const sc   = function(id) { return getColor(id); };
+    const so   = function(id) { return trained(id) ? 0.3 : 0.15; };
 
     return d.jsxs('svg', {
-      viewBox: '0 0 100 220',
-      style: { width: '100%', maxWidth: 140, display: 'block', margin: '0 auto' },
+      viewBox: '0 0 120 280',
+      style: { width: '100%', maxWidth: 130, display: 'block', margin: '0 auto' },
+      'aria-label': 'Body muscle map',
       children: [
 
-        // ── SILUETA BASE ─────────────────────────────────────────────────
-        d.jsxs('g', {
-          fill: 'rgba(148,163,184,0.09)',
-          stroke: 'rgba(148,163,184,0.45)',
-          strokeWidth: '0.6',
-          strokeLinecap: 'round',
-          strokeLinejoin: 'round',
-          children: [
-            // Cabeza
-            d.jsx('ellipse', { cx:'50', cy:'11', rx:'8.5', ry:'10' }),
-            // Cuello
-            d.jsx('path', { d:'M46,20 L46,25 Q50,27 54,25 L54,20' }),
-            // Torso — forma de V invertida natural
-            d.jsx('path', { d:'M30,28 Q22,32 20,55 Q19,72 22,84 Q28,90 50,91 Q72,90 78,84 Q81,72 80,55 Q78,32 70,28 Q60,24 50,24 Q40,24 30,28 Z' }),
-            // Hombro izquierdo (capsula)
-            d.jsx('path', { d:'M30,28 Q20,32 18,40 Q17,48 22,52 Q26,48 28,42 L30,28 Z' }),
-            // Hombro derecho
-            d.jsx('path', { d:'M70,28 Q80,32 82,40 Q83,48 78,52 Q74,48 72,42 L70,28 Z' }),
-            // Brazo superior izquierdo
-            d.jsx('path', { d:'M18,40 Q13,52 14,64 Q15,72 18,74 Q22,68 22,58 L22,52 Z' }),
-            // Brazo superior derecho
-            d.jsx('path', { d:'M82,40 Q87,52 86,64 Q85,72 82,74 Q78,68 78,58 L78,52 Z' }),
-            // Antebrazo izquierdo
-            d.jsx('path', { d:'M14,64 Q12,76 13,86 Q15,90 18,89 L20,74 Z' }),
-            // Antebrazo derecho
-            d.jsx('path', { d:'M86,64 Q88,76 87,86 Q85,90 82,89 L80,74 Z' }),
-            // Mano izquierda
-            d.jsx('ellipse', { cx:'14.5', cy:'92', rx:'3.5', ry:'5', transform:'rotate(-8,14.5,92)' }),
-            // Mano derecha
-            d.jsx('ellipse', { cx:'85.5', cy:'92', rx:'3.5', ry:'5', transform:'rotate(8,85.5,92)' }),
-            // Pelvis / cadera
-            d.jsx('path', { d:'M28,88 Q32,96 50,97 Q68,96 72,88 L70,103 Q50,107 30,103 Z' }),
-            // Muslo izquierdo
-            d.jsx('path', { d:'M30,103 Q26,118 26,134 Q27,148 30,154 Q36,152 40,146 L42,108 Q38,104 30,103 Z' }),
-            // Muslo derecho
-            d.jsx('path', { d:'M70,103 Q74,118 74,134 Q73,148 70,154 Q64,152 60,146 L58,108 Q62,104 70,103 Z' }),
-            // Rodilla izquierda
-            d.jsx('ellipse', { cx:'34', cy:'155', rx:'6', ry:'4' }),
-            // Rodilla derecha
-            d.jsx('ellipse', { cx:'66', cy:'155', rx:'6', ry:'4' }),
-            // Tibia izquierda
-            d.jsx('path', { d:'M30,158 Q28,174 29,188 Q33,192 38,191 L40,158 Q36,156 30,158 Z' }),
-            // Tibia derecha
-            d.jsx('path', { d:'M70,158 Q72,174 71,188 Q67,192 62,191 L60,158 Q64,156 70,158 Z' }),
-            // Pie izquierdo
-            d.jsx('path', { d:'M29,188 Q26,194 28,198 Q34,201 44,200 L40,191 Z' }),
-            // Pie derecho
-            d.jsx('path', { d:'M71,188 Q74,194 72,198 Q66,201 56,200 L60,191 Z' }),
-            // Línea esternal
-            d.jsx('path', { d:'M50,24 L50,88', fill:'none', stroke:'rgba(148,163,184,0.12)', strokeWidth:'0.4' }),
-          ],
-        }),
+        d.jsxs('defs', { children: [
+          d.jsxs('linearGradient', { id:'bodyGrad', x1:'0%', y1:'0%', x2:'100%', y2:'100%', children:[
+            d.jsx('stop', { offset:'0%', stopColor:'rgba(148,163,184,0.22)' }),
+            d.jsx('stop', { offset:'100%', stopColor:'rgba(148,163,184,0.14)' }),
+          ]}),
+          d.jsxs('filter', { id:'bodyShadow', x:'-20%', y:'-20%', width:'140%', height:'140%', children:[
+            d.jsx('feDropShadow', { dx:'0', dy:'2', stdDeviation:'3', floodColor:'rgba(0,0,0,0.2)', floodOpacity:'0.4' }),
+          ]}),
+        ]}),
 
-        // ── MÚSCULOS ─────────────────────────────────────────────────────
-        // Trapecio / espalda alta
-        d.jsx(Muscle, { id:'espalda', d:'M36,26 Q43,22 50,21 Q57,22 64,26 L62,32 Q50,36 38,32 Z' }),
-        // Deltoides izquierdo
-        d.jsx(Muscle, { id:'hombros', d:'M22,34 Q26,28 32,28 L30,40 Q24,42 21,38 Z' }),
-        // Deltoides derecho
-        d.jsx(Muscle, { id:'hombros', d:'M78,34 Q74,28 68,28 L70,40 Q76,42 79,38 Z' }),
-        // Pecho izquierdo
-        d.jsx(Muscle, { id:'pecho', d:'M32,30 Q36,27 44,28 L44,44 Q36,48 30,43 Q29,37 32,30 Z' }),
-        // Pecho derecho
-        d.jsx(Muscle, { id:'pecho', d:'M68,30 Q64,27 56,28 L56,44 Q64,48 70,43 Q71,37 68,30 Z' }),
-        // Bíceps izquierdo
-        d.jsx(Muscle, { id:'biceps', d:'M18,42 Q22,40 25,43 L23,60 Q18,62 15,58 Z' }),
-        // Bíceps derecho
-        d.jsx(Muscle, { id:'biceps', d:'M82,42 Q78,40 75,43 L77,60 Q82,62 85,58 Z' }),
-        // Tríceps izquierdo
-        d.jsx(Muscle, { id:'triceps', d:'M14,44 Q17,42 19,46 L17,62 Q13,62 12,57 Z', opacity: 0.6 }),
-        // Tríceps derecho
-        d.jsx(Muscle, { id:'triceps', d:'M86,44 Q83,42 81,46 L83,62 Q87,62 88,57 Z', opacity: 0.6 }),
-        // Abdomen superior
-        d.jsx(Muscle, { id:'core', d:'M36,48 Q42,46 50,46 Q58,46 64,48 L63,64 Q50,67 37,64 Z' }),
-        // Abdomen inferior + oblicuos
-        d.jsx(Muscle, { id:'core', d:'M37,65 Q44,63 50,63 Q56,63 63,65 L62,82 Q50,85 38,82 Z', opacity: 0.85 }),
-        // Oblicuo izquierdo
-        d.jsx(Muscle, { id:'core', d:'M28,50 Q32,48 34,52 L32,80 Q27,80 26,73 Z', opacity: 0.6 }),
-        // Oblicuo derecho
-        d.jsx(Muscle, { id:'core', d:'M72,50 Q68,48 66,52 L68,80 Q73,80 74,73 Z', opacity: 0.6 }),
-        // Glúteos
-        d.jsx(Muscle, { id:'gluteos', d:'M30,88 Q38,84 50,84 Q62,84 70,88 L68,100 Q50,106 32,100 Z' }),
-        // Cuádriceps izquierdo
-        d.jsx(Muscle, { id:'cuadriceps', d:'M28,102 Q36,98 41,100 L39,144 Q32,147 26,140 Z' }),
-        d.jsx(Muscle, { id:'cuadriceps', d:'M41,100 Q46,98 48,100 L46,144 Q42,146 39,144 Z', opacity: 0.85 }),
-        // Cuádriceps derecho
-        d.jsx(Muscle, { id:'cuadriceps', d:'M72,102 Q64,98 59,100 L61,144 Q68,147 74,140 Z' }),
-        d.jsx(Muscle, { id:'cuadriceps', d:'M59,100 Q54,98 52,100 L54,144 Q58,146 61,144 Z', opacity: 0.85 }),
-        // Femoral izquierdo (detrás, sutil)
-        d.jsx(Muscle, { id:'femoral', d:'M28,102 Q31,100 34,102 L32,144 Q28,143 26,138 Z', opacity: 0.35 }),
-        // Femoral derecho
-        d.jsx(Muscle, { id:'femoral', d:'M72,102 Q69,100 66,102 L68,144 Q72,143 74,138 Z', opacity: 0.35 }),
-        // Gemelo izquierdo
-        d.jsx(Muscle, { id:'gemelos', d:'M28,160 Q33,157 38,159 L36,188 Q30,190 26,185 Z' }),
-        // Gemelo derecho
-        d.jsx(Muscle, { id:'gemelos', d:'M72,160 Q67,157 62,159 L64,188 Q70,190 74,185 Z' }),
+        // ── Silueta base ─────────────────────────────────────────────────
+        d.jsxs('g', { fill:'url(#bodyGrad)', stroke:'rgba(148,163,184,0.5)', strokeWidth:'0.8', filter:'url(#bodyShadow)', children:[
+          // Cabeza
+          d.jsx('path', { d:'M60 8 C72 8,80 18,80 30 C80 42,72 52,60 52 C48 52,40 42,40 30 C40 18,48 8,60 8' }),
+          // Orejas
+          d.jsx('ellipse', { cx:'38', cy:'30', rx:'3', ry:'5' }),
+          d.jsx('ellipse', { cx:'82', cy:'30', rx:'3', ry:'5' }),
+          // Cuello + trapecio
+          d.jsx('path', { d:'M50 50 L48 58 Q47 64,42 68 L78 68 Q73 64,72 58 L70 50 Q60 54,50 50' }),
+          // Torso
+          d.jsx('path', { d:'M42 68 Q30 72,25 78 Q22 90,24 110 Q26 130,30 145 L35 148 Q38 155,40 160 L80 160 Q82 155,85 148 L90 145 Q94 130,96 110 Q98 90,95 78 Q90 72,78 68 Z' }),
+          // Brazo izquierdo
+          d.jsx('path', { d:'M25 78 Q18 82,14 95 Q10 108,12 122 Q14 132,16 138 Q18 148,15 160 Q12 172,14 180 Q15 186,18 188 Q22 190,24 186 Q28 180,26 168 Q24 156,28 145 Q30 138,28 128 Q26 118,28 108 Q30 98,30 88 L30 78' }),
+          // Brazo derecho
+          d.jsx('path', { d:'M95 78 Q102 82,106 95 Q110 108,108 122 Q106 132,104 138 Q102 148,105 160 Q108 172,106 180 Q105 186,102 188 Q98 190,96 186 Q92 180,94 168 Q96 156,92 145 Q90 138,92 128 Q94 118,92 108 Q90 98,90 88 L90 78' }),
+          // Manos
+          d.jsx('ellipse', { cx:'19', cy:'192', rx:'6', ry:'8' }),
+          d.jsx('ellipse', { cx:'101', cy:'192', rx:'6', ry:'8' }),
+          // Pierna izquierda
+          d.jsx('path', { d:'M40 160 Q36 165,34 180 Q32 200,34 220 Q35 235,36 250 Q36 260,34 268 Q33 274,36 276 L44 276 Q47 274,46 268 Q44 258,46 245 Q48 230,50 215 Q52 195,52 175 Q52 165,50 160' }),
+          // Pierna derecha
+          d.jsx('path', { d:'M80 160 Q84 165,86 180 Q88 200,86 220 Q85 235,84 250 Q84 260,86 268 Q87 274,84 276 L76 276 Q73 274,74 268 Q76 258,74 245 Q72 230,70 215 Q68 195,68 175 Q68 165,70 160' }),
+        ]}),
+
+        // ── Líneas anatómicas ─────────────────────────────────────────────
+        d.jsxs('g', { stroke:'rgba(148,163,184,0.35)', strokeWidth:'0.5', fill:'none', children:[
+          d.jsx('path', { d:'M42 70 Q50 68,60 70 Q70 68,78 70' }),  // clavículas
+          d.jsx('path', { d:'M60 75 L60 100' }),                     // esternón
+          d.jsx('path', { d:'M52 105 L68 105' }),                    // abs líneas
+          d.jsx('path', { d:'M52 118 L68 118' }),
+          d.jsx('path', { d:'M52 131 L68 131' }),
+          d.jsx('path', { d:'M60 100 L60 145' }),
+          d.jsx('path', { d:'M42 148 Q48 155,50 160' }),             // cadera izq
+          d.jsx('path', { d:'M78 148 Q72 155,70 160' }),             // cadera der
+          d.jsx('ellipse', { cx:'42', cy:'218', rx:'5', ry:'4' }),   // rótula izq
+          d.jsx('ellipse', { cx:'78', cy:'218', rx:'5', ry:'4' }),   // rótula der
+          d.jsx('path', { d:'M26 95 Q28 115,26 135' }),              // bíceps línea
+          d.jsx('path', { d:'M94 95 Q92 115,94 135' }),
+        ]}),
+
+        // ── Músculos entrenados ────────────────────────────────────────────
+
+        // Deltoides izq/der
+        d.jsx('path', { d:'M25 78 Q18 82,16 92 Q20 98,28 96 Q32 90,30 82 Q28 78,25 78', fill:fill('hombros'), fillOpacity:fo('hombros'), stroke:sc('hombros'), strokeOpacity:so('hombros'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('path', { d:'M95 78 Q102 82,104 92 Q100 98,92 96 Q88 90,90 82 Q92 78,95 78', fill:fill('hombros'), fillOpacity:fo('hombros'), stroke:sc('hombros'), strokeOpacity:so('hombros'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+
+        // Pecho izq/der
+        d.jsx('path', { d:'M42 75 Q35 80,36 92 Q40 100,58 100 L58 75 Q50 72,42 75', fill:fill('pecho'), fillOpacity:fo('pecho'), stroke:sc('pecho'), strokeOpacity:so('pecho'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('path', { d:'M78 75 Q85 80,84 92 Q80 100,62 100 L62 75 Q70 72,78 75', fill:fill('pecho'), fillOpacity:fo('pecho'), stroke:sc('pecho'), strokeOpacity:so('pecho'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+
+        // Bíceps izq/der
+        d.jsx('ellipse', { cx:'22', cy:'110', rx:'6', ry:'14', transform:'rotate(-10 22 110)', fill:fill('biceps'), fillOpacity:fo('biceps'), stroke:sc('biceps'), strokeOpacity:so('biceps'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('ellipse', { cx:'98', cy:'110', rx:'6', ry:'14', transform:'rotate(10 98 110)', fill:fill('biceps'), fillOpacity:fo('biceps'), stroke:sc('biceps'), strokeOpacity:so('biceps'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+
+        // Tríceps izq/der
+        d.jsx('ellipse', { cx:'28', cy:'112', rx:'4', ry:'12', transform:'rotate(-5 28 112)', fill:fill('triceps'), fillOpacity:fo('triceps'), stroke:sc('triceps'), strokeOpacity:so('triceps'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('ellipse', { cx:'92', cy:'112', rx:'4', ry:'12', transform:'rotate(5 92 112)', fill:fill('triceps'), fillOpacity:fo('triceps'), stroke:sc('triceps'), strokeOpacity:so('triceps'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+
+        // Core — 6 rectángulos del 6-pack + oblicuos
+        d.jsxs('g', { fill:fill('core'), fillOpacity:fo('core'), stroke:sc('core'), strokeOpacity:so('core'), strokeWidth:'0.8', style:{transition:'fill-opacity 0.6s'}, children:[
+          d.jsx('rect', { x:'52', y:'100', width:'7', height:'12', rx:'2' }),
+          d.jsx('rect', { x:'61', y:'100', width:'7', height:'12', rx:'2' }),
+          d.jsx('rect', { x:'52', y:'114', width:'7', height:'12', rx:'2' }),
+          d.jsx('rect', { x:'61', y:'114', width:'7', height:'12', rx:'2' }),
+          d.jsx('rect', { x:'52', y:'128', width:'7', height:'12', rx:'2' }),
+          d.jsx('rect', { x:'61', y:'128', width:'7', height:'12', rx:'2' }),
+        ]}),
+        d.jsx('path', { d:'M40 105 Q45 115,48 130 Q46 140,44 148 Q40 140,38 125 Q38 115,40 105', fill:fill('core'), fillOpacity:(fo('core')*0.7), stroke:sc('core'), strokeOpacity:so('core'), strokeWidth:'0.8', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('path', { d:'M80 105 Q75 115,72 130 Q74 140,76 148 Q80 140,82 125 Q82 115,80 105', fill:fill('core'), fillOpacity:(fo('core')*0.7), stroke:sc('core'), strokeOpacity:so('core'), strokeWidth:'0.8', style:{transition:'fill-opacity 0.6s'} }),
+
+        // Cuádriceps izq (2 cabezas)
+        d.jsx('path', { d:'M40 162 Q34 175,34 195 Q35 208,40 215 Q44 208,46 195 Q48 180,46 165 Q44 162,40 162', fill:fill('cuadriceps'), fillOpacity:fo('cuadriceps'), stroke:sc('cuadriceps'), strokeOpacity:so('cuadriceps'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('path', { d:'M48 162 Q50 175,48 195 Q46 208,44 215 Q48 212,50 200 Q52 185,52 170 Q52 165,48 162', fill:fill('cuadriceps'), fillOpacity:(fo('cuadriceps')*0.85), stroke:sc('cuadriceps'), strokeOpacity:so('cuadriceps'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+        // Cuádriceps der
+        d.jsx('path', { d:'M80 162 Q86 175,86 195 Q85 208,80 215 Q76 208,74 195 Q72 180,74 165 Q76 162,80 162', fill:fill('cuadriceps'), fillOpacity:fo('cuadriceps'), stroke:sc('cuadriceps'), strokeOpacity:so('cuadriceps'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('path', { d:'M72 162 Q70 175,72 195 Q74 208,76 215 Q72 212,70 200 Q68 185,68 170 Q68 165,72 162', fill:fill('cuadriceps'), fillOpacity:(fo('cuadriceps')*0.85), stroke:sc('cuadriceps'), strokeOpacity:so('cuadriceps'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+
+        // Gemelos izq/der
+        d.jsx('path', { d:'M36 225 Q32 235,34 250 Q36 260,40 255 Q44 248,44 238 Q42 228,36 225', fill:fill('gemelos'), fillOpacity:fo('gemelos'), stroke:sc('gemelos'), strokeOpacity:so('gemelos'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('path', { d:'M84 225 Q88 235,86 250 Q84 260,80 255 Q76 248,76 238 Q78 228,84 225', fill:fill('gemelos'), fillOpacity:fo('gemelos'), stroke:sc('gemelos'), strokeOpacity:so('gemelos'), strokeWidth:'1', style:{transition:'fill-opacity 0.6s'} }),
+
+        // Glúteos (semivisibles, zona cadera)
+        d.jsx('path', { d:'M42 148 Q36 155,34 165 Q38 170,50 168 Q52 158,50 150 Q46 148,42 148', fill:fill('gluteos'), fillOpacity:(fo('gluteos')*0.65), stroke:sc('gluteos'), strokeOpacity:(so('gluteos')*0.7), strokeWidth:'0.8', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('path', { d:'M78 148 Q84 155,86 165 Q82 170,70 168 Q68 158,70 150 Q74 148,78 148', fill:fill('gluteos'), fillOpacity:(fo('gluteos')*0.65), stroke:sc('gluteos'), strokeOpacity:(so('gluteos')*0.7), strokeWidth:'0.8', style:{transition:'fill-opacity 0.6s'} }),
+
+        // Femoral (detrás muslo, muy sutil)
+        d.jsx('path', { d:'M38 163 Q34 180,36 205 Q38 215,40 215 Q42 205,44 185 Q44 170,42 163 Q40 162,38 163', fill:fill('femoral'), fillOpacity:(fo('femoral')*0.4), stroke:sc('femoral'), strokeOpacity:(so('femoral')*0.5), strokeWidth:'0.7', style:{transition:'fill-opacity 0.6s'} }),
+        d.jsx('path', { d:'M82 163 Q86 180,84 205 Q82 215,80 215 Q78 205,76 185 Q76 170,78 163 Q80 162,82 163', fill:fill('femoral'), fillOpacity:(fo('femoral')*0.4), stroke:sc('femoral'), strokeOpacity:(so('femoral')*0.5), strokeWidth:'0.7', style:{transition:'fill-opacity 0.6s'} }),
 
       ],
     });
-  };
+  }
+;
 ;
 
 ;
@@ -4015,50 +4019,78 @@ function GymInicio({ routines, logs, uid, onStart, setTab }) {
       ]}),
     ]}),
 
-    // ── Body Map + PR destacado ───────────────────────────────────────────────
+    // ── Anillos de actividad + PR ─────────────────────────────────────────────
     d.jsxs(Y.div,{
       initial:{opacity:0,scale:0.98},animate:{opacity:1,scale:1},transition:{delay:0.08},
-      className:'glass-card',
+      className:'glass-card overflow-hidden',
       children:[
         d.jsxs('div',{style:{display:'flex',gap:0},children:[
-          // Body map
-          d.jsx('div',{style:{flex:'0 0 45%',padding:'16px 0 16px 16px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'},children:[
-            d.jsx(BodyMap,{}),
+
+          // Anillos de actividad
+          d.jsxs('div',{style:{flex:'0 0 48%',padding:'14px 0 14px 14px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8},children:[
+            d.jsx('p',{className:'section-label',style:{alignSelf:'flex-start'},children:'Actividad'}),
+            (function(){
+              const allMg = MUSCLE_GROUPS.slice(0,6);
+              const cx=72, cy=72, baseR=58, gap=9;
+              const totalSets = Object.values(weekMuscles.map).reduce(function(a,v){return a+v;},0);
+              return d.jsxs('svg',{width:144,height:144,viewBox:'0 0 144 144',children:[
+                allMg.map(function(mg,i){
+                  const r = baseR - i*gap;
+                  const circumference = 2*Math.PI*r;
+                  const sets = weekMuscles.map[mg.id] || 0;
+                  const pct = sets > 0 ? Math.max(0.08, Math.min(0.95, sets/weekMuscles.max)) : 0;
+                  const dash = circumference * pct;
+                  return d.jsxs('g',{key:mg.id,children:[
+                    // Track
+                    d.jsx('circle',{cx,cy,r,fill:'none',stroke:mg.color,strokeWidth:7,strokeOpacity:0.1}),
+                    // Fill
+                    pct>0 && d.jsx('circle',{
+                      cx,cy,r,fill:'none',
+                      stroke:mg.color,strokeWidth:7,
+                      strokeLinecap:'round',
+                      strokeDasharray:circumference,
+                      strokeDashoffset:circumference*(1-pct),
+                      transform:'rotate(-90 72 72)',
+                      style:{transition:'stroke-dashoffset 0.8s cubic-bezier(0.34,1.56,0.64,1)',filter:'drop-shadow(0 0 3px '+mg.color+'88)'},
+                    }),
+                  ]},mg.id);
+                }),
+                // Centro — total sets o "--"
+                d.jsx('text',{x:cx,y:cy-6,textAnchor:'middle',style:{fontSize:22,fontWeight:800,fill:'hsl(var(--foreground))',fontVariantNumeric:'tabular-nums'}},totalSets>0?totalSets:'0'),
+                d.jsx('text',{x:cx,y:cy+10,textAnchor:'middle',style:{fontSize:9,fontWeight:600,fill:'hsl(var(--muted-foreground))',textTransform:'uppercase',letterSpacing:'0.08em'}},'series'),
+              ]});
+            })(),
           ]}),
-          // Stats del body map
-          d.jsxs('div',{style:{flex:1,padding:'16px',display:'flex',flexDirection:'column',justifyContent:'space-between'},children:[
+
+          // Leyenda + PR
+          d.jsxs('div',{style:{flex:1,padding:'14px 12px',display:'flex',flexDirection:'column',justifyContent:'space-between'},children:[
             d.jsxs('div',{className:'space-y-1.5',children:[
               d.jsx('p',{className:'section-label',children:'Esta semana'}),
-              d.jsxs('div',{className:'space-y-1',children:
-                Object.entries(weekMuscles.map).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(entry){
-                  const mgId=entry[0], sets=entry[1];
-                  const mg=MUSCLE_GROUPS.find(function(m){return m.id===mgId;});
-                  const col=mg?mg.color:GYM_RED;
-                  const pct=sets/weekMuscles.max;
-                  return d.jsxs('div',{key:mgId,style:{display:'flex',alignItems:'center',gap:6},children:[
-                    d.jsx('div',{style:{width:4,height:4,borderRadius:'50%',background:col,flexShrink:0}}),
-                    d.jsx('span',{style:{fontSize:10,fontWeight:600,color:'hsl(var(--foreground))',flex:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},children:mg?mg.short:mgId}),
-                    d.jsx('div',{style:{width:48,height:3,borderRadius:2,background:'var(--glass-bg)',overflow:'hidden'},children:
-                      d.jsx('div',{style:{height:'100%',width:(pct*100)+'%',background:col,borderRadius:2,transition:'width 0.6s'}}),
-                    }),
-                    d.jsx('span',{style:{fontSize:9,color:'hsl(var(--muted-foreground))',width:14,textAlign:'right'},children:sets}),
+              d.jsxs('div',{className:'space-y-1.5',children:
+                MUSCLE_GROUPS.slice(0,6).map(function(mg){
+                  const sets = weekMuscles.map[mg.id]||0;
+                  const pct = weekMuscles.max > 0 ? sets/weekMuscles.max : 0;
+                  return d.jsxs('div',{key:mg.id,style:{display:'flex',alignItems:'center',gap:5},children:[
+                    d.jsx('div',{style:{width:7,height:7,borderRadius:'50%',background:mg.color,flexShrink:0,opacity:sets>0?1:0.25}}),
+                    d.jsx('span',{style:{fontSize:10,fontWeight:600,color:sets>0?'hsl(var(--foreground))':'hsl(var(--muted-foreground))',flex:1},children:mg.short}),
+                    d.jsx('span',{style:{fontSize:10,fontWeight:700,color:mg.color,opacity:sets>0?1:0.3,minWidth:18,textAlign:'right'},children:sets>0?sets+'s':'—'}),
                   ]});
                 }),
               }),
-              weekMuscles.map && Object.keys(weekMuscles.map).length===0 && d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:'Entrena para ver tus músculos activados'}),
+              Object.keys(weekMuscles.map).length===0 && d.jsx('p',{style:{fontSize:10,color:'hsl(var(--muted-foreground))',lineHeight:1.4},children:'Entrena esta semana para ver tu actividad'}),
             ]}),
 
-            // PR top
             topPR && d.jsxs('div',{style:{marginTop:8,paddingTop:8,borderTop:'1px solid var(--glass-border)'},children:[
               d.jsx('p',{className:'section-label',children:'Mejor récord'}),
-              d.jsxs('p',{style:{fontSize:13,fontWeight:700,color:'hsl(var(--foreground))',lineHeight:1.2,marginTop:2},children:[topPR.name]}),
-              d.jsxs('div',{style:{display:'flex',alignItems:'baseline',gap:4,marginTop:2},children:[
-                d.jsxs('p',{style:{fontSize:22,fontWeight:900,color:'#f59e0b',lineHeight:1,fontVariantNumeric:'tabular-nums'},children:[topPR.e1]}),
-                d.jsx('p',{style:{fontSize:11,color:'#f59e0b',opacity:0.7},children:'kg 1RM'}),
+              d.jsx('p',{style:{fontSize:12,fontWeight:700,color:'hsl(var(--foreground))',marginTop:2,lineHeight:1.2},children:topPR.name}),
+              d.jsxs('div',{style:{display:'flex',alignItems:'baseline',gap:3,marginTop:2},children:[
+                d.jsx('span',{style:{fontSize:20,fontWeight:900,color:'#f59e0b',lineHeight:1},children:topPR.e1}),
+                d.jsx('span',{style:{fontSize:9,color:'#f59e0b',opacity:0.7},children:'kg 1RM'}),
               ]}),
-              d.jsxs('p',{style:{fontSize:10,color:'hsl(var(--muted-foreground))'},children:[topPR.w,'kg × ',topPR.r,' reps']}),
+              d.jsxs('p',{style:{fontSize:9,color:'hsl(var(--muted-foreground))'},children:[topPR.w,'×',topPR.r]}),
             ]}),
           ]}),
+
         ]}),
       ],
     }),
