@@ -25,3 +25,256 @@ html[style*="--app-font"] .font-serif {
 }
 
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ═══════════════════════════════════════════════════════════════
+   GIMNASIO v28.14 — Sistema de diseño dark luxury
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Importar fuentes display */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+/* Variables del módulo Gimnasio */
+:root {
+  --gym-red:        #e11d48;
+  --gym-red-dark:   #9f1239;
+  --gym-red-glow:   rgba(225,29,72,0.35);
+  --gym-red-soft:   rgba(225,29,72,0.08);
+  --gym-red-mid:    rgba(225,29,72,0.18);
+
+  --gym-bg:         hsl(220 30% 7%);
+  --gym-surface:    hsl(220 25% 10%);
+  --gym-surface-2:  hsl(220 20% 13%);
+  --gym-border:     rgba(255,255,255,0.07);
+  --gym-border-hot: rgba(225,29,72,0.25);
+
+  --gym-text:       #f1f5f9;
+  --gym-text-2:     #94a3b8;
+  --gym-text-3:     #475569;
+
+  --gym-font-display: 'Bebas Neue', 'Impact', sans-serif;
+  --gym-font-body:    'DM Sans', 'Inter', sans-serif;
+
+  --gym-radius:     14px;
+  --gym-radius-sm:  10px;
+  --gym-radius-xs:  7px;
+
+  --gym-shadow-card: 0 4px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset;
+  --gym-shadow-hot:  0 8px 32px rgba(225,29,72,0.3), 0 2px 0 rgba(255,255,255,0.06) inset;
+  --gym-shadow-glow: 0 0 40px rgba(225,29,72,0.2);
+}
+
+/* ── Tarjeta base del gym ─────────────────────────────────────── */
+.gym-card {
+  background: var(--gym-surface);
+  border: 1px solid var(--gym-border);
+  border-radius: var(--gym-radius);
+  box-shadow: var(--gym-shadow-card);
+  overflow: hidden;
+}
+
+.gym-card-hot {
+  background: linear-gradient(135deg, hsl(220 28% 11%) 0%, hsl(220 22% 9%) 100%);
+  border: 1px solid var(--gym-border-hot);
+  border-radius: var(--gym-radius);
+  box-shadow: var(--gym-shadow-hot);
+  overflow: hidden;
+}
+
+/* ── Tipografía display ────────────────────────────────────────── */
+.gym-display {
+  font-family: var(--gym-font-display);
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+}
+
+.gym-label {
+  font-family: var(--gym-font-body);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--gym-text-3);
+}
+
+/* ── Stat pill ─────────────────────────────────────────────────── */
+.gym-stat {
+  background: var(--gym-surface);
+  border: 1px solid var(--gym-border);
+  border-radius: var(--gym-radius-sm);
+  padding: 10px 8px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--gym-shadow-card);
+}
+
+.gym-stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--accent-color, var(--gym-red));
+  opacity: 0.8;
+}
+
+/* ── Input del gym ─────────────────────────────────────────────── */
+.gym-input {
+  background: var(--gym-surface-2);
+  border: 1px solid var(--gym-border);
+  border-radius: var(--gym-radius-xs);
+  color: var(--gym-text);
+  font-family: var(--gym-font-body);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-variant-numeric: tabular-nums;
+}
+.gym-input:focus {
+  border-color: var(--gym-red);
+  box-shadow: 0 0 0 3px rgba(225,29,72,0.15);
+}
+
+/* ── Badge muscular ────────────────────────────────────────────── */
+.gym-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Botón primario ────────────────────────────────────────────── */
+.gym-btn-primary {
+  background: linear-gradient(135deg, var(--gym-red) 0%, var(--gym-red-dark) 100%);
+  border: none;
+  border-radius: var(--gym-radius-sm);
+  color: #fff;
+  font-family: var(--gym-font-body);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--gym-shadow-hot);
+  transition: transform 0.15s, box-shadow 0.15s;
+  letter-spacing: 0.02em;
+}
+.gym-btn-primary:active { transform: scale(0.97); }
+
+/* ── Botón ghost ───────────────────────────────────────────────── */
+.gym-btn-ghost {
+  background: transparent;
+  border: 1px solid var(--gym-border);
+  border-radius: var(--gym-radius-xs);
+  color: var(--gym-text-2);
+  font-family: var(--gym-font-body);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.gym-btn-ghost:hover { border-color: var(--gym-red); color: var(--gym-red); }
+
+/* ── Animaciones de entrada ────────────────────────────────────── */
+@keyframes gym-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes gym-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes gym-scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes gym-glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(225,29,72,0.2); }
+  50%       { box-shadow: 0 0 40px rgba(225,29,72,0.45), 0 0 80px rgba(225,29,72,0.1); }
+}
+@keyframes gym-number-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.gym-anim-1 { animation: gym-slide-up 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+.gym-anim-2 { animation: gym-slide-up 0.45s 0.06s cubic-bezier(0.22,1,0.36,1) both; }
+.gym-anim-3 { animation: gym-slide-up 0.45s 0.12s cubic-bezier(0.22,1,0.36,1) both; }
+.gym-anim-4 { animation: gym-slide-up 0.45s 0.18s cubic-bezier(0.22,1,0.36,1) both; }
+.gym-anim-5 { animation: gym-slide-up 0.45s 0.24s cubic-bezier(0.22,1,0.36,1) both; }
+.gym-anim-scale { animation: gym-scale-in 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── Barra de progreso ─────────────────────────────────────────── */
+.gym-progress-track {
+  height: 4px;
+  background: var(--gym-surface-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.gym-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gym-red), #f97316);
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ── Separador ─────────────────────────────────────────────────── */
+.gym-divider {
+  height: 1px;
+  background: var(--gym-border);
+  margin: 0;
+}
+
+/* ── Scroll horizontal sin scrollbar ─────────────────────────────── */
+.gym-scroll-x {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2px;
+}
+.gym-scroll-x::-webkit-scrollbar { display: none; }
+
+/* ── Metric número grande ───────────────────────────────────────── */
+.gym-metric {
+  font-family: var(--gym-font-display);
+  font-size: 42px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--gym-text);
+}
+
+/* ── Nav ────────────────────────────────────────────────────────── */
+.gym-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(10,12,18,0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--gym-border);
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+  padding: 6px 4px env(safe-area-inset-bottom, 10px);
+  display: flex;
+  justify-content: space-around;
+  z-index: 50;
+}
+
+/* ── Contenedor principal ───────────────────────────────────────── */
+.gym-root {
+  min-height: 100vh;
+  background: var(--gym-bg);
+  padding-bottom: 76px;
+  font-family: var(--gym-font-body);
+  color: var(--gym-text);
+}
+
+/* ── Contenido ──────────────────────────────────────────────────── */
+.gym-content {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
