@@ -17937,10 +17937,10 @@ function NotebookEditor(props) {
       // ── Canvas ───────────────────────────────────────────────────────────
       d.jsxs('div', {
         ref: wrapRef,
-        style: { flex: 1, position: 'relative', overflow: 'hidden', background: isDark ? '#0f172a' : '#dde3ed' },
+        style: { flex: 1, position: 'relative', overflow: 'hidden', background: '#dde3ed' },
         children: [
           // Dry canvas
-          d.jsx('canvas', { ref: dryRef, style: { position: 'absolute', top: 0, left: 0, zIndex: 2, background: isDark ? '#0f172a' : '#dde3ed' } }),
+          d.jsx('canvas', { ref: dryRef, style: { position: 'absolute', top: 0, left: 0, zIndex: 2, background: '#dde3ed' } }),
 
           // Wet canvas (recibe todos los eventos de puntero)
           d.jsx('canvas', {
