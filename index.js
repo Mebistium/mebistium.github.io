@@ -4889,8 +4889,8 @@ function GymIA({ logs, routines, weightLog }) {
     }),
 
     d.jsxs('div',{style:{display:'flex',gap:8,paddingTop:8,borderTop:'1px solid var(--glass-border)'},children:[
-      d.jsx('input',{className:'input-premium',value:input,onChange:function(e){setInput(e.target.value);},onKeyDown:function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}},placeholder:'Pregúntame sobre tu entrenamiento...'}),
-      d.jsx('button',{onClick:sendMessage,disabled:loading||!input.trim(),style:{flexShrink:0,width:40,height:40,borderRadius:10,border:'none',background:loading||!input.trim()?'hsl(var(--muted))':GYM_RED,display:'flex',alignItems:'center',justifyContent:'center',cursor:loading||!input.trim()?'default':'pointer'},children:d.jsx(GymIcon,{icon:'send',size:18,color:'#fff'})}),
+      d.jsx('input',{className:'input-premium',value:input,onChange:function(e){setInput(e.target.value);},onKeyDown:function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}},placeholder:'Pregúntame sobre tu entrenamiento...'}),
+      d.jsx('button',{onClick:send,disabled:loading||!input.trim(),style:{flexShrink:0,width:40,height:40,borderRadius:10,border:'none',background:loading||!input.trim()?'hsl(var(--muted))':GYM_RED,display:'flex',alignItems:'center',justifyContent:'center',cursor:loading||!input.trim()?'default':'pointer'},children:d.jsx(GymIcon,{icon:'send',size:18,color:'#fff'})}),
     ]}),
 
   ]});}
