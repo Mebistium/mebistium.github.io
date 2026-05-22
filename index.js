@@ -15807,7 +15807,7 @@ children: "Selecciona un módulo",
 }),
 d.jsx("div", {
 style: { position: "absolute", inset: 0, pointerEvents: "none" },
-children: [0, 1, 2, 3, 4, 5].map(function (i) {
+children: [0, 1, 2, 3, 4, 5, 6, 7, 8].map(function (i) {
 return d.jsx(Y.div, {
 initial: { opacity: 0 },
 animate: {
@@ -15823,7 +15823,7 @@ top: (60 + (i % 3) * 10) + "%",
 width: 6 + (i % 3) * 2,
 height: 6 + (i % 3) * 2,
 borderRadius: "50%",
-background: i % 2 === 0 ? "#3b82f6" : "#10b981",
+background: i % 3 === 0 ? "#3b82f6" : i % 3 === 1 ? "#10b981" : "#e11d48",
 },
 }, i);
 }),
@@ -17235,6 +17235,10 @@ class CanvasController {
     if (!ctx || !cv) return;
     this._reset(ctx);
     ctx.clearRect(0, 0, cv.width, cv.height);
+    // Rellenar con el color de fondo de la página para evitar negro en modo oscuro del sistema
+    const pageBg = (this.notebook && this.notebook.pages && this.notebook.pages[0] && this.notebook.pages[0].bg) || '#fffef8';
+    ctx.fillStyle = pageBg;
+    ctx.fillRect(0, 0, cv.width, cv.height);
     if (!s || !s.points || !s.points.length) return;
 
     const { PAGE_W, PAGE_H, dpr } = this;
