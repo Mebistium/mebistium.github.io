@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mebistium-v28-14';
+const CACHE_NAME = 'mebistium-v28-14b';
 
 const urlsToCache = [
   './',
@@ -9,7 +9,7 @@ const urlsToCache = [
   './index.css',
 ];
 
-// Activar inmediatamente sin esperar — no bloquear en waiting
+// Activar inmediatamente sin esperar
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -36,8 +36,18 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  // index.js e index.html: siempre red primero, sin cache stale
-  if (url.pathname.endsWith('index.js') || url.pathname.endsWith('index.html') || url.pathname.endsWith('/')) {
+
+  // index.js: NUNCA desde caché, siempre red con no-store
+  if (url.pathname.endsWith('index.js')) {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // index.html y raíz: red primero, sin cache stale
+  if (url.pathname.endsWith('index.html') || url.pathname.endsWith('/') || url.pathname === '') {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' }).then((response) => {
         if (response && response.status === 200) {
@@ -49,14 +59,18 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  // Resto: red primero, cache como fallback
+
+  // Resto (CSS, iconos, manifest): caché primero
   event.respondWith(
-    fetch(event.request).then((response) => {
-      if (response && response.status === 200) {
-        const cloned = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned)).catch(() => {});
-      }
-      return response;
-    }).catch(() => caches.match(event.request))
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned)).catch(() => {});
+        }
+        return response;
+      });
+    })
   );
 });
