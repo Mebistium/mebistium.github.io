@@ -8537,7 +8537,7 @@ content = d.jsx(FinanceMorePage, { onChangeCurrency: function () { setShowOnboar
 content = d.jsx(FinanceDashboard, {
 transactions: transactions, currency: currency,
 selectedMonth: selectedMonth, setSelectedMonth: setSelectedMonth,
-accounts: accounts,
+accounts: accounts, envelopes: envelopes, goals: goals,
 onAdd: function (type) { setShowAddModal(type); },
 onTransfer: function() { setShowTransferModal(true); },
 onSeeAll: function () { navigate("/finanzas/movimientos"); },
@@ -8766,253 +8766,150 @@ const recent = o.transactions.slice()
 .filter(function(tx) { return !tx.date || tx.date.startsWith(curMonth); })
 .sort(function (a, b) { return (b.date || "").localeCompare(a.date || ""); })
 .slice(0, 5);
-return d.jsxs("div", {
-style: { display: "flex", flexDirection: "column", gap: 16 },
-children: [
-d.jsxs(Y.div, {
-initial: { opacity: 0, y: -8 },
-animate: { opacity: 1, y: 0 },
-children: [
-d.jsx("h1", {
-style: {
-fontSize: 26, fontWeight: 700, color: "#0f172a", margin: 0,
-fontFamily: "'Instrument Serif', serif",
-},
-children: "Finanzas",
-}),
-d.jsx("p", { style: { fontSize: 13, color: "#64748b", margin: "4px 0 0" }, children: isViewingCurrent ? "Tu dinero, organizado" : "Viendo histórico" }),
-],
-}),
-o.setSelectedMonth ? d.jsx(MonthSelector, { value: curMonth, onChange: o.setSelectedMonth }) : null,
-d.jsxs(Y.div, {
-initial: { opacity: 0, y: 12 },
-animate: { opacity: 1, y: 0 },
-transition: { delay: 0.05 },
-className: "glass-card",
-style: {
-padding: 20, textAlign: "center",
-background: "linear-gradient(135deg, #10b98122, #04785708)",
-borderLeft: "3px solid #059669",
-boxSizing: "border-box",
-},
-children: [
-d.jsx("p", {
-style: {
-fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-letterSpacing: 0.5, color: "#64748b", margin: 0,
-},
-children: isViewingCurrent ? "Saldo actual" : "Saldo a fin de " + curMonth.split("-")[1] + "/" + curMonth.split("-")[0],
-}),
-d.jsxs("h2", {
-style: {
-fontSize: 32, fontWeight: 700,
-color: totalCents >= 0 ? "#0f172a" : "#dc2626",
-margin: "8px 0 4px",
-fontFamily: "'Instrument Serif', serif",
-wordBreak: "break-all",
-},
-children: [formatAmountES(totalCents), " ", symbol],
-}),
-monthSavingCents !== 0 ? d.jsxs("p", {
-style: {
-fontSize: 12, fontWeight: 600,
-color: monthSavingCents >= 0 ? "#16a34a" : "#dc2626",
-margin: 0,
-},
-children: [
-monthSavingCents >= 0 ? "+" : "",
-formatAmountES(monthSavingCents), " ", symbol, " este mes",
-],
-}) : null,
-],
-}),
-d.jsxs("div", {
-style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 },
-children: [
-d.jsxs(Y.button, {
-whileTap: { scale: 0.96 },
-onClick: function () { o.onAdd("income"); },
-style: {
-padding: "16px 12px", borderRadius: 14, border: "none",
-background: "linear-gradient(135deg, #10b981, #047857)",
-color: "white", cursor: "pointer",
-boxShadow: "0 6px 20px rgba(5,150,105,0.3)",
-display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-boxSizing: "border-box",
-minWidth: 0,
-},
-children: [
-d.jsx("div", {
-style: {
-width: 36, height: 36, borderRadius: "50%",
-background: "rgba(255,255,255,0.25)",
-display: "flex", alignItems: "center", justifyContent: "center",
-},
-children: MIcon({ path: ICONS.arrow_up, size: 18, color: "white" }),
-}),
-d.jsx("p", { style: { fontSize: 13, fontWeight: 700, margin: 0 }, children: "Meter dinero" }),
-],
-}),
-d.jsxs(Y.button, {
-whileTap: { scale: 0.96 },
-onClick: function () { o.onAdd("expense"); },
-style: {
-padding: "16px 12px", borderRadius: 14, border: "none",
-background: "linear-gradient(135deg, #f87171, #dc2626)",
-color: "white", cursor: "pointer",
-boxShadow: "0 6px 20px rgba(220,38,38,0.3)",
-display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-boxSizing: "border-box",
-minWidth: 0,
-},
-children: [
-d.jsx("div", {
-style: {
-width: 36, height: 36, borderRadius: "50%",
-background: "rgba(255,255,255,0.25)",
-display: "flex", alignItems: "center", justifyContent: "center",
-},
-children: MIcon({ path: ICONS.arrow_down, size: 18, color: "white" }),
-}),
-d.jsx("p", { style: { fontSize: 13, fontWeight: 700, margin: 0 }, children: "Sacar dinero" }),
-],
-}),
-],
-}),
-(o.accounts && o.accounts.length >= 2 && o.onTransfer) ? d.jsxs("button", {
-onClick: o.onTransfer,
-style: {
-padding: "10px 14px", borderRadius: 12,
-border: "1px solid rgba(2,132,199,0.2)",
-background: "rgba(2,132,199,0.04)",
-color: "#0284c7", cursor: "pointer",
-fontSize: 12, fontWeight: 600,
-display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-boxSizing: "border-box", width: "100%",
-},
-children: [
-MIcon({ path: '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>', size: 13, color: "#0284c7" }),
-"Transferir entre cuentas",
-],
-}) : null,
-o.isLoading && o.transactions.length === 0 ? d.jsx("div", {
-style: {
-padding: 28, textAlign: "center",
-borderRadius: 16,
-boxSizing: "border-box",
-},
-children: d.jsx("p", { style: { fontSize: 13, color: "#94a3b8" }, children: "Cargando movimientos..." }),
-}) : o.transactions.length === 0 ? d.jsxs("div", {
-className: "glass-card",
-style: {
-padding: 28, textAlign: "center",
-boxSizing: "border-box",
-},
-children: [
-d.jsx("div", {
-style: { display: "flex", justifyContent: "center", marginBottom: 10, opacity: 0.4 },
-children: MIcon({ path: ICONS.list, size: 32, color: "#64748b" }),
-}),
-d.jsx("p", { style: { fontSize: 13, color: "#64748b", marginBottom: 4 }, children: "Aún no tienes movimientos" }),
-d.jsx("p", { style: { fontSize: 11, color: "#94a3b8" }, children: "Pulsa Meter o Sacar dinero para empezar" }),
-],
-}) : d.jsxs(d.Fragment, {
-children: [
-d.jsxs("div", {
-className: "glass-card",
-style: {
-padding: 14,
-boxSizing: "border-box",
-},
-children: [
-d.jsx("p", {
-style: {
-fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-letterSpacing: 0.5, color: "#64748b", margin: "0 0 10px",
-},
-children: "Resumen del mes",
-}),
-d.jsxs("div", {
-style: { display: "flex", justifyContent: "space-between", padding: "6px 0" },
-children: [
-d.jsx("span", { style: { fontSize: 12, color: "#475569" }, children: "Ingresos" }),
-d.jsxs("span", {
-style: { fontSize: 13, fontWeight: 600, color: "#16a34a" },
-children: ["+", formatAmountES(monthIncomeCents), " ", symbol],
-}),
-],
-}),
-d.jsxs("div", {
-style: { display: "flex", justifyContent: "space-between", padding: "6px 0" },
-children: [
-d.jsx("span", { style: { fontSize: 12, color: "#475569" }, children: "Gastos" }),
-d.jsxs("span", {
-style: { fontSize: 13, fontWeight: 600, color: "#dc2626" },
-children: ["-", formatAmountES(monthExpenseCents), " ", symbol],
-}),
-],
-}),
-d.jsxs("div", {
-style: {
-display: "flex", justifyContent: "space-between",
-padding: "8px 0 0",
-borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 4,
-},
-children: [
-d.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: "#0f172a" }, children: "Ahorro" }),
-d.jsxs("span", {
-style: {
-fontSize: 13, fontWeight: 700,
-color: monthSavingCents >= 0 ? "#16a34a" : "#dc2626",
-},
-children: [
-monthSavingCents >= 0 ? "+" : "",
-formatAmountES(monthSavingCents), " ", symbol,
-],
-}),
-],
-}),
-],
-}),
-d.jsxs("div", {
-className: "glass-card",
-style: {
-padding: 14,
-boxSizing: "border-box",
-},
-children: [
-d.jsxs("div", {
-style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 },
-children: [
-d.jsx("p", {
-style: {
-fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-letterSpacing: 0.5, color: "#64748b", margin: 0,
-},
-children: "Últimos movimientos",
-}),
-d.jsx("button", {
-onClick: o.onSeeAll,
-style: {
-fontSize: 11, fontWeight: 600, color: "#059669",
-background: "transparent", border: "none", cursor: "pointer",
-padding: 0,
-},
-children: "Ver todo →",
-}),
-],
-}),
-d.jsx("div", {
-children: recent.map(function (tx) {
-return TransactionItem({ tx: tx, currency: o.currency, accounts: o.accounts, onDelete: o.onDeleteTx });
-}),
-}),
-],
-}),
-],
-}),
-],
-});
+return d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:14},children:[
+d.jsxs("div",{style:{display:"flex",alignItems:"flex-end",justifyContent:"space-between",flexWrap:"wrap",gap:8},children:[
+  d.jsxs(Y.div,{initial:{opacity:0,y:-8},animate:{opacity:1,y:0},children:[
+    d.jsx("h1",{style:{fontSize:24,fontWeight:700,color:"var(--foreground)",margin:0,fontFamily:"'Instrument Serif',serif"},children:"Finanzas"}),
+    d.jsx("p",{style:{fontSize:12,color:"var(--muted-foreground)",margin:"2px 0 0"},children:isViewingCurrent?"Tu dinero, organizado":"Viendo histórico"}),
+  ]}),
+  o.setSelectedMonth?d.jsx(MonthSelector,{value:curMonth,onChange:o.setSelectedMonth}):null,
+]}),
+d.jsxs("div",{style:{display:"grid",gridTemplateColumns:"minmax(0,1fr) 220px minmax(0,1fr)",gap:12,alignItems:"start"},children:[
+d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[
+  d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+    d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10},children:[
+      d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"var(--muted-foreground)",margin:0},children:"Últimos movimientos"}),
+      d.jsx("button",{onClick:o.onSeeAll,style:{fontSize:11,color:"var(--primary)",background:"none",border:"none",cursor:"pointer",fontWeight:600,padding:0},children:"Ver todo →"}),
+    ]}),
+    recent.length===0
+      ? d.jsx("p",{style:{fontSize:12,color:"var(--muted-foreground)",padding:"12px 0",textAlign:"center"},children:"Sin movimientos este mes"})
+      : recent.map(function(tx,i){
+          var isInc=tx.type==="income";
+          var amtColor=isInc?"#16a34a":"#dc2626";
+          var iconBg=isInc?"rgba(45,106,79,0.1)":"rgba(0,0,0,0.05)";
+          var tag=tx.isRecurring?"recurrente":isInc?"ingreso":"gasto";
+          var tagBg=tx.isRecurring?"rgba(2,132,199,0.08)":isInc?"rgba(22,163,74,0.08)":"rgba(220,38,38,0.08)";
+          var tagColor=tx.isRecurring?"#0284c7":isInc?"#15803d":"#991b1b";
+          var catName=tx.categoryName||tx.categoryId||"";
+          return d.jsxs("div",{style:{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:i<recent.length-1?"0.5px solid var(--border)":"none"},children:[
+            d.jsx("div",{style:{width:32,height:32,borderRadius:9,background:iconBg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0},children:MIcon({path:isInc?ICONS.arrow_up:ICONS.arrow_down,size:15,color:isInc?"#2d6a4f":"#888"})}),
+            d.jsxs("div",{style:{flex:1,minWidth:0},children:[
+              d.jsx("p",{style:{fontSize:13,fontWeight:500,color:"var(--foreground)",margin:0,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},children:tx.description||catName||"Sin descripción"}),
+              d.jsx("p",{style:{fontSize:10,color:"var(--muted-foreground)",margin:"1px 0 0"},children:catName+(tx.date?" · "+tx.date.slice(5).replace("-","/"): "")}),
+            ]}),
+            d.jsxs("div",{style:{textAlign:"right",flexShrink:0},children:[
+              d.jsxs("p",{style:{fontSize:13,fontWeight:500,color:amtColor,margin:0,fontVariantNumeric:"tabular-nums"},children:[isInc?"+":"−",formatAmountES(tx.amountCents)," ",symbol]}),
+              d.jsx("span",{style:{fontSize:9,padding:"1px 5px",borderRadius:4,background:tagBg,color:tagColor,marginTop:2,display:"inline-block"},children:tag}),
+            ]}),
+          ]},tx.id||i);
+        }),
+  ]}),
+]}),
+d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[
+  d.jsxs(Y.div,{initial:{opacity:0,y:12},animate:{opacity:1,y:0},transition:{delay:0.05},
+    style:{background:"linear-gradient(135deg,#1a3d2b 0%,#14532d 100%)",borderRadius:14,padding:16,textAlign:"center"},children:[
+    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",color:"#74c69d",margin:"0 0 4px"},children:isViewingCurrent?"Saldo actual":"Saldo fin "+curMonth.split("-")[1]+"/"+curMonth.split("-")[0]}),
+    d.jsxs("h2",{style:{fontSize:30,fontWeight:700,color:totalCents>=0?"#d8f3dc":"#fca5a5",margin:"0 0 4px",fontFamily:"'Instrument Serif',serif",wordBreak:"break-all"},children:[formatAmountES(totalCents)," ",symbol]}),
+    monthSavingCents!==0?d.jsxs("p",{style:{fontSize:12,fontWeight:600,color:monthSavingCents>=0?"#95d5b2":"#fca5a5",margin:0},children:[monthSavingCents>=0?"+":"",formatAmountES(monthSavingCents)," ",symbol," este mes"]}):null,
+  ]}),
+  d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:7},children:[
+    d.jsxs(Y.button,{whileTap:{scale:0.96},onClick:function(){o.onAdd("income");},style:{padding:"12px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#2d6a4f,#14532d)",color:"white",cursor:"pointer",fontWeight:600,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",gap:8,width:"100%",boxShadow:"0 4px 14px rgba(45,106,79,0.3)"},children:[MIcon({path:ICONS.arrow_up,size:16,color:"white"}),"Meter dinero"]}),
+    d.jsxs(Y.button,{whileTap:{scale:0.96},onClick:function(){o.onAdd("expense");},style:{padding:"12px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#dc2626,#991b1b)",color:"white",cursor:"pointer",fontWeight:600,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",gap:8,width:"100%",boxShadow:"0 4px 14px rgba(220,38,38,0.3)"},children:[MIcon({path:ICONS.arrow_down,size:16,color:"white"}),"Sacar dinero"]}),
+    (o.accounts&&o.accounts.length>=2&&o.onTransfer)?d.jsxs("button",{onClick:o.onTransfer,style:{padding:"8px 12px",borderRadius:10,border:"1px solid rgba(2,132,199,0.2)",background:"rgba(2,132,199,0.04)",color:"#0284c7",cursor:"pointer",fontSize:12,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6,width:"100%"},children:[MIcon({path:'<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',size:13,color:"#0284c7"}),"Transferir entre cuentas"]}):null,
+  ]}),
+  d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"var(--muted-foreground)",margin:"0 0 8px"},children:"Resumen del mes"}),
+    d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"0.5px solid var(--border)"},children:[d.jsx("span",{style:{fontSize:12,color:"var(--muted-foreground)"},children:"Ingresos"}),d.jsxs("span",{style:{fontSize:13,fontWeight:600,color:"#16a34a",fontVariantNumeric:"tabular-nums"},children:["+",formatAmountES(monthIncomeCents)," ",symbol]})]}),
+    d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"0.5px solid var(--border)"},children:[d.jsx("span",{style:{fontSize:12,color:"var(--muted-foreground)"},children:"Gastos"}),d.jsxs("span",{style:{fontSize:13,fontWeight:600,color:"#dc2626",fontVariantNumeric:"tabular-nums"},children:["−",formatAmountES(monthExpenseCents)," ",symbol]})]}),
+    d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",padding:"6px 0 0"},children:[d.jsx("span",{style:{fontSize:13,fontWeight:600,color:"var(--foreground)"},children:"Ahorro"}),d.jsxs("span",{style:{fontSize:13,fontWeight:700,color:monthSavingCents>=0?"#16a34a":"#dc2626",fontVariantNumeric:"tabular-nums"},children:[monthSavingCents>=0?"+":"",formatAmountES(monthSavingCents)," ",symbol]})]}),
+  ]}),
+  (o.envelopes&&o.envelopes.length>0)?d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"var(--muted-foreground)",margin:"0 0 8px"},children:"Sobres este mes"}),
+    o.envelopes.filter(function(e){return !e.isBuffer;}).slice(0,6).map(function(env,ei){
+      var assigned=(env.monthlyAssignments&&env.monthlyAssignments[curMonth]!==undefined)?env.monthlyAssignments[curMonth]:(env.monthlyAmountCents||0);
+      var spent=0;
+      o.transactions.forEach(function(tx){if(tx.type!=="expense"||!tx.date||!tx.date.startsWith(curMonth))return;if(tx.categoryId===env.categoryId&&tx.envelopeId===env.id)spent+=tx.amountCents;});
+      var pct=assigned>0?Math.min(1,spent/assigned):0;
+      var barColor=pct>0.9?"#b45309":"#2d6a4f";
+      var valColor=pct>0.9?"#b45309":"var(--muted-foreground)";
+      var envNormal=o.envelopes.filter(function(e){return !e.isBuffer;});
+      return d.jsxs("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:ei<Math.min(envNormal.length,6)-1?"0.5px solid var(--border)":"none"},children:[
+        d.jsx("span",{style:{fontSize:12,fontWeight:500,color:"var(--foreground)",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},children:env.name||"Sobre"}),
+        d.jsx("div",{style:{flex:"0 0 52px",height:4,background:"rgba(0,0,0,0.06)",borderRadius:2,overflow:"hidden"},children:d.jsx("div",{style:{width:(pct*100)+"%",height:"100%",background:barColor,borderRadius:2}})}),
+        d.jsxs("span",{style:{fontSize:11,fontVariantNumeric:"tabular-nums",color:valColor,flexShrink:0,minWidth:48,textAlign:"right"},children:[formatAmountES(assigned-spent)," ",symbol]}),
+      ]},env.id||ei);
+    }),
+  ]}):null,
+]}),
+d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[
+  (monthExpenseCents>0)?d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"var(--muted-foreground)",margin:"0 0 10px"},children:"Gastos por categoría"}),
+    (function(){
+      var byCategory={};
+      o.transactions.forEach(function(tx){
+        if(tx.type!=="expense"||!tx.date||!tx.date.startsWith(curMonth))return;
+        var cId=tx.categoryId||"otros";
+        if(!byCategory[cId])byCategory[cId]={name:tx.categoryName||cId,amount:0};
+        byCategory[cId].amount+=tx.amountCents;
+      });
+      var cats=Object.values(byCategory).sort(function(a,b){return b.amount-a.amount;}).slice(0,5);
+      var maxAmt=cats.length>0?cats[0].amount:1;
+      var palette=["#2d6a4f","#52b788","#74c69d","#95d5b2","#b7e4c7"];
+      if(cats.length===0) return d.jsx("p",{style:{fontSize:12,color:"var(--muted-foreground)",textAlign:"center",padding:"8px 0"},children:"Sin gastos"});
+      return d.jsx("div",{style:{display:"flex",flexDirection:"column",gap:7},children:cats.map(function(cat,ci){
+        var pct=cat.amount/maxAmt;
+        return d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:2},children:[
+          d.jsxs("div",{style:{display:"flex",justifyContent:"space-between"},children:[
+            d.jsx("span",{style:{fontSize:11,color:"var(--foreground)",fontWeight:500},children:cat.name}),
+            d.jsxs("span",{style:{fontSize:11,color:"var(--muted-foreground)",fontVariantNumeric:"tabular-nums"},children:[formatAmountES(cat.amount)," ",symbol]}),
+          ]}),
+          d.jsx("div",{style:{height:4,background:"rgba(0,0,0,0.06)",borderRadius:2,overflow:"hidden"},children:d.jsx("div",{style:{width:(pct*100)+"%",height:"100%",background:palette[ci]||"#2d6a4f",borderRadius:2}})}),
+        ]},cat.name);
+      })});
+    })(),
+  ]}):null,
+  d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"var(--muted-foreground)",margin:"0 0 10px"},children:"Ahorro mensual — 6 meses"}),
+    (function(){
+      var ms=[];
+      var now2=new Date();
+      for(var i2=5;i2>=0;i2--){
+        var dd=new Date(now2.getFullYear(),now2.getMonth()-i2,1);
+        var ym=dd.getFullYear()+"-"+String(dd.getMonth()+1).padStart(2,"0");
+        var lbl=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][dd.getMonth()];
+        var inc2=0,exp2=0;
+        o.transactions.forEach(function(tx){if(!tx.date||!tx.date.startsWith(ym))return;if(tx.type==="income")inc2+=tx.amountCents;else if(tx.type==="expense")exp2+=tx.amountCents;});
+        ms.push({label:lbl,saving:inc2-exp2});
+      }
+      var maxV=Math.max.apply(null,ms.map(function(m){return Math.abs(m.saving);}).concat([1]));
+      var W2=180,H2=68,P2=10;
+      var pts=ms.map(function(m,i){return {x:P2+i*((W2-P2*2)/5),y:H2/2-(m.saving/maxV)*(H2/2-P2),saving:m.saving,label:m.label};});
+      var pathD=pts.map(function(p,i){return (i===0?"M":"L")+p.x.toFixed(1)+","+p.y.toFixed(1);}).join(" ");
+      return d.jsxs("svg",{width:"100%",viewBox:"0 0 "+W2+" "+(H2+18),style:{overflow:"visible"},children:[
+        d.jsx("line",{x1:P2,y1:H2/2,x2:W2-P2,y2:H2/2,stroke:"rgba(0,0,0,0.06)",strokeWidth:1}),
+        d.jsx("path",{d:pathD,fill:"none",stroke:"#2d6a4f",strokeWidth:2,strokeLinecap:"round",strokeLinejoin:"round"}),
+        pts.map(function(p,pi){return d.jsxs("g",{key:pi,children:[
+          d.jsx("circle",{cx:p.x,cy:p.y,r:3,fill:p.saving>=0?"#2d6a4f":"#dc2626"}),
+          d.jsx("text",{x:p.x,y:H2+14,textAnchor:"middle",fontSize:8,fill:"var(--muted-foreground)"},p.label),
+        ]});})
+      ]});
+    })(),
+  ]}),
+  (o.goals&&o.goals.length>0)?d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"var(--muted-foreground)",margin:"0 0 10px"},children:"Objetivos de ahorro"}),
+    d.jsx("div",{style:{display:"flex",flexDirection:"column",gap:10},children:o.goals.slice(0,4).map(function(g,gi){
+      var gPct=g.targetCents>0?Math.min(1,(g.currentCents||0)/g.targetCents):0;
+      var gColor=gPct>=1?"#16a34a":gPct>0.6?"#2d6a4f":"#52b788";
+      return d.jsxs("div",{children:[
+        d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4},children:[
+          d.jsx("span",{style:{fontSize:12,color:"var(--foreground)",fontWeight:500},children:g.name}),
+          d.jsxs("span",{style:{fontSize:11,color:"var(--muted-foreground)",fontVariantNumeric:"tabular-nums"},children:[formatAmountES(g.currentCents||0)," / ",formatAmountES(g.targetCents)," ",symbol]}),
+        ]}),
+        d.jsx("div",{style:{height:5,background:"rgba(0,0,0,0.06)",borderRadius:3,overflow:"hidden"},children:d.jsx("div",{style:{width:(gPct*100)+"%",height:"100%",background:gColor,borderRadius:3}})}),
+      ]},g.id||gi);
+    })}),
+  ]}):null,
+]}),]}),]});
 }
 function TransactionItem(o) {
 const cat = getCategoryById(o.tx.categoryId);
