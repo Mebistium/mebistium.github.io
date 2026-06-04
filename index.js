@@ -8774,7 +8774,7 @@ d.jsxs("div",{style:{display:"flex",alignItems:"flex-end",justifyContent:"space-
   ]}),
   o.setSelectedMonth?d.jsx(MonthSelector,{value:curMonth,onChange:o.setSelectedMonth}):null,
 ]}),
-d.jsxs("div",{style:{display:"grid",gridTemplateColumns:"minmax(0,1fr) 220px minmax(0,1fr)",gap:12,alignItems:"start"},children:[
+d.jsxs("div",{className:"fin-dashboard-grid",style:{display:"grid",gap:12,alignItems:"start"},children:[
 d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[
   d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
     d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10},children:[
