@@ -8765,255 +8765,369 @@ const monthSavingCents = monthIncomeCents - monthExpenseCents;
 const recent = o.transactions.slice()
 .filter(function(tx) { return !tx.date || tx.date.startsWith(curMonth); })
 .sort(function (a, b) { return (b.date || "").localeCompare(a.date || ""); })
-.slice(0, 5);
+.slice(0, 8);
+
+// Donut: gastos por categoría del mes
+const catMap = {};
+o.transactions.forEach(function(tx) {
+if (tx.type !== "expense") return;
+if (!tx.date || !tx.date.startsWith(curMonth)) return;
+const cat = getCategoryById(tx.categoryId);
+const key = cat.name;
+catMap[key] = (catMap[key] || 0) + tx.amountCents;
+});
+const catEntries = Object.entries(catMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+
+// Colores donut verdes
+const DONUT_COLORS = ["#1a3d2b","#2d6a4f","#40916c","#74c69d","#b7e4c7"];
+
+// SVG donut
+function DonutChart() {
+if (catEntries.length === 0) return d.jsx("div", {
+style:{display:"flex",alignItems:"center",justifyContent:"center",height:120,color:"#94a3b8",fontSize:12},
+children:"Sin gastos este mes"
+});
+const total = catEntries.reduce(function(s,e){return s+e[1];},0);
+if (total === 0) return null;
+const r = 40, cx = 60, cy = 60, stroke = 18;
+const circ = 2 * Math.PI * r;
+let offset = 0;
+const slices = catEntries.map(function(e, i) {
+const pct = e[1] / total;
+const dash = pct * circ;
+const sl = d.jsx("circle", {
+key: e[0],
+cx: cx, cy: cy, r: r,
+fill: "none",
+stroke: DONUT_COLORS[i % DONUT_COLORS.length],
+strokeWidth: stroke,
+strokeDasharray: dash + " " + (circ - dash),
+strokeDashoffset: -offset,
+style:{transform:"rotate(-90deg)",transformOrigin:"60px 60px"},
+});
+offset += dash;
+return sl;
+});
 return d.jsxs("div", {
-style: { display: "flex", flexDirection: "column", gap: 16 },
-children: [
-d.jsxs(Y.div, {
-initial: { opacity: 0, y: -8 },
-animate: { opacity: 1, y: 0 },
-children: [
-d.jsx("h1", {
-style: {
-fontSize: 26, fontWeight: 700, color: "#0f172a", margin: 0,
-fontFamily: "'Instrument Serif', serif",
-},
-children: "Finanzas",
-}),
-d.jsx("p", { style: { fontSize: 13, color: "#64748b", margin: "4px 0 0" }, children: isViewingCurrent ? "Tu dinero, organizado" : "Viendo histórico" }),
-],
-}),
-o.setSelectedMonth ? d.jsx(MonthSelector, { value: curMonth, onChange: o.setSelectedMonth }) : null,
-d.jsxs(Y.div, {
-initial: { opacity: 0, y: 12 },
-animate: { opacity: 1, y: 0 },
-transition: { delay: 0.05 },
-className: "glass-card",
-style: {
-padding: 20, textAlign: "center",
-background: "linear-gradient(135deg, #10b98122, #04785708)",
-borderLeft: "3px solid #059669",
-boxSizing: "border-box",
-},
-children: [
-d.jsx("p", {
-style: {
-fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-letterSpacing: 0.5, color: "#64748b", margin: 0,
-},
-children: isViewingCurrent ? "Saldo actual" : "Saldo a fin de " + curMonth.split("-")[1] + "/" + curMonth.split("-")[0],
-}),
-d.jsxs("h2", {
-style: {
-fontSize: 32, fontWeight: 700,
-color: totalCents >= 0 ? "#0f172a" : "#dc2626",
-margin: "8px 0 4px",
-fontFamily: "'Instrument Serif', serif",
-wordBreak: "break-all",
-},
-children: [formatAmountES(totalCents), " ", symbol],
-}),
-monthSavingCents !== 0 ? d.jsxs("p", {
-style: {
-fontSize: 12, fontWeight: 600,
-color: monthSavingCents >= 0 ? "#16a34a" : "#dc2626",
-margin: 0,
-},
-children: [
-monthSavingCents >= 0 ? "+" : "",
-formatAmountES(monthSavingCents), " ", symbol, " este mes",
-],
-}) : null,
-],
-}),
-d.jsxs("div", {
-style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 },
-children: [
-d.jsxs(Y.button, {
-whileTap: { scale: 0.96 },
-onClick: function () { o.onAdd("income"); },
-style: {
-padding: "16px 12px", borderRadius: 14, border: "none",
-background: "linear-gradient(135deg, #10b981, #047857)",
-color: "white", cursor: "pointer",
-boxShadow: "0 6px 20px rgba(5,150,105,0.3)",
-display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-boxSizing: "border-box",
-minWidth: 0,
-},
-children: [
-d.jsx("div", {
-style: {
-width: 36, height: 36, borderRadius: "50%",
-background: "rgba(255,255,255,0.25)",
-display: "flex", alignItems: "center", justifyContent: "center",
-},
-children: MIcon({ path: ICONS.arrow_up, size: 18, color: "white" }),
-}),
-d.jsx("p", { style: { fontSize: 13, fontWeight: 700, margin: 0 }, children: "Meter dinero" }),
-],
-}),
-d.jsxs(Y.button, {
-whileTap: { scale: 0.96 },
-onClick: function () { o.onAdd("expense"); },
-style: {
-padding: "16px 12px", borderRadius: 14, border: "none",
-background: "linear-gradient(135deg, #f87171, #dc2626)",
-color: "white", cursor: "pointer",
-boxShadow: "0 6px 20px rgba(220,38,38,0.3)",
-display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-boxSizing: "border-box",
-minWidth: 0,
-},
-children: [
-d.jsx("div", {
-style: {
-width: 36, height: 36, borderRadius: "50%",
-background: "rgba(255,255,255,0.25)",
-display: "flex", alignItems: "center", justifyContent: "center",
-},
-children: MIcon({ path: ICONS.arrow_down, size: 18, color: "white" }),
-}),
-d.jsx("p", { style: { fontSize: 13, fontWeight: 700, margin: 0 }, children: "Sacar dinero" }),
-],
-}),
-],
-}),
-(o.accounts && o.accounts.length >= 2 && o.onTransfer) ? d.jsxs("button", {
-onClick: o.onTransfer,
-style: {
-padding: "10px 14px", borderRadius: 12,
-border: "1px solid rgba(2,132,199,0.2)",
-background: "rgba(2,132,199,0.04)",
-color: "#0284c7", cursor: "pointer",
-fontSize: 12, fontWeight: 600,
-display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-boxSizing: "border-box", width: "100%",
-},
-children: [
-MIcon({ path: '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>', size: 13, color: "#0284c7" }),
-"Transferir entre cuentas",
-],
-}) : null,
-o.isLoading && o.transactions.length === 0 ? d.jsx("div", {
-style: {
-padding: 28, textAlign: "center",
-borderRadius: 16,
-boxSizing: "border-box",
-},
-children: d.jsx("p", { style: { fontSize: 13, color: "#94a3b8" }, children: "Cargando movimientos..." }),
-}) : o.transactions.length === 0 ? d.jsxs("div", {
-className: "glass-card",
-style: {
-padding: 28, textAlign: "center",
-boxSizing: "border-box",
-},
-children: [
-d.jsx("div", {
-style: { display: "flex", justifyContent: "center", marginBottom: 10, opacity: 0.4 },
-children: MIcon({ path: ICONS.list, size: 32, color: "#64748b" }),
-}),
-d.jsx("p", { style: { fontSize: 13, color: "#64748b", marginBottom: 4 }, children: "Aún no tienes movimientos" }),
-d.jsx("p", { style: { fontSize: 11, color: "#94a3b8" }, children: "Pulsa Meter o Sacar dinero para empezar" }),
-],
-}) : d.jsxs(d.Fragment, {
-children: [
-d.jsxs("div", {
-className: "glass-card",
-style: {
-padding: 14,
-boxSizing: "border-box",
-},
-children: [
-d.jsx("p", {
-style: {
-fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-letterSpacing: 0.5, color: "#64748b", margin: "0 0 10px",
-},
-children: "Resumen del mes",
-}),
-d.jsxs("div", {
-style: { display: "flex", justifyContent: "space-between", padding: "6px 0" },
-children: [
-d.jsx("span", { style: { fontSize: 12, color: "#475569" }, children: "Ingresos" }),
-d.jsxs("span", {
-style: { fontSize: 13, fontWeight: 600, color: "#16a34a" },
-children: ["+", formatAmountES(monthIncomeCents), " ", symbol],
-}),
-],
-}),
-d.jsxs("div", {
-style: { display: "flex", justifyContent: "space-between", padding: "6px 0" },
-children: [
-d.jsx("span", { style: { fontSize: 12, color: "#475569" }, children: "Gastos" }),
-d.jsxs("span", {
-style: { fontSize: 13, fontWeight: 600, color: "#dc2626" },
-children: ["-", formatAmountES(monthExpenseCents), " ", symbol],
-}),
-],
-}),
-d.jsxs("div", {
-style: {
-display: "flex", justifyContent: "space-between",
-padding: "8px 0 0",
-borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 4,
-},
-children: [
-d.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: "#0f172a" }, children: "Ahorro" }),
-d.jsxs("span", {
-style: {
-fontSize: 13, fontWeight: 700,
-color: monthSavingCents >= 0 ? "#16a34a" : "#dc2626",
-},
-children: [
-monthSavingCents >= 0 ? "+" : "",
-formatAmountES(monthSavingCents), " ", symbol,
-],
-}),
-],
-}),
-],
-}),
-d.jsxs("div", {
-className: "glass-card",
-style: {
-padding: 14,
-boxSizing: "border-box",
-},
-children: [
-d.jsxs("div", {
-style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 },
-children: [
-d.jsx("p", {
-style: {
-fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-letterSpacing: 0.5, color: "#64748b", margin: 0,
-},
-children: "Últimos movimientos",
-}),
-d.jsx("button", {
-onClick: o.onSeeAll,
-style: {
-fontSize: 11, fontWeight: 600, color: "#059669",
-background: "transparent", border: "none", cursor: "pointer",
-padding: 0,
-},
-children: "Ver todo →",
-}),
-],
+style:{display:"flex",flexDirection:"column",gap:8},
+children:[
+d.jsx("svg", {
+width:120, height:120, viewBox:"0 0 120 120",
+children: d.jsxs("g", { children: slices })
 }),
 d.jsx("div", {
-children: recent.map(function (tx) {
-return TransactionItem({ tx: tx, currency: o.currency, accounts: o.accounts, onDelete: o.onDeleteTx });
-}),
-}),
-],
-}),
-],
-}),
-],
+style:{display:"flex",flexDirection:"column",gap:3},
+children: catEntries.map(function(e,i) {
+return d.jsxs("div",{
+key:e[0],
+style:{display:"flex",alignItems:"center",gap:6},
+children:[
+d.jsx("div",{style:{width:8,height:8,borderRadius:"50%",background:DONUT_COLORS[i%DONUT_COLORS.length],flexShrink:0}}),
+d.jsx("span",{style:{fontSize:10,color:"#475569",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"},children:e[0]}),
+d.jsx("span",{style:{fontSize:10,fontWeight:600,color:"#0f172a"},children:formatAmountES(e[1])+" "+symbol}),
+]
+});
+})
+})
+]
 });
 }
+
+// Barra ahorro 6 meses (simulada con datos reales disponibles)
+const now3 = new Date();
+const savingMonths = [];
+for (let i = 5; i >= 0; i--) {
+const d2 = new Date(now3.getFullYear(), now3.getMonth() - i, 1);
+const mk = d2.getFullYear() + "-" + String(d2.getMonth()+1).padStart(2,"0");
+let inc = 0, exp = 0;
+o.transactions.forEach(function(tx) {
+if (!tx.date || !tx.date.startsWith(mk)) return;
+if (tx.type === "income") inc += tx.amountCents;
+else if (tx.type === "expense") exp += tx.amountCents;
+});
+savingMonths.push({
+label: ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][d2.getMonth()],
+saving: inc - exp,
+});
+}
+const maxAbs = Math.max(1, ...savingMonths.map(function(m){return Math.abs(m.saving);}));
+
+function SavingBar() {
+return d.jsx("div",{
+style:{display:"flex",alignItems:"flex-end",gap:4,height:48},
+children: savingMonths.map(function(m,i) {
+const h = Math.round((Math.abs(m.saving) / maxAbs) * 40);
+const isPos = m.saving >= 0;
+return d.jsxs("div",{
+key:m.label,
+style:{display:"flex",flexDirection:"column",alignItems:"center",gap:2,flex:1},
+children:[
+d.jsx("div",{
+style:{
+width:"100%",height:h||3,
+borderRadius:3,
+background: isPos ? "#40916c" : "#f87171",
+transition:"height .3s ease",
+},
+}),
+d.jsx("span",{style:{fontSize:9,color:"#94a3b8"},children:m.label}),
+]
+});
+})
+});
+}
+
+// Envelopes compactos
+const envelopes = o.envelopes || [];
+const monthEnvelopes = envelopes.map(function(env) {
+let spentCents = 0;
+o.transactions.forEach(function(tx) {
+if (tx.envelopeId === env.id && tx.date && tx.date.startsWith(curMonth)) spentCents += tx.amountCents;
+});
+return Object.assign({}, env, {spentCents: spentCents});
+});
+
+// RENDER
+const FIN = "#1a3d2b";
+const FIN_MID = "#2d6a4f";
+const FIN_LIGHT = "#40916c";
+const FIN_PALE = "#d1fae5";
+
+return d.jsxs("div", {
+style:{display:"flex",flexDirection:"column",minHeight:"100%",background:"transparent"},
+children:[
+
+// ── Header ──────────────────────────────────────────────────────────────
+d.jsxs("div",{
+style:{
+background: FIN,
+padding:"20px 20px 28px",
+position:"relative",
+},
+children:[
+d.jsxs("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4},
+children:[
+d.jsxs("div",{children:[
+d.jsx("h1",{style:{fontSize:22,fontWeight:700,color:"#fff",margin:0,fontFamily:"'Instrument Serif',serif",letterSpacing:"-0.02em"},children:"Finanzas"}),
+d.jsx("p",{style:{fontSize:12,color:"rgba(255,255,255,0.6)",margin:"2px 0 0"},children: isViewingCurrent ? "Tu dinero, organizado" : "Viendo histórico"}),
+]}),
+o.setSelectedMonth ? d.jsx(MonthSelector,{value:curMonth,onChange:o.setSelectedMonth}) : null,
+]
+}),
+]
+}),
+
+// ── Contenido con padding ────────────────────────────────────────────────
+d.jsxs("div",{
+style:{
+display:"grid",
+gridTemplateColumns:"1fr",
+gap:12,
+padding:"0 16px 24px",
+marginTop:-16,
+},
+className:"finance-grid",
+children:[
+
+// ── Tarjeta saldo ────────────────────────────────────────────────────────
+d.jsxs(Y.div,{
+initial:{opacity:0,y:10}, animate:{opacity:1,y:0}, transition:{delay:0.05},
+style:{
+background: FIN,
+borderRadius:20,
+padding:"20px 20px 16px",
+boxShadow:"0 8px 32px rgba(26,61,43,0.25)",
+},
+children:[
+d.jsxs("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between"},children:[
+d.jsxs("div",{children:[
+d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:"rgba(255,255,255,0.55)",margin:0},
+children: isViewingCurrent ? "Saldo actual" : "Saldo a fin de "+curMonth.split("-")[1]+"/"+curMonth.split("-")[0]}),
+d.jsxs("h2",{style:{fontSize:36,fontWeight:700,color: totalCents >= 0 ? "#fff" : "#fca5a5",margin:"6px 0 0",fontFamily:"'Instrument Serif',serif",lineHeight:1},
+children:[formatAmountES(totalCents)," ",symbol]}),
+monthSavingCents !== 0 ? d.jsxs("p",{style:{fontSize:12,fontWeight:600,color: monthSavingCents >= 0 ? "#6ee7b7" : "#fca5a5",margin:"4px 0 0"},
+children:[monthSavingCents>=0?"+":"",formatAmountES(monthSavingCents)," ",symbol," este mes"]}) : null,
+]}),
+d.jsx("div",{style:{width:48,height:48,borderRadius:"50%",background:"rgba(255,255,255,0.1)",display:"flex",alignItems:"center",justifyContent:"center"},
+children: MIcon({path:'<path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="1"/>',size:22,color:"rgba(255,255,255,0.8)"})}),
+]}),
+// Resumen inline
+d.jsxs("div",{style:{display:"flex",gap:0,marginTop:16,borderTop:"1px solid rgba(255,255,255,0.1)",paddingTop:12},children:[
+d.jsxs("div",{style:{flex:1,textAlign:"center"},children:[
+d.jsx("p",{style:{fontSize:10,color:"rgba(255,255,255,0.5)",margin:0,fontWeight:600,textTransform:"uppercase",letterSpacing:.5},children:"Ingresos"}),
+d.jsxs("p",{style:{fontSize:15,fontWeight:700,color:"#6ee7b7",margin:"3px 0 0"},children:["+",formatAmountES(monthIncomeCents)," ",symbol]}),
+]}),
+d.jsx("div",{style:{width:1,background:"rgba(255,255,255,0.1)"}}),
+d.jsxs("div",{style:{flex:1,textAlign:"center"},children:[
+d.jsx("p",{style:{fontSize:10,color:"rgba(255,255,255,0.5)",margin:0,fontWeight:600,textTransform:"uppercase",letterSpacing:.5},children:"Gastos"}),
+d.jsxs("p",{style:{fontSize:15,fontWeight:700,color:"#fca5a5",margin:"3px 0 0"},children:["-",formatAmountES(monthExpenseCents)," ",symbol]}),
+]}),
+d.jsx("div",{style:{width:1,background:"rgba(255,255,255,0.1)"}}),
+d.jsxs("div",{style:{flex:1,textAlign:"center"},children:[
+d.jsx("p",{style:{fontSize:10,color:"rgba(255,255,255,0.5)",margin:0,fontWeight:600,textTransform:"uppercase",letterSpacing:.5},children:"Ahorro"}),
+d.jsxs("p",{style:{fontSize:15,fontWeight:700,color: monthSavingCents>=0?"#6ee7b7":"#fca5a5",margin:"3px 0 0"},children:[monthSavingCents>=0?"+":"",formatAmountES(monthSavingCents)," ",symbol]}),
+]}),
+]}),
+]
+}),
+
+// ── Botones acción ───────────────────────────────────────────────────────
+d.jsxs(Y.div,{
+initial:{opacity:0,y:8}, animate:{opacity:1,y:0}, transition:{delay:0.1},
+style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10},
+children:[
+d.jsxs(Y.button,{
+whileTap:{scale:0.95},
+onClick:function(){o.onAdd("income");},
+style:{
+padding:"16px 12px",borderRadius:16,border:"none",
+background:"linear-gradient(135deg, "+FIN_MID+", "+FIN+")",
+color:"white",cursor:"pointer",
+boxShadow:"0 6px 20px rgba(45,106,79,0.35)",
+display:"flex",flexDirection:"column",alignItems:"center",gap:6,
+boxSizing:"border-box",minWidth:0,
+WebkitTapHighlightColor:"transparent",
+},
+children:[
+d.jsx("div",{style:{width:36,height:36,borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center"},
+children:MIcon({path:ICONS.arrow_up,size:18,color:"white"})}),
+d.jsx("p",{style:{fontSize:13,fontWeight:700,margin:0},children:"Meter dinero"}),
+]
+}),
+d.jsxs(Y.button,{
+whileTap:{scale:0.95},
+onClick:function(){o.onAdd("expense");},
+style:{
+padding:"16px 12px",borderRadius:16,border:"none",
+background:"linear-gradient(135deg, #f87171, #dc2626)",
+color:"white",cursor:"pointer",
+boxShadow:"0 6px 20px rgba(220,38,38,0.3)",
+display:"flex",flexDirection:"column",alignItems:"center",gap:6,
+boxSizing:"border-box",minWidth:0,
+WebkitTapHighlightColor:"transparent",
+},
+children:[
+d.jsx("div",{style:{width:36,height:36,borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center"},
+children:MIcon({path:ICONS.arrow_down,size:18,color:"white"})}),
+d.jsx("p",{style:{fontSize:13,fontWeight:700,margin:0},children:"Sacar dinero"}),
+]
+}),
+]
+}),
+
+// Transferir (si hay ≥2 cuentas)
+(o.accounts && o.accounts.length >= 2 && o.onTransfer) ? d.jsx(Y.div,{
+initial:{opacity:0,y:8},animate:{opacity:1,y:0},transition:{delay:0.13},
+children: d.jsxs("button",{
+onClick:o.onTransfer,
+style:{
+padding:"11px 14px",borderRadius:14,
+border:"1px solid rgba(45,106,79,0.25)",
+background:"rgba(45,106,79,0.06)",
+color:FIN_MID,cursor:"pointer",
+fontSize:12,fontWeight:600,
+display:"flex",alignItems:"center",justifyContent:"center",gap:6,
+boxSizing:"border-box",width:"100%",
+WebkitTapHighlightColor:"transparent",
+},
+children:[
+MIcon({path:'<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',size:13,color:FIN_MID}),
+"Transferir entre cuentas",
+]
+})
+}) : null,
+
+// ── Sobres ───────────────────────────────────────────────────────────────
+monthEnvelopes.length > 0 ? d.jsxs(Y.div,{
+initial:{opacity:0,y:8},animate:{opacity:1,y:0},transition:{delay:0.15},
+className:"glass-card",
+style:{padding:16,boxSizing:"border-box"},
+children:[
+d.jsxs("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12},children:[
+d.jsx("p",{style:{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:.5,color:"#64748b",margin:0},children:"Sobres"}),
+d.jsx("button",{onClick:function(){const gf2=typeof gf==="function"?gf():null;if(gf2)gf2("/finanzas/sobres");},
+style:{fontSize:11,fontWeight:600,color:FIN_LIGHT,background:"transparent",border:"none",cursor:"pointer",padding:0},
+children:"Ver todo →"}),
+]}),
+d.jsx("div",{style:{display:"flex",flexDirection:"column",gap:8},
+children: monthEnvelopes.slice(0,5).map(function(env) {
+const budget = env.budgetCents || 0;
+const spent = env.spentCents || 0;
+const pct = budget > 0 ? Math.min(1, spent / budget) : 0;
+const isOver = pct > 0.8;
+const isBuffer = !!env.isBuffer;
+const barColor = isBuffer ? "#0284c7" : isOver ? "#f97316" : FIN_LIGHT;
+return d.jsxs("div",{key:env.id,style:{display:"flex",alignItems:"center",gap:10},children:[
+d.jsxs("div",{style:{flex:1,minWidth:0},children:[
+d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4},children:[
+d.jsx("span",{style:{fontSize:12,fontWeight:500,color:"#0f172a",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"60%"},children:env.name}),
+d.jsxs("span",{style:{fontSize:11,fontWeight:600,color:isOver?"#f97316":"#64748b",flexShrink:0},
+children:[formatAmountES(spent)," / ",formatAmountES(budget)," ",symbol]}),
+]}),
+d.jsx("div",{style:{height:4,borderRadius:999,background:"rgba(0,0,0,0.06)",overflow:"hidden"},
+children:d.jsx("div",{
+style:{height:"100%",width:(pct*100)+"%",borderRadius:999,background:barColor,transition:"width .4s ease"},
+})}),
+]}),
+]});
+})
+}),
+]
+}) : null,
+
+// ── Últimos movimientos ──────────────────────────────────────────────────
+d.jsxs(Y.div,{
+initial:{opacity:0,y:8},animate:{opacity:1,y:0},transition:{delay:0.18},
+className:"glass-card",
+style:{padding:16,boxSizing:"border-box"},
+children:[
+d.jsxs("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12},children:[
+d.jsx("p",{style:{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:.5,color:"#64748b",margin:0},children:"Últimos movimientos"}),
+d.jsx("button",{onClick:o.onSeeAll,style:{fontSize:11,fontWeight:600,color:FIN_LIGHT,background:"transparent",border:"none",cursor:"pointer",padding:0},children:"Ver todo →"}),
+]}),
+recent.length === 0 ?
+d.jsxs("div",{style:{padding:"20px 0",textAlign:"center"},children:[
+d.jsx("div",{style:{display:"flex",justifyContent:"center",marginBottom:8,opacity:.35},children:MIcon({path:ICONS.list,size:28,color:"#64748b"})}),
+d.jsx("p",{style:{fontSize:12,color:"#94a3b8",margin:0},children:"Sin movimientos este mes"}),
+]}) :
+d.jsx("div",{children:recent.map(function(tx){return TransactionItem({tx:tx,currency:o.currency,accounts:o.accounts,onDelete:o.onDeleteTx});})}),
+]
+}),
+
+// ── Gráficas — donut + ahorro ─────────────────────────────────────────────
+d.jsxs(Y.div,{
+initial:{opacity:0,y:8},animate:{opacity:1,y:0},transition:{delay:0.2},
+style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12},
+children:[
+
+// Donut categorías
+d.jsxs("div",{
+className:"glass-card",
+style:{padding:14,boxSizing:"border-box"},
+children:[
+d.jsx("p",{style:{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:.5,color:"#64748b",margin:"0 0 10px"},children:"Gastos"}),
+d.jsx(DonutChart,{}),
+]
+}),
+
+// Ahorro 6 meses
+d.jsxs("div",{
+className:"glass-card",
+style:{padding:14,boxSizing:"border-box"},
+children:[
+d.jsx("p",{style:{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:.5,color:"#64748b",margin:"0 0 10px"},children:"Ahorro 6m"}),
+d.jsx(SavingBar,{}),
+]
+}),
+]
+}),
+
+]
+}), // fin contenido
+]
+}); // fin return
+}
+
 function TransactionItem(o) {
 const cat = getCategoryById(o.tx.categoryId);
 const symbol = getCurrencySymbol(o.currency);
@@ -16096,7 +16210,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v29.0",
+children: "v30.0",
 }),
 ],
 }),
