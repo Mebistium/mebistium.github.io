@@ -26,29 +26,3 @@ html[style*="--app-font"] .font-serif {
 
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-
-/* ══ Finance Dashboard v30 ══════════════════════════════════════════════ */
-@media (min-width: 900px) {
-  .finance-grid {
-    grid-template-columns: 1fr 1fr 1fr !important;
-    align-items: start;
-  }
-}
-
-/* Selector de mes finanzas dentro del header oscuro */
-.finance-month-selector select {
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.25);
-  color: white;
-  border-radius: 8px;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Donut SVG no overflow */
-.finance-grid svg {
-  overflow: visible;
-  max-width: 100%;
-}
-/* ══ Fin Finance Dashboard ══════════════════════════════════════════════ */
