@@ -8778,7 +8778,7 @@ return (function(){
   o.transactions.forEach(function(tx){
     if(tx.type!=="expense"||!tx.date||!tx.date.startsWith(curMonth))return;
     var cId=tx.categoryId||"otros";
-    if(!byCategory[cId])byCategory[cId]={name:tx.categoryName||cId,amount:0};
+    if(!byCategory[cId]){var _rc=getCategoryById(cId);byCategory[cId]={name:(_rc&&_rc.name)||tx.categoryName||cId,amount:0};}
     byCategory[cId].amount+=tx.amountCents;
   });
   var topCats=Object.values(byCategory).sort(function(a,b){return b.amount-a.amount;}).slice(0,5);
@@ -8855,7 +8855,7 @@ return (function(){
           var tag=tx.isRecurring?"recurrente":isInc?"ingreso":"gasto";
           var tagBg=tx.isRecurring?"rgba(2,132,199,0.08)":isInc?"rgba(22,163,74,0.08)":"rgba(220,38,38,0.08)";
           var tagColor=tx.isRecurring?"#0284c7":isInc?"#15803d":"#991b1b";
-          var catName=tx.categoryName||tx.categoryId||"";
+          var _cat=getCategoryById(tx.categoryId);var catName=(_cat&&_cat.name)||tx.categoryName||tx.categoryId||"";
           return d.jsxs("div",{style:{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:i<recent.length-1?"0.5px solid var(--border)":"none"},children:[
             d.jsx("div",{style:{width:32,height:32,borderRadius:9,background:iconBg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0},children:MIcon({path:isInc?ICONS.arrow_up:ICONS.arrow_down,size:15,color:isInc?"#2d6a4f":"#888"})}),
             d.jsxs("div",{style:{flex:1,minWidth:0},children:[
@@ -8869,6 +8869,44 @@ return (function(){
           ]},tx.id||i);
         }),
   ]});
+
+  // Donut SVG circular
+  var blockDonut = (monthExpenseCents>0&&topCats.length>0)?d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"var(--muted-foreground)",margin:"0 0 12px"},children:"Gastos por categoría"}),
+    d.jsxs("div",{style:{display:"flex",alignItems:"center",gap:14},children:[
+      // SVG donut
+      (function(){
+        var total=topCats.reduce(function(a,cat){return a+cat.amount;},0);
+        var r=44,cx=52,cy=52,circ=2*Math.PI*r;
+        var offset=0;
+        var slices=topCats.map(function(cat,ci){
+          var pct=cat.amount/total;
+          var dash=pct*circ;
+          var slice=d.jsx("circle",{key:ci,cx:cx,cy:cy,r:r,fill:"none",stroke:catPalette[ci]||"#2d6a4f",strokeWidth:16,strokeDasharray:dash+" "+(circ-dash),strokeDashoffset:-offset,transform:"rotate(-90 "+cx+" "+cy+")"});
+          offset+=dash;
+          return slice;
+        });
+        return d.jsxs("svg",{width:104,height:104,viewBox:"0 0 104 104",style:{flexShrink:0},children:[
+          slices,
+          d.jsx("circle",{cx:cx,cy:cy,r:28,fill:"var(--background)"}),
+          d.jsx("text",{x:cx,y:cy-6,textAnchor:"middle",style:{fontSize:11,fontWeight:700,fill:"var(--foreground)"},children:formatAmountES(total)}),
+          d.jsx("text",{x:cx,y:cy+9,textAnchor:"middle",style:{fontSize:8,fill:"var(--muted-foreground)"},children:symbol}),
+        ]});
+      })(),
+      // Leyenda
+      d.jsx("div",{style:{flex:1,display:"flex",flexDirection:"column",gap:5},children:
+        topCats.map(function(cat,ci){
+          return d.jsxs("div",{key:ci,style:{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:11},children:[
+            d.jsxs("span",{style:{display:"flex",alignItems:"center",gap:5,color:"var(--foreground)"},children:[
+              d.jsx("span",{style:{width:8,height:8,borderRadius:2,background:catPalette[ci]||"#2d6a4f",display:"inline-block"}}),
+              cat.name,
+            ]}),
+            d.jsxs("span",{style:{color:"var(--muted-foreground)",fontVariantNumeric:"tabular-nums"},children:[formatAmountES(cat.amount)," ",symbol]}),
+          ]});
+        })
+      }),
+    ]}),
+  ]}):null;
 
   var blockCats = (monthExpenseCents>0)?d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
     d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"var(--muted-foreground)",margin:"0 0 10px"},children:"Gastos por categor\u00eda"}),
@@ -8938,7 +8976,7 @@ return (function(){
       blockMovimientos,
       blockResumen,
       blockSobres,
-      blockCats,
+      blockDonut,
       blockSparkline,
       blockObjetivos,
     ]});
@@ -8948,12 +8986,12 @@ return (function(){
   return d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:14,maxWidth:1280,margin:"0 auto",padding:"20px 16px 8px",boxSizing:"border-box",width:"100%"},children:[
     blockHeader,
     d.jsxs("div",{style:{display:"grid",gridTemplateColumns:"minmax(0,1fr) 240px minmax(0,1fr)",gap:12,alignItems:"start"},children:[
-      // Izquierda
-      d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[blockMovimientos]}),
-      // Centro
-      d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[blockSaldo,blockBotones,blockResumen,blockSobres]}),
-      // Derecha
-      d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[blockCats,blockSparkline,blockObjetivos]}),
+      // Izquierda: movimientos arriba, sobres abajo
+      d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[blockMovimientos,blockSobres]}),
+      // Centro: saldo, botones, resumen
+      d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[blockSaldo,blockBotones,blockResumen]}),
+      // Derecha: donut + sparkline + objetivos
+      d.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:10},children:[blockDonut,blockSparkline,blockObjetivos]}),
     ]}),
   ]});
 
