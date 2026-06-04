@@ -7994,7 +7994,8 @@ function GymLoadingSkeleton() {
 }
 
 
-function IW(){const t=ru(),e=gf(),{user:n,signOutUser:r}=ls(),[s,i]=b.useState(!1);b.useState(!1);const o=RE.some(l=>t.pathname===l.path),a=async()=>{await r(),e("/")};return d.jsxs("div",{className:"min-h-screen flex flex-col",children:[d.jsx(MebistiumFloatingButton,{}),d.jsx(VersionBadge,{}),d.jsx("main",{className:"flex-1 overflow-auto pb-24",children:d.jsx("div",{className:t.pathname.startsWith("/finanzas")?"w-full":"max-w-lg mx-auto px-5 py-5",children:d.jsx(sM,{})})}),d.jsx(Nr,{children:s&&d.jsxs(d.Fragment,{children:[d.jsx(Y.div,{initial:{opacity:0},animate:{opacity:1},exit:{opacity:0},className:"fixed inset-0 bg-black/20 backdrop-blur-sm z-50",onClick:()=>i(!1)}),d.jsx(Y.div,{initial:{opacity:0,y:40},animate:{opacity:1,y:0},exit:{opacity:0,y:40},transition:{type:"spring",damping:28,stiffness:350},className:"fixed bottom-0 left-0 right-0 z-50 px-4 pb-4",children:d.jsxs("div",{className:"glass-card max-w-lg mx-auto p-4 !rounded-2xl",style:{background:"rgba(255,255,255,0.85)",backdropFilter:"blur(24px)"},children:[d.jsxs("div",{className:"flex items-center gap-3 mb-4 p-3 rounded-xl glass-card",children:[n!=null&&n.photoURL?d.jsx("img",{src:n.photoURL,className:"w-9 h-9 rounded-xl object-cover"}):d.jsx("div",{className:"w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center",children:d.jsx(c2,{className:"w-4 h-4 text-primary"})}),d.jsxs("div",{className:"flex-1 min-w-0",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground truncate",children:(n==null?void 0:n.displayName)||"Usuario"}),d.jsx("p",{className:"text-xs text-muted-foreground truncate",children:n==null?void 0:n.email})]}),d.jsx("button",{onClick:a,className:"p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors",children:d.jsx(l2,{className:"w-4 h-4"})})]}),d.jsxs("div",{className:"flex items-center justify-between mb-4",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground",children:"Más opciones"}),d.jsx("button",{onClick:()=>i(!1),className:"p-1 rounded-lg hover:bg-muted/20 transition-colors",children:d.jsx(er,{className:"w-4 h-4 text-muted-foreground"})})]}),d.jsx("div",{className:"grid grid-cols-4 gap-3",children:RE.map(l=>{const c=t.pathname===l.path;return d.jsxs("button",{onClick:()=>{e(l.path),i(!1)},className:"flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-primary/5 transition-colors",children:[d.jsx(l.icon,{className:`w-5 h-5 ${c?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.6rem] font-medium ${c?"text-primary":"text-muted-foreground"}`,children:l.label})]},l.path)})})]})})]})}),(t.pathname.startsWith("/finanzas")||t.pathname.startsWith("/gimnasio")?null:d.jsxs("nav",{className:"fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center px-6 pt-3 pb-7",style:{background:"rgba(255,255,255,0.6)",borderTop:"1px solid rgba(255,255,255,0.8)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)"},children:[CW.map(l=>{const c=t.pathname===l.path;return d.jsxs("button",{onClick:()=>e(l.path),className:"flex flex-col items-center gap-1 transition-opacity duration-200 hover:opacity-70",children:[d.jsx(l.icon,{className:`w-[22px] h-[22px] ${c?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.58rem] font-medium uppercase tracking-[0.06em] ${c?"text-primary":"text-muted-foreground"}`,children:l.label})]},l.path)}),d.jsxs("button",{onClick:()=>i(!s),className:"flex flex-col items-center gap-1 transition-opacity duration-200 hover:opacity-70",children:[d.jsx(Q5,{className:`w-[22px] h-[22px] ${o?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.58rem] font-medium uppercase tracking-[0.06em] ${o?"text-primary":"text-muted-foreground"}`,children:"Más"})]})]}))]})}function MIcon(props) {
+function IW(){const t=ru(),e=gf(),{user:n,signOutUser:r}=ls(),[s,i]=b.useState(!1);b.useState(!1);const o=RE.some(l=>t.pathname===l.path),a=async()=>{await r(),e("/")};b.useEffect(function(){applyModuleTheme(t.pathname);},[t.pathname]);
+return d.jsxs("div",{className:"min-h-screen flex flex-col",children:[d.jsx(MebistiumFloatingButton,{}),d.jsx(VersionBadge,{}),d.jsx("main",{className:"flex-1 overflow-auto pb-24",children:d.jsx("div",{className:t.pathname.startsWith("/finanzas")?"w-full":"max-w-lg mx-auto px-5 py-5",children:d.jsx(sM,{})})}),d.jsx(Nr,{children:s&&d.jsxs(d.Fragment,{children:[d.jsx(Y.div,{initial:{opacity:0},animate:{opacity:1},exit:{opacity:0},className:"fixed inset-0 bg-black/20 backdrop-blur-sm z-50",onClick:()=>i(!1)}),d.jsx(Y.div,{initial:{opacity:0,y:40},animate:{opacity:1,y:0},exit:{opacity:0,y:40},transition:{type:"spring",damping:28,stiffness:350},className:"fixed bottom-0 left-0 right-0 z-50 px-4 pb-4",children:d.jsxs("div",{className:"glass-card max-w-lg mx-auto p-4 !rounded-2xl",style:{background:"rgba(255,255,255,0.85)",backdropFilter:"blur(24px)"},children:[d.jsxs("div",{className:"flex items-center gap-3 mb-4 p-3 rounded-xl glass-card",children:[n!=null&&n.photoURL?d.jsx("img",{src:n.photoURL,className:"w-9 h-9 rounded-xl object-cover"}):d.jsx("div",{className:"w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center",children:d.jsx(c2,{className:"w-4 h-4 text-primary"})}),d.jsxs("div",{className:"flex-1 min-w-0",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground truncate",children:(n==null?void 0:n.displayName)||"Usuario"}),d.jsx("p",{className:"text-xs text-muted-foreground truncate",children:n==null?void 0:n.email})]}),d.jsx("button",{onClick:a,className:"p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors",children:d.jsx(l2,{className:"w-4 h-4"})})]}),d.jsxs("div",{className:"flex items-center justify-between mb-4",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground",children:"Más opciones"}),d.jsx("button",{onClick:()=>i(!1),className:"p-1 rounded-lg hover:bg-muted/20 transition-colors",children:d.jsx(er,{className:"w-4 h-4 text-muted-foreground"})})]}),d.jsx("div",{className:"grid grid-cols-4 gap-3",children:RE.map(l=>{const c=t.pathname===l.path;return d.jsxs("button",{onClick:()=>{e(l.path),i(!1)},className:"flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-primary/5 transition-colors",children:[d.jsx(l.icon,{className:`w-5 h-5 ${c?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.6rem] font-medium ${c?"text-primary":"text-muted-foreground"}`,children:l.label})]},l.path)})})]})})]})}),(t.pathname.startsWith("/finanzas")||t.pathname.startsWith("/gimnasio")?null:d.jsxs("nav",{className:"fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center px-6 pt-3 pb-7",style:{background:"rgba(255,255,255,0.6)",borderTop:"1px solid rgba(255,255,255,0.8)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)"},children:[CW.map(l=>{const c=t.pathname===l.path;return d.jsxs("button",{onClick:()=>e(l.path),className:"flex flex-col items-center gap-1 transition-opacity duration-200 hover:opacity-70",children:[d.jsx(l.icon,{className:`w-[22px] h-[22px] ${c?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.58rem] font-medium uppercase tracking-[0.06em] ${c?"text-primary":"text-muted-foreground"}`,children:l.label})]},l.path)}),d.jsxs("button",{onClick:()=>i(!s),className:"flex flex-col items-center gap-1 transition-opacity duration-200 hover:opacity-70",children:[d.jsx(Q5,{className:`w-[22px] h-[22px] ${o?"text-primary":"text-muted-foreground"}`}),d.jsx("span",{className:`text-[0.58rem] font-medium uppercase tracking-[0.06em] ${o?"text-primary":"text-muted-foreground"}`,children:"Más"})]})]}))]})}function MIcon(props) {
 const path = props.path;
 return d.jsx("svg", {
 xmlns: "http://www.w3.org/2000/svg",
@@ -18681,7 +18682,23 @@ onTouchStart:startDraw,onTouchMove:draw,onTouchEnd:stopDraw,
         <div style="font-size:24px;font-weight:300;margin-bottom:16px">días para la PAU</div>
         <div style="opacity:0.6;font-size:12px">${(r==null?void 0:r.displayName)||"Rayan"} · ${new Date(y).toLocaleDateString("es-ES")}</div>
         <div style="margin-top:24px;font-size:18px;font-weight:600">¡Tú puedes! 💪</div>
-      </div>`}},E=async(y,x)=>{i(y),await new Promise(S=>setTimeout(S,300)),a(m[y]()),c(x),i(null)},w=async()=>{if(!o)return;const y=`${l} - Generado con Rayan App`;if(navigator.share)try{await navigator.share({title:"Rayan App",text:y})}catch{}else await navigator.clipboard.writeText(y),alert("Copiado al portapapeles")},v=[{id:"tasks",icon:wf,title:"Mis Tareas",desc:`${t.length} tareas · ${t.filter(y=>y.status!=="completada").length} pendientes`},{id:"schedule",icon:yh,title:"Mi Horario",desc:`${e.length} clases registradas`},{id:"pau",icon:ta,title:"Cuenta PAU",desc:"Cuenta regresiva motivacional"}];return d.jsxs(Y.div,{variants:mH,initial:"hidden",animate:"show",className:"space-y-6",children:[d.jsxs(Y.div,{variants:Tm,children:[d.jsx("h1",{className:"page-header",children:"Compartir"}),d.jsx("p",{className:"page-subtitle",children:"Genera imágenes de tu progreso"})]}),d.jsx("div",{className:"space-y-3",children:v.map(y=>d.jsx(Y.div,{variants:Tm,children:d.jsxs("div",{className:"glass-card p-4 flex items-center gap-4",children:[d.jsx("div",{className:"p-3 rounded-xl bg-primary/10 flex-shrink-0",children:d.jsx(y.icon,{className:"w-5 h-5 text-primary"})}),d.jsxs("div",{className:"flex-1 min-w-0",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground",children:y.title}),d.jsx("p",{className:"text-xs text-muted-foreground",children:y.desc})]}),d.jsx("button",{onClick:()=>E(y.id,y.title),disabled:s===y.id,className:"btn-primary !py-2 !px-3 text-xs flex items-center gap-1.5 flex-shrink-0",children:s===y.id?d.jsx("div",{className:"w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin"}):d.jsxs(d.Fragment,{children:[d.jsx(o2,{className:"w-3.5 h-3.5"}),"Generar"]})})]})},y.id))}),o&&d.jsxs(Y.div,{initial:{opacity:0,y:12},animate:{opacity:1,y:0},className:"glass-card p-4",children:[d.jsxs("div",{className:"flex items-center justify-between mb-3",children:[d.jsxs("p",{className:"text-sm font-semibold text-foreground",children:["Vista previa · ",l]}),d.jsx("button",{onClick:()=>a(null),className:"p-1 rounded-lg hover:bg-muted/20",children:d.jsx(er,{className:"w-4 h-4 text-muted-foreground"})})]}),d.jsx("div",{className:"overflow-auto rounded-xl",dangerouslySetInnerHTML:{__html:o}}),d.jsx("div",{className:"flex gap-2 mt-3",children:d.jsxs("button",{onClick:w,className:"btn-primary flex-1 flex items-center justify-center gap-2 text-sm",children:[d.jsx(hV,{className:"w-4 h-4"}),"Compartir"]})})]}),d.jsx(Y.div,{variants:Tm,children:d.jsx("div",{className:"glass-card p-4 text-center",children:d.jsx("p",{className:"text-xs text-muted-foreground",children:'💡 Genera la imagen y pulsa "Compartir" para enviarla por WhatsApp, Instagram o donde quieras'})})})]})}const Zk=[{name:"Por Defecto",primary:"#2563eb",secondary:"#38bdf8",bg:"214 95% 93%",bgGrad1:"#7dd3fc",bgGrad2:"#38bdf8",bgGrad3:"#bae6fd"},{name:"Atardecer",primary:"#f97316",secondary:"#f59e0b",bg:"35 95% 90%",bgGrad1:"#fcd34d",bgGrad2:"#fb923c",bgGrad3:"#fde68a"},{name:"Océano",primary:"#0891b2",secondary:"#06b6d4",bg:"195 80% 88%",bgGrad1:"#67e8f9",bgGrad2:"#22d3ee",bgGrad3:"#a5f3fc"},{name:"Bosque",primary:"#16a34a",secondary:"#22c55e",bg:"140 60% 88%",bgGrad1:"#86efac",bgGrad2:"#4ade80",bgGrad3:"#bbf7d0"},{name:"Fuego",primary:"#dc2626",secondary:"#f97316",bg:"0 80% 90%",bgGrad1:"#fca5a5",bgGrad2:"#f87171",bgGrad3:"#fecaca"},{name:"Morado",primary:"#7c3aed",secondary:"#a78bfa",bg:"260 70% 90%",bgGrad1:"#c4b5fd",bgGrad2:"#a78bfa",bgGrad3:"#ddd6fe"},{name:"Rosa",primary:"#be185d",secondary:"#f472b6",bg:"330 80% 90%",bgGrad1:"#f9a8d4",bgGrad2:"#f472b6",bgGrad3:"#fbcfe8"},{name:"Oscuro",primary:"#60a5fa",secondary:"#818cf8",bg:"222 47% 15%",bgGrad1:"#1e3a5f",bgGrad2:"#1e1b4b",bgGrad3:"#1e293b"},{name:"Pastel",primary:"#f472b6",secondary:"#c084fc",bg:"300 60% 93%",bgGrad1:"#f5d0fe",bgGrad2:"#e879f9",bgGrad3:"#fae8ff"},{name:"Sepia",primary:"#92400e",secondary:"#b45309",bg:"35 60% 88%",bgGrad1:"#fde68a",bgGrad2:"#fcd34d",bgGrad3:"#fef3c7"}];function yH(t){const e=parseInt(t.slice(1,3),16)/255,n=parseInt(t.slice(3,5),16)/255,r=parseInt(t.slice(5,7),16)/255,s=Math.max(e,n,r),i=Math.min(e,n,r);let o=0,a=0;const l=(s+i)/2;if(s!==i){const c=s-i;switch(a=l>.5?c/(2-s-i):c/(s+i),s){case e:o=((n-r)/c+(n<r?6:0))/6;break;case n:o=((r-e)/c+2)/6;break;case r:o=((e-n)/c+4)/6;break}}return`${Math.round(o*360)} ${Math.round(a*100)}% ${Math.round(l*100)}%`}function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body.style.backgroundImage=`
+      </div>`}},E=async(y,x)=>{i(y),await new Promise(S=>setTimeout(S,300)),a(m[y]()),c(x),i(null)},w=async()=>{if(!o)return;const y=`${l} - Generado con Rayan App`;if(navigator.share)try{await navigator.share({title:"Rayan App",text:y})}catch{}else await navigator.clipboard.writeText(y),alert("Copiado al portapapeles")},v=[{id:"tasks",icon:wf,title:"Mis Tareas",desc:`${t.length} tareas · ${t.filter(y=>y.status!=="completada").length} pendientes`},{id:"schedule",icon:yh,title:"Mi Horario",desc:`${e.length} clases registradas`},{id:"pau",icon:ta,title:"Cuenta PAU",desc:"Cuenta regresiva motivacional"}];return d.jsxs(Y.div,{variants:mH,initial:"hidden",animate:"show",className:"space-y-6",children:[d.jsxs(Y.div,{variants:Tm,children:[d.jsx("h1",{className:"page-header",children:"Compartir"}),d.jsx("p",{className:"page-subtitle",children:"Genera imágenes de tu progreso"})]}),d.jsx("div",{className:"space-y-3",children:v.map(y=>d.jsx(Y.div,{variants:Tm,children:d.jsxs("div",{className:"glass-card p-4 flex items-center gap-4",children:[d.jsx("div",{className:"p-3 rounded-xl bg-primary/10 flex-shrink-0",children:d.jsx(y.icon,{className:"w-5 h-5 text-primary"})}),d.jsxs("div",{className:"flex-1 min-w-0",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground",children:y.title}),d.jsx("p",{className:"text-xs text-muted-foreground",children:y.desc})]}),d.jsx("button",{onClick:()=>E(y.id,y.title),disabled:s===y.id,className:"btn-primary !py-2 !px-3 text-xs flex items-center gap-1.5 flex-shrink-0",children:s===y.id?d.jsx("div",{className:"w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin"}):d.jsxs(d.Fragment,{children:[d.jsx(o2,{className:"w-3.5 h-3.5"}),"Generar"]})})]})},y.id))}),o&&d.jsxs(Y.div,{initial:{opacity:0,y:12},animate:{opacity:1,y:0},className:"glass-card p-4",children:[d.jsxs("div",{className:"flex items-center justify-between mb-3",children:[d.jsxs("p",{className:"text-sm font-semibold text-foreground",children:["Vista previa · ",l]}),d.jsx("button",{onClick:()=>a(null),className:"p-1 rounded-lg hover:bg-muted/20",children:d.jsx(er,{className:"w-4 h-4 text-muted-foreground"})})]}),d.jsx("div",{className:"overflow-auto rounded-xl",dangerouslySetInnerHTML:{__html:o}}),d.jsx("div",{className:"flex gap-2 mt-3",children:d.jsxs("button",{onClick:w,className:"btn-primary flex-1 flex items-center justify-center gap-2 text-sm",children:[d.jsx(hV,{className:"w-4 h-4"}),"Compartir"]})})]}),d.jsx(Y.div,{variants:Tm,children:d.jsx("div",{className:"glass-card p-4 text-center",children:d.jsx("p",{className:"text-xs text-muted-foreground",children:'💡 Genera la imagen y pulsa "Compartir" para enviarla por WhatsApp, Instagram o donde quieras'})})})]})}const Zk=[{name:"Por Defecto",primary:"#2563eb",secondary:"#38bdf8",bg:"214 95% 93%",bgGrad1:"#7dd3fc",bgGrad2:"#38bdf8",bgGrad3:"#bae6fd"},{name:"Atardecer",primary:"#f97316",secondary:"#f59e0b",bg:"35 95% 90%",bgGrad1:"#fcd34d",bgGrad2:"#fb923c",bgGrad3:"#fde68a"},{name:"Océano",primary:"#0891b2",secondary:"#06b6d4",bg:"195 80% 88%",bgGrad1:"#67e8f9",bgGrad2:"#22d3ee",bgGrad3:"#a5f3fc"},{name:"Bosque",primary:"#16a34a",secondary:"#22c55e",bg:"140 60% 88%",bgGrad1:"#86efac",bgGrad2:"#4ade80",bgGrad3:"#bbf7d0"},{name:"Fuego",primary:"#dc2626",secondary:"#f97316",bg:"0 80% 90%",bgGrad1:"#fca5a5",bgGrad2:"#f87171",bgGrad3:"#fecaca"},{name:"Morado",primary:"#7c3aed",secondary:"#a78bfa",bg:"260 70% 90%",bgGrad1:"#c4b5fd",bgGrad2:"#a78bfa",bgGrad3:"#ddd6fe"},{name:"Rosa",primary:"#be185d",secondary:"#f472b6",bg:"330 80% 90%",bgGrad1:"#f9a8d4",bgGrad2:"#f472b6",bgGrad3:"#fbcfe8"},{name:"Oscuro",primary:"#60a5fa",secondary:"#818cf8",bg:"222 47% 15%",bgGrad1:"#1e3a5f",bgGrad2:"#1e1b4b",bgGrad3:"#1e293b"},{name:"Pastel",primary:"#f472b6",secondary:"#c084fc",bg:"300 60% 93%",bgGrad1:"#f5d0fe",bgGrad2:"#e879f9",bgGrad3:"#fae8ff"},{name:"Sepia",primary:"#92400e",secondary:"#b45309",bg:"35 60% 88%",bgGrad1:"#fde68a",bgGrad2:"#fcd34d",bgGrad3:"#fef3c7"}];function yH(t){const e=parseInt(t.slice(1,3),16)/255,n=parseInt(t.slice(3,5),16)/255,r=parseInt(t.slice(5,7),16)/255,s=Math.max(e,n,r),i=Math.min(e,n,r);let o=0,a=0;const l=(s+i)/2;if(s!==i){const c=s-i;switch(a=l>.5?c/(2-s-i):c/(s+i),s){case e:o=((n-r)/c+(n<r?6:0))/6;break;case n:o=((r-e)/c+2)/6;break;case r:o=((e-n)/c+4)/6;break}}return`${Math.round(o*360)} ${Math.round(a*100)}% ${Math.round(l*100)}%`}function getModuleThemeKey(path){
+  if(path.startsWith("/finanzas")) return "rayan-theme-finanzas";
+  if(path.startsWith("/gimnasio")) return "rayan-theme-gimnasio";
+  if(path.startsWith("/classroom")) return "rayan-theme-clases";
+  if(path.startsWith("/apuntes")) return "rayan-theme-apuntes";
+  if(path.startsWith("/organizer")) return "rayan-theme-organizer";
+  if(path.startsWith("/dashboard")) return "rayan-theme-dashboard";
+  return null;
+}
+function applyModuleTheme(path){
+  var key=getModuleThemeKey(path);
+  var globalTheme=localStorage.getItem("rayan-theme")||"Por Defecto";
+  var themeName=key?localStorage.getItem(key)||globalTheme:globalTheme;
+  var theme=Zk.find(function(t){return t.name===themeName;})||Zk[0];
+  eN(theme);
+}
+function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body.style.backgroundImage=`
     radial-gradient(at 20% 80%, ${t.bgGrad1} 0px, transparent 50%),
     radial-gradient(at 80% 20%, ${t.bgGrad2} 0px, transparent 50%),
     radial-gradient(at 50% 50%, ${t.bgGrad3} 0px, transparent 50%)
@@ -18693,6 +18710,127 @@ onTouchStart:startDraw,onTouchMove:draw,onTouchEnd:stopDraw,
     .border-primary { border-color: ${t.primary} !important; }
     .progress-fill { background: linear-gradient(135deg, ${t.primary}, ${t.secondary}) !important; }
     .gradient-text { background-image: linear-gradient(135deg, ${t.primary}, ${t.secondary}) !important; }
-  `,document.head.appendChild(e),localStorage.setItem("rayan-theme",t.name)}function vH(t){const e=Zk.find(n=>n.name===t);e&&eN(e)}const xH={hidden:{opacity:0},show:{opacity:1,transition:{staggerChildren:.06}}},FE={hidden:{opacity:0,y:16},show:{opacity:1,y:0,transition:{duration:.5,ease:[.22,1,.36,1]}}};function wH(){const[t,e]=b.useState(localStorage.getItem("rayan-theme")||"Por Defecto"),n=r=>{e(r.name),eN(r)};return d.jsxs(Y.div,{variants:xH,initial:"hidden",animate:"show",className:"space-y-6",children:[d.jsxs(Y.div,{variants:FE,children:[d.jsx("h1",{className:"page-header",children:"Temas"}),d.jsx("p",{className:"page-subtitle",children:"Personaliza los colores de tu app"})]}),d.jsxs(Y.div,{variants:FE,children:[d.jsx("p",{className:"section-label mb-3",children:"🎨 Temas Predefinidos"}),d.jsx("div",{className:"grid grid-cols-2 gap-2.5",children:Zk.map(r=>d.jsxs("button",{onClick:()=>n(r),className:`glass-card p-4 text-left relative transition-all ${t===r.name?"ring-2 ring-offset-1":""}`,children:[t===r.name&&d.jsx("div",{className:"absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center",style:{background:r.primary},children:d.jsx(H5,{className:"w-3 h-3 text-white"})}),d.jsxs("div",{className:"flex gap-1.5 mb-2",children:[d.jsx("div",{className:"w-5 h-5 rounded-full",style:{background:r.primary}}),d.jsx("div",{className:"w-5 h-5 rounded-full",style:{background:r.secondary}}),d.jsx("div",{className:"w-5 h-5 rounded-full border border-black/10",style:{background:`hsl(${r.bg})`}})]}),d.jsx("p",{className:"text-sm font-medium text-foreground",children:r.name}),t===r.name&&d.jsx("p",{className:"text-[10px] text-muted-foreground mt-0.5",children:"✓ Activo"})]},r.name))})]})]})}const _H=()=>{const t=ru();return b.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),d.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:d.jsxs("div",{className:"text-center",children:[d.jsx("h1",{className:"mb-4 text-4xl font-bold",children:"404"}),d.jsx("p",{className:"mb-4 text-xl text-muted-foreground",children:"Oops! Page not found"}),d.jsx("a",{href:"/",className:"text-primary underline hover:text-primary/90",children:"Return to Home"})]})})},bH=new fD;function EH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):t?d.jsx(IW,{}):d.jsx(PC,{to:"/",replace:!0})}function TH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):d.jsxs(oM,{children:[d.jsx(xt,{path:"/",element:t?d.jsx(MebistiumRadialMenu,{}):d.jsx(AW,{})}),d.jsxs(xt,{element:d.jsx(EH,{}),children:[d.jsx(xt,{path:"/dashboard",element:d.jsx(NW,{})}),d.jsx(xt,{path:"/tasks",element:d.jsx(DW,{})}),d.jsx(xt,{path:"/schedule",element:d.jsx(OW,{})}),d.jsx(xt,{path:"/calendar",element:d.jsx(UW,{})}),d.jsx(xt,{path:"/grades",element:d.jsx($W,{})}),d.jsx(xt,{path:"/courses",element:d.jsx(BW,{})}),d.jsx(xt,{path:"/organizer",element:d.jsx(WW,{})}),d.jsx(xt,{path:"/settings",element:d.jsx(GW,{})}),d.jsx(xt,{path:"/classroom",element:d.jsx(lH,{})}),
+  `,document.head.appendChild(e),localStorage.setItem("rayan-theme",t.name)}function vH(t){const e=Zk.find(n=>n.name===t);e&&eN(e)}const xH={hidden:{opacity:0},show:{opacity:1,transition:{staggerChildren:.06}}},FE={hidden:{opacity:0,y:16},show:{opacity:1,y:0,transition:{duration:.5,ease:[.22,1,.36,1]}}};function wH(){
+  const [globalTheme, setGlobalTheme] = b.useState(localStorage.getItem("rayan-theme") || "Por Defecto");
+  const [activeTab, setActiveTab] = b.useState("global");
+
+  const MODULES_CONFIG = [
+    { key:"rayan-theme-dashboard",  label:"Dashboard",    icon:"🏠" },
+    { key:"rayan-theme-finanzas",   label:"Finanzas",     icon:"💰" },
+    { key:"rayan-theme-gimnasio",   label:"Gimnasio",     icon:"🏋️" },
+    { key:"rayan-theme-clases",     label:"Clases",       icon:"📚" },
+    { key:"rayan-theme-apuntes",    label:"Apuntes",      icon:"📝" },
+    { key:"rayan-theme-organizer",  label:"Organizador",  icon:"📅" },
+  ];
+
+  const getModuleTheme = function(key){
+    return localStorage.getItem(key) || globalTheme;
+  };
+
+  const applyGlobal = function(theme){
+    setGlobalTheme(theme.name);
+    eN(theme);
+    // Aplicar a módulos que no tienen tema propio
+    MODULES_CONFIG.forEach(function(m){
+      if(!localStorage.getItem(m.key)){
+        // no tienen override, el global ya aplica
+      }
+    });
+  };
+
+  const applyModule = function(key, theme){
+    localStorage.setItem(key, theme.name);
+    eN(theme);
+  };
+
+  const resetModule = function(key){
+    localStorage.removeItem(key);
+    const global = Zk.find(function(t){ return t.name === globalTheme; }) || Zk[0];
+    eN(global);
+  };
+
+  const tabs = [{id:"global",label:"Global"}].concat(MODULES_CONFIG.map(function(m){ return {id:m.key, label:m.label, icon:m.icon}; }));
+
+  return d.jsxs(Y.div,{variants:xH,initial:"hidden",animate:"show",className:"space-y-6",children:[
+
+    d.jsxs(Y.div,{variants:FE,children:[
+      d.jsx("h1",{className:"page-header",children:"Temas"}),
+      d.jsx("p",{className:"page-subtitle",children:"Personaliza los colores de cada módulo"}),
+    ]}),
+
+    // Tabs de módulos
+    d.jsx(Y.div,{variants:FE,children:
+      d.jsx("div",{style:{display:"flex",gap:6,flexWrap:"wrap"},children:
+        tabs.map(function(tab){
+          var active = activeTab === tab.id;
+          return d.jsx("button",{
+            key:tab.id,
+            onClick:function(){setActiveTab(tab.id);},
+            style:{
+              padding:"6px 12px", borderRadius:20, fontSize:12, fontWeight:600, cursor:"pointer",
+              background: active?"var(--primary)":"transparent",
+              color: active?"white":"var(--muted-foreground)",
+              border: active?"none":"1px solid var(--border)",
+              transition:"all 0.15s",
+            },
+            children: (tab.icon?" "+tab.icon+" ":"")+tab.label,
+          }, tab.id);
+        })
+      }),
+    }),
+
+    // Selector de temas para el tab activo
+    d.jsx(Y.div,{variants:FE,children:
+      d.jsxs("div",{className:"glass-card p-4 space-y-3",children:[
+
+        activeTab !== "global" && d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4},children:[
+          d.jsxs("p",{className:"section-label",children:["Tema de ",tabs.find(function(t){return t.id===activeTab;})?.label]}),
+          localStorage.getItem(activeTab) ? d.jsx("button",{
+            onClick:function(){resetModule(activeTab); setGlobalTheme(globalTheme);},
+            style:{fontSize:11,color:"var(--muted-foreground)",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"},
+            children:"Usar global",
+          }) : d.jsx("span",{style:{fontSize:11,color:"var(--muted-foreground)"},children:"Usando tema global"}),
+        ]}),
+
+        activeTab === "global" && d.jsx("p",{className:"section-label mb-1",children:"🎨 Tema global de la app"}),
+
+        d.jsx("div",{className:"grid grid-cols-2 gap-2.5",children:
+          Zk.map(function(theme){
+            var currentName = activeTab === "global" ? globalTheme : getModuleTheme(activeTab);
+            var isActive = currentName === theme.name;
+            return d.jsxs("button",{
+              key:theme.name,
+              onClick:function(){
+                if(activeTab === "global"){
+                  applyGlobal(theme);
+                } else {
+                  applyModule(activeTab, theme);
+                }
+              },
+              className:"glass-card p-3 text-left transition-all "+( isActive?"ring-2 ring-primary":""),
+              style:{
+                background:"linear-gradient(135deg,"+theme.bgGrad1+","+theme.bgGrad2+")",
+                border: isActive?"2px solid var(--primary)":"1px solid rgba(0,0,0,0.06)",
+              },
+              children:[
+                d.jsx("div",{style:{display:"flex",alignItems:"center",gap:6,marginBottom:4},children:[
+                  d.jsx("div",{style:{width:14,height:14,borderRadius:"50%",background:theme.primary,flexShrink:0}}),
+                  d.jsx("span",{style:{fontSize:12,fontWeight:600,color:"rgba(0,0,0,0.7)"},children:theme.name}),
+                  isActive && d.jsx("span",{style:{marginLeft:"auto",fontSize:10,background:"var(--primary)",color:"white",borderRadius:4,padding:"1px 5px"},children:"✓"}),
+                ]}),
+                d.jsxs("div",{style:{display:"flex",gap:3},children:[
+                  d.jsx("div",{style:{height:4,flex:1,borderRadius:2,background:theme.primary}}),
+                  d.jsx("div",{style:{height:4,flex:1,borderRadius:2,background:theme.secondary}}),
+                  d.jsx("div",{style:{height:4,flex:1,borderRadius:2,background:theme.bgGrad3}}),
+                ]}),
+              ],
+            }, theme.name);
+          })
+        }),
+      ]}),
+    }),
+
+  ]});
+}const _H=()=>{const t=ru();return b.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),d.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:d.jsxs("div",{className:"text-center",children:[d.jsx("h1",{className:"mb-4 text-4xl font-bold",children:"404"}),d.jsx("p",{className:"mb-4 text-xl text-muted-foreground",children:"Oops! Page not found"}),d.jsx("a",{href:"/",className:"text-primary underline hover:text-primary/90",children:"Return to Home"})]})})},bH=new fD;function EH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):t?d.jsx(IW,{}):d.jsx(PC,{to:"/",replace:!0})}function TH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):d.jsxs(oM,{children:[d.jsx(xt,{path:"/",element:t?d.jsx(MebistiumRadialMenu,{}):d.jsx(AW,{})}),d.jsxs(xt,{element:d.jsx(EH,{}),children:[d.jsx(xt,{path:"/dashboard",element:d.jsx(NW,{})}),d.jsx(xt,{path:"/tasks",element:d.jsx(DW,{})}),d.jsx(xt,{path:"/schedule",element:d.jsx(OW,{})}),d.jsx(xt,{path:"/calendar",element:d.jsx(UW,{})}),d.jsx(xt,{path:"/grades",element:d.jsx($W,{})}),d.jsx(xt,{path:"/courses",element:d.jsx(BW,{})}),d.jsx(xt,{path:"/organizer",element:d.jsx(WW,{})}),d.jsx(xt,{path:"/settings",element:d.jsx(GW,{})}),d.jsx(xt,{path:"/classroom",element:d.jsx(lH,{})}),
 
 d.jsx(xt,{path:"/gimnasio",element:d.jsx(GimnasioModule,{})}),d.jsx(xt,{path:"/notes",element:d.jsx(XW,{})}),d.jsx(xt,{path:"/flashcards",element:d.jsx(FlashcardsApp,{})}),d.jsx(xt,{path:"/selectividad",element:d.jsx(fH,{})}),d.jsx(xt,{path:"/pizarra",element:d.jsx(pH,{})}),d.jsx(xt,{path:"/compartir",element:d.jsx(gH,{})}),d.jsx(xt,{path:"/temas",element:d.jsx(wH,{})}),d.jsx(xt,{path:"/finanzas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/movimientos",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/sobres",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/stats",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/asistente",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/cuentas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/metas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/suscripciones",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/mas",element:d.jsx(FinanceModule,{})})]}),d.jsx(xt,{path:"*",element:d.jsx(_H,{})})]})}const SH=()=>d.jsx(mD,{client:bH,children:d.jsx(Z8,{children:d.jsx(e$,{children:d.jsxs($4,{children:[d.jsx(nO,{}),d.jsx($M,{}),d.jsx(cM,{children:d.jsx(TH,{})})]})})})}),UE=localStorage.getItem("rayan-theme");UE&&vH(UE);uC(document.getElementById("root")).render(d.jsx(SH,{}));
