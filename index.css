@@ -28,11 +28,33 @@ html[style*="--app-font"] .font-serif {
 
 
 /* ── Finanzas dashboard responsive ─────────────────────────────── */
+
+/* Móvil: columna única, centro primero */
 .fin-dashboard-grid {
-  grid-template-columns: minmax(0,1fr) 220px minmax(0,1fr) !important;
+  grid-template-columns: 1fr !important;
 }
-@media (max-width: 900px) {
+/* Reordenar: centro(col2) arriba, luego movimientos(col1), luego gráficas(col3) */
+.fin-dashboard-grid > *:nth-child(1) { order: 2; } /* movimientos */
+.fin-dashboard-grid > *:nth-child(2) { order: 1; } /* saldo+botones */
+.fin-dashboard-grid > *:nth-child(3) { order: 3; } /* gráficas */
+
+/* Tablet estrecha (≥600px): centro + derecha, movimientos arriba */
+@media (min-width: 600px) {
   .fin-dashboard-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr 1fr !important;
   }
+  /* Movimientos ocupa todo el ancho arriba */
+  .fin-dashboard-grid > *:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Desktop (≥960px): 3 columnas reales, order natural */
+@media (min-width: 960px) {
+  .fin-dashboard-grid {
+    grid-template-columns: minmax(0,1fr) 230px minmax(0,1fr) !important;
+  }
+  .fin-dashboard-grid > *:first-child  { grid-column: auto; order: 1; }
+  .fin-dashboard-grid > *:nth-child(2) { order: 2; }
+  .fin-dashboard-grid > *:nth-child(3) { order: 3; }
 }

@@ -8554,7 +8554,7 @@ width: "100%",
 },
 children: [
 d.jsx("div", {
-className: "max-w-lg mx-auto px-5 py-5",
+className: (path === "/finanzas") ? "w-full px-4 py-4" : "max-w-lg mx-auto px-5 py-5",
 style: {
 width: "100%",
 flex: 1,
