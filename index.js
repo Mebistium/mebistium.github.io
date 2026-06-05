@@ -4963,6 +4963,44 @@ function GymAjustes({ logs, uid, weightLog }) {
     d.jsx(GymCuerpo, { uid, weightLog }),
 
 
+
+    d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
+      d.jsxs('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'},children:[
+        d.jsx('p',{className:'section-label',children:'Fondo de Gimnasio'}),
+        localStorage.getItem('rayan-theme-gimnasio') ? d.jsx('button',{
+          onClick:function(){ localStorage.removeItem('rayan-theme-gimnasio'); applyModuleTheme(location.pathname); },
+          style:{fontSize:11,color:'hsl(var(--muted-foreground))',background:'none',border:'none',cursor:'pointer',textDecoration:'underline'},
+          children:'Usar global',
+        }) : d.jsx('span',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:'Global activo'}),
+      ]}),
+      d.jsx('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6},children:
+        Zk.map(function(theme){
+          var current=localStorage.getItem('rayan-theme-gimnasio')||(localStorage.getItem('rayan-theme')||'Por Defecto');
+          var isActive=current===theme.name;
+          return d.jsxs('button',{
+            key:theme.name,
+            onClick:function(){
+              localStorage.setItem('rayan-theme-gimnasio',theme.name);
+              applyModuleTheme(location.pathname);
+            },
+            style:{
+              padding:'8px 6px',borderRadius:10,cursor:'pointer',
+              background:'linear-gradient(135deg,'+theme.bgGrad1+','+theme.bgGrad2+')',
+              border:isActive?'2px solid var(--primary)':'1px solid rgba(0,0,0,0.08)',
+              outline:'none',
+            },
+            children:[
+              d.jsxs('div',{style:{display:'flex',alignItems:'center',gap:4,marginBottom:3},children:[
+                d.jsx('div',{style:{width:8,height:8,borderRadius:'50%',background:theme.primary,flexShrink:0}}),
+                d.jsx('span',{style:{fontSize:10,fontWeight:600,color:'rgba(0,0,0,0.65)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},children:theme.name}),
+              ]}),
+              isActive?d.jsx('div',{style:{width:'100%',height:2,borderRadius:1,background:theme.primary}}):null,
+            ],
+          },theme.name);
+        })
+      }),
+    ]}),
+
     // Unidades
     d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
       d.jsx('p',{className:'section-label',children:'Unidades de peso'}),
@@ -15685,6 +15723,45 @@ last: true,
 }),
 ],
 }),
+d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+  d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10},children:[
+    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"#9ca3af",margin:0},children:"Fondo de Finanzas"}),
+    localStorage.getItem('rayan-theme-finanzas') ? d.jsx("button",{
+      onClick:function(){ localStorage.removeItem('rayan-theme-finanzas'); applyModuleTheme(location.pathname); },
+      style:{fontSize:11,color:"#9ca3af",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"},
+      children:"Usar global",
+    }) : d.jsx("span",{style:{fontSize:11,color:"#9ca3af"},children:"Global activo"}),
+  ]}),
+  d.jsx("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6},children:
+    Zk.map(function(theme){
+      var current=localStorage.getItem('rayan-theme-finanzas')||(localStorage.getItem("rayan-theme")||"Por Defecto");
+      var isActive=current===theme.name;
+      return d.jsxs("button",{
+        key:theme.name,
+        onClick:function(){
+          localStorage.setItem('rayan-theme-finanzas',theme.name);
+          applyModuleTheme(location.pathname);
+        },
+        style:{
+          padding:"8px 6px",borderRadius:10,cursor:"pointer",
+          background:"linear-gradient(135deg,"+theme.bgGrad1+","+theme.bgGrad2+")",
+          border:isActive?"2px solid "+theme.primary:"1px solid rgba(0,0,0,0.08)",
+          outline:"none",transition:"border 0.15s",
+        },
+        children:[
+          d.jsxs("div",{style:{display:"flex",alignItems:"center",gap:4,marginBottom:2},children:[
+            d.jsx("div",{style:{width:7,height:7,borderRadius:"50%",background:theme.primary,flexShrink:0}}),
+            d.jsx("span",{style:{fontSize:9,fontWeight:600,color:"rgba(0,0,0,0.65)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},children:theme.name}),
+          ]}),
+          d.jsxs("div",{style:{display:"flex",gap:2},children:[
+            d.jsx("div",{style:{height:3,flex:1,borderRadius:1,background:theme.primary}}),
+            d.jsx("div",{style:{height:3,flex:1,borderRadius:1,background:theme.secondary}}),
+          ]}),
+        ],
+      },theme.name);
+    })
+  }),
+]}),
 ],
 });
 }
@@ -18818,7 +18895,7 @@ onTouchStart:startDraw,onTouchMove:draw,onTouchEnd:stopDraw,
 function applyModuleTheme(path){
   // Fondos fijos por módulo (se pueden sobreescribir desde Ajustes > Temas)
   var MODULE_DEFAULTS = {
-    "/finanzas":  "Bosque",
+    "/finanzas":  "Bosque Suave",
     "/classroom": "Por Defecto",
   };
 
@@ -18850,12 +18927,12 @@ function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body
   const [activeTab, setActiveTab] = b.useState("global");
 
   const MODULES_CONFIG = [
-    { key:"rayan-theme-dashboard",  label:"Dashboard",    icon:"🏠" },
-    { key:"rayan-theme-finanzas",   label:"Finanzas",     icon:"💰" },
-    { key:"rayan-theme-gimnasio",   label:"Gimnasio",     icon:"🏋️" },
-    { key:"rayan-theme-clases",     label:"Clases",       icon:"📚" },
-    { key:"rayan-theme-apuntes",    label:"Apuntes",      icon:"📝" },
-    { key:"rayan-theme-organizer",  label:"Organizador",  icon:"📅" },
+    { key:"rayan-theme-dashboard",  label:"Dashboard",    icon:"◻" },
+    { key:"rayan-theme-finanzas",   label:"Finanzas",     icon:"◻" },
+    { key:"rayan-theme-gimnasio",   label:"Gimnasio",     icon:"◻" },
+    { key:"rayan-theme-clases",     label:"Clases",       icon:"◻" },
+    { key:"rayan-theme-apuntes",    label:"Apuntes",      icon:"◻" },
+    { key:"rayan-theme-organizer",  label:"Organizador",  icon:"◻" },
   ];
 
   const getModuleTheme = function(key){
@@ -18908,7 +18985,7 @@ function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body
               border: active?"none":"1px solid var(--border)",
               transition:"all 0.15s",
             },
-            children: (tab.icon?" "+tab.icon+" ":"")+tab.label,
+            children: tab.label,
           }, tab.id);
         })
       }),
@@ -18927,7 +19004,7 @@ function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body
           }) : d.jsx("span",{style:{fontSize:11,color:"var(--muted-foreground)"},children:"Usando tema global"}),
         ]}),
 
-        activeTab === "global" && d.jsx("p",{className:"section-label mb-1",children:"🎨 Tema global de la app"}),
+        activeTab === "global" && d.jsx("p",{className:"section-label mb-1",children:"Tema global de la app"}),
 
         d.jsx("div",{className:"grid grid-cols-2 gap-2.5",children:
           Zk.map(function(theme){
