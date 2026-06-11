@@ -25,3 +25,14 @@ html[style*="--app-font"] .font-serif {
 }
 
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+
+/* ── Finanzas dashboard responsive ─────────────────────────────── */
+.fin-dashboard-grid {
+  grid-template-columns: minmax(0,1fr) 220px minmax(0,1fr) !important;
+}
+@media (max-width: 900px) {
+  .fin-dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
