@@ -16476,8 +16476,8 @@ function generateLinkCode(){
   for(var i=0;i<6;i++) code+=chars[Math.floor(Math.random()*chars.length)];
   return code;
 }
-function getOrCreateLinkCode(){
-  // Reusar el código si existe y no ha expirado (evita regenerar al remontar)
+// Código generado UNA SOLA VEZ al cargar el módulo — nunca cambia
+var __DEVICE_LINK_CODE = (function(){
   try{
     var saved = JSON.parse(localStorage.getItem('meb-link-code')||'null');
     if(saved && saved.code && saved.expiresAt && Date.now() < saved.expiresAt){
@@ -16488,14 +16488,14 @@ function getOrCreateLinkCode(){
   var expiresAt = Date.now() + 10*60*1000;
   try{ localStorage.setItem('meb-link-code', JSON.stringify({code:code, expiresAt:expiresAt})); }catch(ex){}
   return code;
-}
+})();
 
 function DeviceLinkScreen({onLinked}){
   var FIREBASE_API_KEY = 'AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI';
   var FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/proyectorayan/databases/(default)/documents';
 
-  var code_s = b.useState(function(){ return getOrCreateLinkCode(); });
-  var code = code_s[0];
+  // Usar el código global — nunca cambia entre renders
+  var code = __DEVICE_LINK_CODE;
 
   var status_s = b.useState('writing'); // writing | waiting | linked | error
   var status = status_s[0]; var setStatus = status_s[1];
