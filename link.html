@@ -400,13 +400,17 @@ async function doLink() {
       log(`refreshToken renovado: ${firebaseRT.slice(0,20)}...`, 'ok');
     }
 
-    // 3. Escribir en Firestore
+    // 3. Escribir en Firestore — con idToken en el header Authorization
     log(`Escribiendo en Firestore: uid=${currentUser.uid}`);
+    const idToken = tokenData.id_token;
+    const patchHeaders = { 'Content-Type': 'application/json' };
+    if (idToken) patchHeaders['Authorization'] = `Bearer ${idToken}`;
+    log(`Authorization header: ${idToken ? 'SÍ' : 'NO'}`, idToken ? 'ok' : 'err');
     const patch = await fetch(
-      `${FSBASE}/device_links/${trimCode}?key=${API_KEY}&updateMask.fieldPaths=status&updateMask.fieldPaths=uid&updateMask.fieldPaths=refreshToken&updateMask.fieldPaths=linkedAt`,
+      `${FSBASE}/device_links/${trimCode}?key=${API_KEY}`,
       {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: patchHeaders,
         body: JSON.stringify({ fields: {
           status:       { stringValue: 'linked' },
           uid:          { stringValue: currentUser.uid },
