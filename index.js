@@ -3504,26 +3504,78 @@ function Z8({children:t}){
     try{ deviceSession = JSON.parse(localStorage.getItem('meb-device-session')||'null'); }catch(ex){}
 
     if(deviceSession&&deviceSession.uid&&deviceSession.refreshToken){
+      // 1. Renovar el idToken con el refreshToken
       fetch('https://securetoken.googleapis.com/v1/token?key='+FIREBASE_API_KEY_DS,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({grant_type:'refresh_token',refresh_token:deviceSession.refreshToken})
-      }).then(function(r){return r.json();}).then(function(data){
+      }).then(function(r){return r.json();}).then(async function(data){
         if(data.id_token){
-          localStorage.setItem('meb-device-session',JSON.stringify({
+          // 2. Guardar sesión actualizada
+          var newSession = {
             uid:deviceSession.uid,
             idToken:data.id_token,
             refreshToken:data.refresh_token||deviceSession.refreshToken,
             linkedAt:deviceSession.linkedAt,
-          }));
+          };
+          try{ localStorage.setItem('meb-device-session',JSON.stringify(newSession)); }catch(ex){}
+
+          // 3. Autenticar el SDK de Firebase con el idToken
+          // Esto hace que Firestore Security Rules funcionen normalmente
+          try{
+            await om._initializeCurrentUserFromIdToken(data.id_token);
+            // Ahora el SDK tiene el usuario autenticado — usar ese user
+            var sdkUser = om.currentUser;
+            if(sdkUser){
+              n(sdkUser);
+              s(false);
+              window.__meb_current_user__ = sdkUser;
+              return;
+            }
+          }catch(ex){
+            console.warn('[DeviceSession] _initializeCurrentUserFromIdToken failed:', ex);
+          }
+          // Fallback: proxy user si el SDK no coopera
           n({uid:deviceSession.uid,isDeviceSession:true,displayName:null,email:null,photoURL:null});
           s(false);
         } else {
-          localStorage.removeItem('meb-device-session');
+          // Token expirado o inválido — limpiar y pedir nueva vinculación
+          console.warn('[DeviceSession] refreshToken inválido, limpiando sesión');
+          try{ localStorage.removeItem('meb-device-session'); }catch(ex){}
           s(false);
         }
-      }).catch(function(){ localStorage.removeItem('meb-device-session'); s(false); });
-      return function(){};
+      }).catch(function(e){
+        console.error('[DeviceSession] Error:', e);
+        try{ localStorage.removeItem('meb-device-session'); }catch(ex){}
+        s(false);
+      });
+      // Renovar el idToken cada 55 minutos para mantener la sesión
+      var renewInterval = setInterval(function(){
+        var sess = null;
+        try{ sess = JSON.parse(localStorage.getItem('meb-device-session')||'null'); }catch(ex){}
+        if(!sess||!sess.refreshToken) return clearInterval(renewInterval);
+        fetch('https://securetoken.googleapis.com/v1/token?key='+FIREBASE_API_KEY_DS,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({grant_type:'refresh_token',refresh_token:sess.refreshToken})
+        }).then(function(r){return r.json();}).then(async function(data){
+          if(data.id_token){
+            try{
+              localStorage.setItem('meb-device-session',JSON.stringify({
+                uid:sess.uid,idToken:data.id_token,
+                refreshToken:data.refresh_token||sess.refreshToken,
+                linkedAt:sess.linkedAt,
+              }));
+              await om._initializeCurrentUserFromIdToken(data.id_token);
+            }catch(ex){ console.warn('[DeviceSession] Renewal error:', ex); }
+          } else {
+            clearInterval(renewInterval);
+            try{ localStorage.removeItem('meb-device-session'); }catch(ex){}
+            n(null); s(false);
+          }
+        }).catch(function(){ clearInterval(renewInterval); });
+      }, 55*60*1000);
+      return function(){ clearInterval(renewInterval); };
     }
 
     return fF(om,function(l){
@@ -16548,27 +16600,30 @@ function DeviceLinkPage(){
   var FSBASE = 'https://firestore.googleapis.com/v1/projects/proyectorayan/databases/(default)/documents';
   var ctx = ls();
   var user = ctx.user;
+  var loading = ctx.loading;
   var signInWithGoogle = ctx.signInWithGoogle;
-  var code_state = b.useState('');
-  var code = code_state[0]; var setCode = code_state[1];
-  var step_state = b.useState('enter');
-  var step = step_state[0]; var setStep = step_state[1];
-  var err_state = b.useState('');
-  var err = err_state[0]; var setErr = err_state[1];
-  var si_state = b.useState(false);
-  var signingIn = si_state[0]; var setSigningIn = si_state[1];
 
-  var doSignIn = async function(){
-    setSigningIn(true); setErr('');
-    try{ await signInWithGoogle(); }
-    catch(e){ setErr('Error al iniciar sesión. Inténtalo de nuevo.'); }
-    setSigningIn(false);
-  };
+  var code_s = b.useState(''); var code = code_s[0]; var setCode = code_s[1];
+  var step_s = b.useState('enter'); var step = step_s[0]; var setStep = step_s[1];
+  var err_s = b.useState(''); var err = err_s[0]; var setErr = err_s[1];
+  var si_s = b.useState(false); var signingIn = si_s[0]; var setSigningIn = si_s[1];
+  // Guardar el código mientras el usuario hace login
+  var pendingCode_s = b.useState(''); var pendingCode = pendingCode_s[0]; var setPendingCode = pendingCode_s[1];
 
-  var handleLink = async function(){
-    var trimCode = code.trim().toUpperCase();
+  // Si el usuario acaba de loguearse y había un código pendiente, intentar vincular
+  b.useEffect(function(){
+    if(user && pendingCode && pendingCode.length === 6 && step === 'enter'){
+      setCode(pendingCode);
+      setPendingCode('');
+      doLink(pendingCode, user);
+    }
+  }, [user]);
+
+  var doLink = async function(codeToLink, currentUser){
+    var trimCode = (codeToLink||code).trim().toUpperCase();
+    var theUser = currentUser || user;
     if(trimCode.length !== 6){ setErr('El código tiene 6 caracteres'); return; }
-    if(!user){ setErr('Primero inicia sesión con Google'); return; }
+    if(!theUser){ setErr('Primero inicia sesión con Google'); return; }
     setStep('linking'); setErr('');
     try{
       var res = await fetch(FSBASE+'/device_links/'+trimCode+'?key='+FBKEY);
@@ -16577,15 +16632,23 @@ function DeviceLinkPage(){
       var fields = data.fields||{};
       var exp = parseInt((fields.expiresAt&&fields.expiresAt.integerValue)||'0');
       if(Date.now() > exp){ setErr('Código expirado. Genera uno nuevo en el reloj.'); setStep('enter'); return; }
-      var fbUser = window.__meb_current_user__;
+
+      // Esperar a que window.__meb_current_user__ esté disponible
+      var fbUser = null;
+      for(var attempt = 0; attempt < 10; attempt++){
+        fbUser = window.__meb_current_user__;
+        if(fbUser && fbUser.stsTokenManager && fbUser.stsTokenManager.refreshToken) break;
+        await new Promise(function(r){ setTimeout(r, 300); });
+      }
       var rt = fbUser&&fbUser.stsTokenManager&&fbUser.stsTokenManager.refreshToken;
-      if(!rt){ setErr('Error al obtener credenciales. Vuelve a iniciar sesión.'); setStep('enter'); return; }
+      if(!rt){ setErr('No se pudo obtener las credenciales. Cierra sesión y vuelve a entrar.'); setStep('enter'); return; }
+
       var patchRes = await fetch(FSBASE+'/device_links/'+trimCode+'?key='+FBKEY, {
         method:'PATCH',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({fields:{
           status:{stringValue:'linked'},
-          uid:{stringValue:user.uid},
+          uid:{stringValue:theUser.uid},
           refreshToken:{stringValue:rt},
           linkedAt:{integerValue:String(Date.now())},
         }})
@@ -16595,54 +16658,112 @@ function DeviceLinkPage(){
     }catch(e){ setErr('Error: '+(e.message||'desconocido')); setStep('enter'); }
   };
 
+  var doSignIn = async function(){
+    setPendingCode(code); // guardar el código antes del popup
+    setSigningIn(true); setErr('');
+    try{ await signInWithGoogle(); }
+    catch(e){ setErr('Error al iniciar sesión con Google. Inténtalo de nuevo.'); setPendingCode(''); }
+    setSigningIn(false);
+  };
+
+  // Pantalla de carga
+  if(loading){
+    return d.jsx('div',{style:{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'hsl(var(--background))'},children:
+      d.jsx('div',{className:'w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin'})
+    });
+  }
+
+  // Vinculado con éxito
   if(step === 'done'){
     return d.jsxs(Y.div,{
-      initial:{opacity:0,y:16},animate:{opacity:1,y:0},
-      style:{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'hsl(var(--background))',padding:24},
+      initial:{opacity:0,scale:0.95},animate:{opacity:1,scale:1},
+      style:{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'hsl(var(--background))',padding:24,gap:12},
       children:[
-        d.jsx('div',{style:{width:56,height:56,borderRadius:'50%',background:'hsl(var(--primary))',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'},children:
-          d.jsx('svg',{width:28,height:28,viewBox:'0 0 24 24',fill:'none',stroke:'white',strokeWidth:3,strokeLinecap:'round',strokeLinejoin:'round',children:
+        d.jsx('div',{style:{width:64,height:64,borderRadius:'50%',background:'hsl(var(--primary))',display:'flex',alignItems:'center',justifyContent:'center'},children:
+          d.jsx('svg',{width:32,height:32,viewBox:'0 0 24 24',fill:'none',stroke:'white',strokeWidth:3,strokeLinecap:'round',strokeLinejoin:'round',children:
             d.jsx('polyline',{points:'20 6 9 17 4 12'})
           })
         }),
-        d.jsx('p',{style:{fontSize:18,fontWeight:700,color:'hsl(var(--foreground))'},children:'Dispositivo vinculado'}),
-        d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',marginTop:6,textAlign:'center'},children:'Tu reloj se actualizará en unos segundos'}),
+        d.jsx('p',{style:{fontSize:20,fontWeight:700,color:'hsl(var(--foreground))'},children:'Dispositivo vinculado'}),
+        d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',textAlign:'center',maxWidth:280},children:'Tu reloj detectará la vinculación en unos segundos y entrará automáticamente'}),
       ]
     });
   }
 
+  // Formulario principal
   return d.jsxs(Y.div,{
     initial:{opacity:0,y:16},animate:{opacity:1,y:0},
     style:{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'hsl(var(--background))',padding:24},
     children:[
-      d.jsx('h1',{style:{fontFamily:'var(--font-serif)',fontSize:24,marginBottom:4,textAlign:'center'},children:'Vincular dispositivo'}),
-      d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',marginBottom:24,textAlign:'center',maxWidth:320},children:'Introduce el código que aparece en tu reloj'}),
+      // Header
+      d.jsxs('div',{style:{textAlign:'center',marginBottom:28},children:[
+        d.jsx('div',{style:{width:48,height:48,borderRadius:14,background:'hsl(var(--primary))',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'},children:
+          d.jsx('svg',{width:24,height:24,viewBox:'0 0 24 24',fill:'none',stroke:'white',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round',children:[
+            d.jsx('rect',{key:'r',x:'5',y:'2',width:'14',height:'20',rx:'2'}),
+            d.jsx('path',{key:'p',d:'M12 18h.01'}),
+          ]})
+        }),
+        d.jsx('h1',{style:{fontFamily:'var(--font-serif)',fontSize:22,marginBottom:4,color:'hsl(var(--foreground))'},children:'Vincular dispositivo'}),
+        d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',maxWidth:300},children:'Introduce el código de 6 caracteres que aparece en la pantalla de tu reloj'}),
+      ]}),
+
       d.jsxs('div',{style:{width:'100%',maxWidth:320},children:[
+
+        // Estado de cuenta
         !user
-          ? d.jsxs('div',{style:{marginBottom:16},children:[
-              d.jsx('p',{style:{fontSize:12,color:'hsl(var(--muted-foreground))',marginBottom:10,textAlign:'center'},children:'Inicia sesión con tu cuenta de Google para continuar'}),
+          ? d.jsxs('div',{style:{background:'hsl(var(--muted))',borderRadius:12,padding:14,marginBottom:16,textAlign:'center'},children:[
+              d.jsx('p',{style:{fontSize:12,color:'hsl(var(--muted-foreground))',marginBottom:10},children:'Necesitas iniciar sesión con tu cuenta de Mebistium'}),
               d.jsx('button',{
-                onClick:doSignIn,disabled:signingIn,
-                style:{width:'100%',padding:'12px',borderRadius:12,border:'1px solid hsl(var(--border))',background:'hsl(var(--card))',color:'hsl(var(--foreground))',fontSize:14,fontWeight:600,cursor:signingIn?'wait':'pointer'},
-                children:signingIn?'Iniciando sesión...':'Continuar con Google',
+                onClick:doSignIn, disabled:signingIn,
+                style:{width:'100%',padding:'11px',borderRadius:10,border:'1px solid hsl(var(--border))',background:'hsl(var(--card))',color:'hsl(var(--foreground))',fontSize:13,fontWeight:600,cursor:signingIn?'wait':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8},
+                children:signingIn
+                  ? d.jsxs('span',{style:{display:'flex',alignItems:'center',gap:6},children:[d.jsx('div',{className:'w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin'}),'Iniciando sesión...']})
+                  : 'Continuar con Google',
               }),
             ]})
-          : d.jsx('div',{style:{background:'hsl(var(--muted))',borderRadius:10,padding:'8px 12px',marginBottom:12,fontSize:12,color:'hsl(var(--muted-foreground))'},
-              children:'Conectado como '+(user.email||user.uid.slice(0,8)+'...')}),
+          : d.jsxs('div',{style:{background:'hsl(var(--muted))',borderRadius:10,padding:'8px 12px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between'},children:[
+              d.jsxs('span',{style:{fontSize:12,color:'hsl(var(--muted-foreground))'},children:['Cuenta: ',user.email||user.uid.slice(0,10)+'...']}),
+              d.jsx('svg',{width:14,height:14,viewBox:'0 0 24 24',fill:'none',stroke:'#4ade80',strokeWidth:2.5,strokeLinecap:'round',strokeLinejoin:'round',children:d.jsx('polyline',{points:'20 6 9 17 4 12'})}),
+            ]}),
+
+        // Input del código
         d.jsx('input',{
           value:code,
-          onChange:function(e){ setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)); },
-          placeholder:'ABC123',maxLength:6,
-          disabled:!user||step==='linking',
-          style:{width:'100%',padding:'14px 16px',borderRadius:12,border:'2px solid '+(err?'hsl(var(--destructive))':'hsl(var(--border))'),background:'hsl(var(--muted))',fontSize:24,fontWeight:800,letterSpacing:8,textAlign:'center',color:'hsl(var(--foreground))',outline:'none',marginBottom:8,fontVariantNumeric:'tabular-nums',opacity:(!user||step==='linking')?0.5:1},
+          onChange:function(e){ setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)); setErr(''); },
+          placeholder:'ABC123',
+          maxLength:6,
+          disabled:step==='linking',
+          autoFocus:!!user,
+          autoCapitalize:'characters',
+          style:{
+            width:'100%',padding:'16px',borderRadius:12,
+            border:'2px solid '+(err?'hsl(var(--destructive))':code.length===6?'hsl(var(--primary))':'hsl(var(--border))'),
+            background:'hsl(var(--muted))',fontSize:28,fontWeight:800,
+            letterSpacing:10,textAlign:'center',color:'hsl(var(--foreground))',
+            outline:'none',marginBottom:8,fontVariantNumeric:'tabular-nums',
+            transition:'border-color 0.15s',
+          },
         }),
+
         err ? d.jsx('p',{style:{fontSize:12,color:'hsl(var(--destructive))',marginBottom:8,textAlign:'center'},children:err}) : null,
+
         d.jsx('button',{
-          onClick:handleLink,
+          onClick:function(){ doLink(code, user); },
           disabled:!user||step==='linking'||code.length!==6,
-          style:{width:'100%',padding:'14px',borderRadius:12,border:'none',background:'hsl(var(--primary))',color:'white',fontSize:14,fontWeight:700,cursor:(!user||step==='linking'||code.length!==6)?'not-allowed':'pointer',opacity:(!user||step==='linking'||code.length!==6)?0.5:1},
-          children:step==='linking'?'Vinculando...':'Vincular dispositivo',
+          style:{
+            width:'100%',padding:'14px',borderRadius:12,border:'none',
+            background:'hsl(var(--primary))',color:'white',fontSize:14,fontWeight:700,
+            cursor:(!user||step==='linking'||code.length!==6)?'not-allowed':'pointer',
+            opacity:(!user||step==='linking'||code.length!==6)?0.4:1,
+            transition:'opacity 0.15s',
+            display:'flex',alignItems:'center',justifyContent:'center',gap:8,
+          },
+          children:step==='linking'
+            ? d.jsxs('span',{style:{display:'flex',alignItems:'center',gap:6},children:[d.jsx('div',{className:'w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin'}),'Vinculando...']})
+            : 'Vincular dispositivo',
         }),
+
+        d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))',textAlign:'center',marginTop:12},children:'El código expira a los 10 minutos. Si ha expirado, genera uno nuevo en el reloj.'}),
       ]}),
     ]
   });
