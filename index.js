@@ -16481,114 +16481,142 @@ function DeviceLinkScreen({onLinked}){
   var FIREBASE_API_KEY = 'AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI';
   var FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/proyectorayan/databases/(default)/documents';
 
-  var [code] = b.useState(function(){ return generateLinkCode(); });
-  var [status, setStatus] = b.useState('waiting'); // waiting | linked | error
-  var [dots, setDots] = b.useState('');
+  var code_s = b.useState(function(){ return generateLinkCode(); });
+  var code = code_s[0];
 
-  // Escribir el código en Firestore via REST
+  var status_s = b.useState('writing'); // writing | waiting | linked | error
+  var status = status_s[0]; var setStatus = status_s[1];
+
+  var log_s = b.useState([]); var logs = log_s[0]; var setLogs = log_s[1];
+  var dots_s = b.useState(''); var dots = dots_s[0]; var setDots = dots_s[1];
+
+  function addLog(msg){ setLogs(function(prev){ return prev.slice(-4).concat([msg]); }); }
+
+  // 1. Escribir el código en Firestore
   b.useEffect(function(){
-    var expiresAt = Date.now() + 10*60*1000; // 10 minutos
+    var expiresAt = Date.now() + 10*60*1000;
+    addLog('Registrando codigo...');
     fetch(FIRESTORE_BASE+'/device_links/'+code+'?key='+FIREBASE_API_KEY, {
       method:'PATCH',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        fields:{
-          code:{stringValue:code},
-          status:{stringValue:'pending'},
-          expiresAt:{integerValue:String(expiresAt)},
-          createdAt:{integerValue:String(Date.now())},
-        }
-      })
-    }).catch(function(e){ console.error('DeviceLink write error',e); });
+      body: JSON.stringify({fields:{
+        code:{stringValue:code},
+        status:{stringValue:'pending'},
+        expiresAt:{integerValue:String(expiresAt)},
+        createdAt:{integerValue:String(Date.now())},
+      }})
+    }).then(function(r){
+      addLog('Registrado: '+r.status);
+      if(r.ok) setStatus('waiting');
+      else r.json().then(function(d){ addLog('Error: '+JSON.stringify(d.error||d)); });
+    }).catch(function(e){ addLog('Error red: '+e.message); });
   }, [code]);
 
-  // Polling cada 3 segundos para ver si el móvil vinculó
+  // 2. Polling cada 3s
   b.useEffect(function(){
-    var interval = setInterval(async function(){
+    if(status !== 'waiting') return;
+    addLog('Polling activo...');
+
+    var poll = setInterval(async function(){
       try{
         var res = await fetch(FIRESTORE_BASE+'/device_links/'+code+'?key='+FIREBASE_API_KEY);
-        if(!res.ok) return;
+        if(!res.ok){ addLog('Poll error: '+res.status); return; }
         var data = await res.json();
         var fields = data.fields||{};
-        var st = (fields.status&&fields.status.stringValue)||'pending';
-        var rt = fields.refreshToken&&fields.refreshToken.stringValue;
+        var st  = (fields.status&&fields.status.stringValue)||'pending';
+        var rt  = fields.refreshToken&&fields.refreshToken.stringValue;
         var uid = fields.uid&&fields.uid.stringValue;
+        addLog('Poll: '+st+(uid?' uid='+uid.slice(0,6):''));
 
         if(st==='linked' && rt && uid){
-          // Hacer exchange refreshToken → idToken via Firebase REST
+          clearInterval(poll);
+          clearInterval(dotTimer);
+          setStatus('linking');
+          addLog('Linked! Obteniendo token...');
+
           var tokenRes = await fetch(
             'https://securetoken.googleapis.com/v1/token?key='+FIREBASE_API_KEY,
-            {
-              method:'POST',
-              headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({grant_type:'refresh_token', refresh_token:rt})
-            }
+            { method:'POST', headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({grant_type:'refresh_token',refresh_token:rt}) }
           );
           var tokenData = await tokenRes.json();
+          addLog('Token: '+tokenRes.status+' '+Object.keys(tokenData).join(','));
+
           if(tokenData.id_token){
-            // Guardar sesión en localStorage para que el AuthProvider la use
-            localStorage.setItem('meb-device-session', JSON.stringify({
-              uid: uid,
-              idToken: tokenData.id_token,
-              refreshToken: tokenData.refresh_token||rt,
-              linkedAt: Date.now(),
-            }));
-            // Limpiar el código de Firestore
-            fetch(FIRESTORE_BASE+'/device_links/'+code+'?key='+FIREBASE_API_KEY, {method:'DELETE'}).catch(function(){});
+            try{ localStorage.setItem('meb-device-session', JSON.stringify({
+              uid:uid, idToken:tokenData.id_token,
+              refreshToken:tokenData.refresh_token||rt,
+              linkedAt:Date.now(),
+            })); }catch(ex){}
+            // Limpiar el código
+            fetch(FIRESTORE_BASE+'/device_links/'+code+'?key='+FIREBASE_API_KEY,{method:'DELETE'}).catch(function(){});
             setStatus('linked');
-            clearInterval(interval);
-            setTimeout(function(){ onLinked({uid, idToken:tokenData.id_token, refreshToken:tokenData.refresh_token||rt}); }, 800);
+            addLog('Sesion guardada. Recargando...');
+            setTimeout(function(){ onLinked({uid:uid,idToken:tokenData.id_token,refreshToken:tokenData.refresh_token||rt}); }, 1000);
+          } else {
+            addLog('Error token: '+JSON.stringify(tokenData.error||tokenData));
+            setStatus('error');
           }
         }
+
         var exp = fields.expiresAt&&parseInt(fields.expiresAt.integerValue||'0');
-        if(exp && Date.now() > exp){ setStatus('error'); clearInterval(interval); }
-      }catch(e){}
+        if(exp && Date.now() > exp){ addLog('Expirado'); setStatus('error'); clearInterval(poll); }
+
+      }catch(e){ addLog('Poll exc: '+e.message); }
     }, 3000);
 
-    // Animación de puntos
-    var dotInterval = setInterval(function(){
+    var dotTimer = setInterval(function(){
       setDots(function(d){ return d.length>=3?'':d+'.'; });
     }, 500);
 
-    return function(){ clearInterval(interval); clearInterval(dotInterval); };
-  }, [code]);
+    return function(){ clearInterval(poll); clearInterval(dotTimer); };
+  }, [status]);
 
-  var isLinked = status==='linked';
-  var isError  = status==='error';
+  // Render
+  var isWaiting = status==='waiting';
+  var isLinked  = status==='linked';
+  var isLinking = status==='linking';
+  var isError   = status==='error';
+  var isWriting = status==='writing';
 
   return d.jsxs('div',{style:{
     minHeight:'100vh', display:'flex', flexDirection:'column',
     alignItems:'center', justifyContent:'center',
-    background:'hsl(var(--background))', padding:16, textAlign:'center',
+    background:'hsl(var(--background))', padding:12, textAlign:'center',
+    gap:8,
   },children:[
-    d.jsx('div',{style:{
-      fontFamily:'var(--font-serif)', fontSize:14, fontWeight:400,
-      color:'hsl(var(--foreground))', marginBottom:8,
-    },children:'Mebistium'}),
+    d.jsx('p',{style:{fontFamily:'var(--font-serif)',fontSize:13,color:'hsl(var(--foreground))'},children:'Mebistium'}),
 
     isLinked ? d.jsxs('div',{children:[
-      d.jsx('div',{style:{fontSize:32,marginBottom:8},children:'✓'}),
-      d.jsx('p',{style:{fontSize:13,color:'hsl(var(--foreground))'},children:'Vinculado'}),
+      d.jsx('div',{style:{fontSize:28,marginBottom:4},children:'✓'}),
+      d.jsx('p',{style:{fontSize:11,color:'hsl(var(--foreground))'},children:'Vinculado'}),
     ]}) : isError ? d.jsxs('div',{children:[
-      d.jsx('p',{style:{fontSize:12,color:'hsl(var(--destructive))',marginBottom:12},children:'Código expirado'}),
-      d.jsx('button',{
-        onClick:function(){ window.location.reload(); },
-        style:{fontSize:12,padding:'8px 16px',borderRadius:8,border:'none',background:'hsl(var(--primary))',color:'white',cursor:'pointer'},
-        children:'Nuevo código',
-      }),
+      d.jsx('p',{style:{fontSize:11,color:'hsl(var(--destructive))',marginBottom:8},children:'Error. Recargar.'}),
+      d.jsx('button',{onClick:function(){window.location.reload();},
+        style:{fontSize:11,padding:'6px 12px',borderRadius:8,border:'none',background:'hsl(var(--primary))',color:'white',cursor:'pointer'},
+        children:'Reintentar'}),
     ]}) : d.jsxs('div',{style:{width:'100%'},children:[
+      // Código grande
       d.jsx('div',{style:{
-        fontSize:32, fontWeight:800, letterSpacing:6,
-        color:'hsl(var(--primary))',
-        background:'hsl(var(--muted))', borderRadius:12,
-        padding:'12px 8px', marginBottom:12,
+        fontSize:28, fontWeight:800, letterSpacing:4,
+        color:'hsl(var(--primary))', background:'hsl(var(--muted))',
+        borderRadius:10, padding:'10px 6px', marginBottom:8,
         fontVariantNumeric:'tabular-nums',
       },children:code}),
-      d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))',marginBottom:4},children:'Desde tu móvil abre:'}),
-      d.jsx('p',{style:{fontSize:12,fontWeight:700,color:'hsl(var(--foreground))',marginBottom:12},children:'mebistium.github.io/link'}),
-      d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:'Esperando'+dots}),
-      d.jsx('p',{style:{fontSize:10,color:'hsl(var(--muted-foreground))',marginTop:8,opacity:0.6},children:'Expira en 10 min'}),
+      d.jsx('p',{style:{fontSize:10,color:'hsl(var(--muted-foreground))',marginBottom:2},children:'mebistium.github.io/link'}),
+      d.jsx('p',{style:{fontSize:10,color:'hsl(var(--muted-foreground))'},
+        children: isWriting?'Iniciando...' : isLinking?'Conectando...' : 'Esperando'+dots}),
     ]}),
+
+    // Log de debug visible en el reloj
+    d.jsx('div',{style:{
+      width:'100%', marginTop:4,
+      background:'rgba(0,0,0,0.06)', borderRadius:6, padding:4,
+    },children:
+      logs.map(function(l,i){
+        return d.jsx('p',{key:i,style:{fontSize:8,color:'hsl(var(--muted-foreground))',lineHeight:1.4,textAlign:'left'},children:l});
+      })
+    }),
   ]});
 }
 
