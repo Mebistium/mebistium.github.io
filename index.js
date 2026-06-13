@@ -16476,12 +16476,25 @@ function generateLinkCode(){
   for(var i=0;i<6;i++) code+=chars[Math.floor(Math.random()*chars.length)];
   return code;
 }
+function getOrCreateLinkCode(){
+  // Reusar el código si existe y no ha expirado (evita regenerar al remontar)
+  try{
+    var saved = JSON.parse(localStorage.getItem('meb-link-code')||'null');
+    if(saved && saved.code && saved.expiresAt && Date.now() < saved.expiresAt){
+      return saved.code;
+    }
+  }catch(ex){}
+  var code = generateLinkCode();
+  var expiresAt = Date.now() + 10*60*1000;
+  try{ localStorage.setItem('meb-link-code', JSON.stringify({code:code, expiresAt:expiresAt})); }catch(ex){}
+  return code;
+}
 
 function DeviceLinkScreen({onLinked}){
   var FIREBASE_API_KEY = 'AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI';
   var FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/proyectorayan/databases/(default)/documents';
 
-  var code_s = b.useState(function(){ return generateLinkCode(); });
+  var code_s = b.useState(function(){ return getOrCreateLinkCode(); });
   var code = code_s[0];
 
   var status_s = b.useState('writing'); // writing | waiting | linked | error
@@ -16801,10 +16814,7 @@ function AW(){const{signInWithGoogle:t}=ls(),[e,n]=b.useState(!1),[r,s]=b.useSta
     var ua=navigator.userAgent||'';
     var isSamsung=ua.indexOf('SamsungBrowser')>=0;
     var isWatch=ua.indexOf('Tizen')>=0||screen.width<250;
-    if(isWatch){
-      s('El inicio de sesión con Google no está disponible en navegadores de smartwatch. Usa la app desde tu móvil.');
-      return;
-    }
+    if(isWatch){ return; } // SH maneja esto antes
     n(!0);s('');
     try{
       await t();
@@ -19595,4 +19605,20 @@ function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body
   ]});
 }const _H=()=>{const t=ru();return b.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),d.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:d.jsxs("div",{className:"text-center",children:[d.jsx("h1",{className:"mb-4 text-4xl font-bold",children:"404"}),d.jsx("p",{className:"mb-4 text-xl text-muted-foreground",children:"Oops! Page not found"}),d.jsx("a",{href:"/",className:"text-primary underline hover:text-primary/90",children:"Return to Home"})]})})},bH=new fD;function EH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):t?d.jsx(IW,{}):d.jsx(PC,{to:"/",replace:!0})}function TH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):d.jsxs(oM,{children:[d.jsx(xt,{path:"/",element:t?d.jsx(MebistiumRadialMenu,{}):d.jsx(AW,{})}),d.jsx(xt,{path:"/link",element:d.jsx(DeviceLinkPage,{})}),d.jsxs(xt,{element:d.jsx(EH,{}),children:[d.jsx(xt,{path:"/dashboard",element:d.jsx(NW,{})}),d.jsx(xt,{path:"/tasks",element:d.jsx(DW,{})}),d.jsx(xt,{path:"/schedule",element:d.jsx(OW,{})}),d.jsx(xt,{path:"/calendar",element:d.jsx(UW,{})}),d.jsx(xt,{path:"/grades",element:d.jsx($W,{})}),d.jsx(xt,{path:"/courses",element:d.jsx(BW,{})}),d.jsx(xt,{path:"/organizer",element:d.jsx(WW,{})}),d.jsx(xt,{path:"/settings",element:d.jsx(GW,{})}),d.jsx(xt,{path:"/classroom",element:d.jsx(lH,{})}),
 
-d.jsx(xt,{path:"/gimnasio",element:d.jsx(GimnasioModule,{})}),d.jsx(xt,{path:"/notes",element:d.jsx(XW,{})}),d.jsx(xt,{path:"/flashcards",element:d.jsx(FlashcardsApp,{})}),d.jsx(xt,{path:"/selectividad",element:d.jsx(fH,{})}),d.jsx(xt,{path:"/pizarra",element:d.jsx(pH,{})}),d.jsx(xt,{path:"/compartir",element:d.jsx(gH,{})}),d.jsx(xt,{path:"/temas",element:d.jsx(wH,{})}),d.jsx(xt,{path:"/finanzas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/movimientos",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/sobres",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/stats",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/asistente",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/cuentas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/metas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/suscripciones",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/mas",element:d.jsx(FinanceModule,{})})]}),d.jsx(xt,{path:"*",element:d.jsx(_H,{})})]})}const SH=()=>d.jsx(mD,{client:bH,children:d.jsx(Z8,{children:d.jsx(e$,{children:d.jsxs($4,{children:[d.jsx(nO,{}),d.jsx($M,{}),d.jsx(cM,{children:d.jsx(TH,{})})]})})})}),UE=localStorage.getItem("rayan-theme");UE&&vH(UE);uC(document.getElementById("root")).render(d.jsx(SH,{}));
+d.jsx(xt,{path:"/gimnasio",element:d.jsx(GimnasioModule,{})}),d.jsx(xt,{path:"/notes",element:d.jsx(XW,{})}),d.jsx(xt,{path:"/flashcards",element:d.jsx(FlashcardsApp,{})}),d.jsx(xt,{path:"/selectividad",element:d.jsx(fH,{})}),d.jsx(xt,{path:"/pizarra",element:d.jsx(pH,{})}),d.jsx(xt,{path:"/compartir",element:d.jsx(gH,{})}),d.jsx(xt,{path:"/temas",element:d.jsx(wH,{})}),d.jsx(xt,{path:"/finanzas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/movimientos",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/sobres",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/stats",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/asistente",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/cuentas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/metas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/suscripciones",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/mas",element:d.jsx(FinanceModule,{})})]}),d.jsx(xt,{path:"*",element:d.jsx(_H,{})})]})}const SH=()=>{
+  // Pantalla pequeña sin sesión → mostrar DeviceLinkScreen ANTES de todo el sistema de auth
+  var isSmall = window.screen && window.screen.width < 250;
+  if(isSmall){
+    var hasDeviceSession = false;
+    try{
+      var sess = JSON.parse(localStorage.getItem('meb-device-session')||'null');
+      if(sess && sess.uid && sess.refreshToken) hasDeviceSession = true;
+    }catch(ex){}
+    if(!hasDeviceSession){
+      return d.jsx(DeviceLinkScreen,{onLinked:function(){
+        window.location.reload();
+      }});
+    }
+  }
+  return d.jsx(mD,{client:bH,children:d.jsx(Z8,{children:d.jsx(e$,{children:d.jsxs($4,{children:[d.jsx(nO,{}),d.jsx($M,{}),d.jsx(cM,{children:d.jsx(TH,{})})]})})})}); 
+},UE=localStorage.getItem("rayan-theme");UE&&vH(UE);uC(document.getElementById("root")).render(d.jsx(SH,{}));
