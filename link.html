@@ -11,7 +11,6 @@
     --green: #16a34a; --red: #dc2626;
     --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
     --muted: #f1f5f9; --muted-fg: #64748b; --fg: #0f172a;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -21,20 +20,19 @@
   }
   .card {
     background: var(--card); border-radius: 20px;
-    box-shadow: var(--shadow); padding: 32px 28px;
-    width: 100%; max-width: 380px; border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    padding: 32px 28px; width: 100%; max-width: 400px;
+    border: 1px solid var(--border);
   }
   .logo {
-    width: 48px; height: 48px; border-radius: 13px;
-    background: var(--primary); display: flex;
-    align-items: center; justify-content: center; margin: 0 auto 16px;
+    width: 48px; height: 48px; border-radius: 13px; background: var(--primary);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
   }
   h1 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; }
   .subtitle { font-size: 13px; color: var(--muted-fg); text-align: center; margin-bottom: 24px; line-height: 1.5; }
-  .section { margin-bottom: 14px; }
-  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 6px; }
+  .step-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 6px; }
+  .section { margin-bottom: 16px; }
 
-  /* Google button */
   .btn-google {
     width: 100%; padding: 12px 16px; border-radius: 10px;
     border: 1px solid var(--border); background: white;
@@ -44,21 +42,18 @@
   }
   .btn-google:hover:not(:disabled) { background: var(--muted); }
   .btn-google:disabled { opacity: 0.5; cursor: wait; }
-  .btn-google img { width: 18px; height: 18px; flex-shrink: 0; }
+  .btn-google img { width: 18px; height: 18px; }
 
-  /* User pill */
   .user-pill {
     background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;
-    padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; display: none; align-items: center; gap: 10px;
   }
   .user-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
   .user-pill .info { flex: 1; min-width: 0; }
-  .user-pill .name { font-size: 13px; font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-pill .label { font-size: 11px; color: var(--green); }
-  .btn-change { font-size: 11px; color: var(--muted-fg); background: none; border: none; cursor: pointer; text-decoration: underline; flex-shrink: 0; }
+  .user-pill .uname { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-pill .ulabel { font-size: 11px; color: var(--green); }
+  .btn-change { font-size: 11px; color: var(--muted-fg); background: none; border: none; cursor: pointer; text-decoration: underline; }
 
-  /* Code input */
-  .code-wrap { position: relative; }
   .code-input {
     width: 100%; padding: 18px 16px; border: 2px solid var(--border);
     border-radius: 12px; background: var(--muted);
@@ -71,24 +66,30 @@
   .code-input.valid { border-color: var(--green); background: #f0fdf4; }
   .code-input.has-error { border-color: var(--red); }
   .code-input:disabled { opacity: 0.35; cursor: not-allowed; }
-  .code-count { position: absolute; right: 12px; bottom: 10px; font-size: 10px; color: var(--muted-fg); }
 
-  /* Error */
   .error-msg { font-size: 12px; color: var(--red); text-align: center; margin-top: 6px; min-height: 16px; }
 
-  /* Submit */
   .btn-primary {
     width: 100%; padding: 14px; border-radius: 12px; border: none;
     background: var(--primary); color: white; font-size: 14px; font-weight: 700;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 8px; transition: background 0.15s, opacity 0.15s; margin-top: 12px;
+    gap: 8px; transition: opacity 0.15s; margin-top: 12px;
   }
   .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
   .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
 
   .hint { font-size: 11px; color: var(--muted-fg); text-align: center; margin-top: 10px; line-height: 1.5; }
 
-  /* Success */
+  /* Debug log — visible siempre para diagnosticar */
+  .debug-log {
+    margin-top: 16px; background: #0f172a; color: #94a3b8;
+    border-radius: 8px; padding: 10px 12px; font-family: monospace;
+    font-size: 11px; line-height: 1.6; max-height: 180px; overflow-y: auto;
+  }
+  .debug-log .ok  { color: #4ade80; }
+  .debug-log .err { color: #f87171; }
+  .debug-log .inf { color: #93c5fd; }
+
   #success-section { display: none; text-align: center; }
   .success-icon {
     width: 68px; height: 68px; border-radius: 50%; background: var(--green);
@@ -97,7 +98,6 @@
   #success-section h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
   #success-section p { font-size: 13px; color: var(--muted-fg); line-height: 1.5; }
 
-  /* Spinner */
   .spin {
     width: 16px; height: 16px; border-radius: 50%;
     border: 2px solid rgba(255,255,255,0.35); border-top-color: white;
@@ -109,7 +109,6 @@
 <body>
 <div class="card">
 
-  <!-- ── Formulario ── -->
   <div id="form-section">
     <div class="logo">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -117,38 +116,30 @@
       </svg>
     </div>
     <h1>Vincular dispositivo</h1>
-    <p class="subtitle">Inicia sesión e introduce el código que aparece en tu reloj para sincronizar tu cuenta</p>
+    <p class="subtitle">Inicia sesión e introduce el código de tu reloj</p>
 
-    <!-- Paso 1: Cuenta -->
     <div class="section">
-      <div class="section-label">1 · Tu cuenta</div>
-
+      <div class="step-label">1 · Tu cuenta</div>
       <button class="btn-google" id="btn-google">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
-        <span id="google-label">Iniciar sesión con Google</span>
         <div class="spin" id="google-spin" style="border-color:rgba(0,0,0,0.15);border-top-color:#333;"></div>
+        <span id="google-label">Iniciar sesión con Google</span>
       </button>
-
-      <div class="user-pill" id="user-pill" style="display:none">
+      <div class="user-pill" id="user-pill">
         <div class="dot"></div>
         <div class="info">
-          <div class="name" id="user-name"></div>
-          <div class="label">Sesión iniciada</div>
+          <div class="uname" id="user-name"></div>
+          <div class="ulabel">Sesión iniciada ✓</div>
         </div>
         <button class="btn-change" id="btn-change">Cambiar</button>
       </div>
     </div>
 
-    <!-- Paso 2: Código -->
     <div class="section">
-      <div class="section-label">2 · Código del reloj</div>
-      <div class="code-wrap">
-        <input type="text" class="code-input" id="code-input"
-          placeholder="·  ·  ·  ·  ·  ·"
-          maxlength="6" autocomplete="off" autocorrect="off"
-          spellcheck="false" inputmode="text" disabled>
-        <span class="code-count" id="code-count">0/6</span>
-      </div>
+      <div class="step-label">2 · Código del reloj</div>
+      <input type="text" class="code-input" id="code-input"
+        placeholder="ABC123" maxlength="6"
+        autocomplete="off" spellcheck="false" disabled>
       <div class="error-msg" id="error-msg"></div>
     </div>
 
@@ -156,10 +147,12 @@
       <div class="spin" id="submit-spin"></div>
       <span id="submit-label">Vincular dispositivo</span>
     </button>
-    <p class="hint">El código expira en 10 minutos. Si ha expirado, vuelve al reloj para generar uno nuevo.</p>
+    <p class="hint">El código expira en 10 minutos.</p>
+
+    <!-- Log de debug visible -->
+    <div class="debug-log" id="debug-log"></div>
   </div>
 
-  <!-- ── Éxito ── -->
   <div id="success-section">
     <div class="success-icon">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -167,70 +160,75 @@
       </svg>
     </div>
     <h2>¡Vinculado!</h2>
-    <p>Tu reloj detectará la vinculación automáticamente en unos segundos y accederá a tu cuenta.</p>
+    <p>Tu reloj detectará la vinculación automáticamente en unos segundos.</p>
   </div>
 
 </div>
 
 <script type="module">
 import { initializeApp }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import {
-  getAuth, signInWithPopup, signOut,
-  GoogleAuthProvider, onAuthStateChanged
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-// ── Config ────────────────────────────────────────────────────────────────
-const API_KEY  = 'AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI';
-const PROJECT  = 'proyectorayan';
-const FSBASE   = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
-const TOKEN_URL= `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`;
+const API_KEY = 'AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI';
+const PROJECT = 'proyectorayan';
+const FSBASE  = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
 const app      = initializeApp({ apiKey: API_KEY, authDomain: `${PROJECT}.firebaseapp.com`, projectId: PROJECT });
 const auth     = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ── State ─────────────────────────────────────────────────────────────────
-let currentUser    = null;
-let firebaseRT     = null;   // refreshToken de Firebase (obtenido al hacer signIn)
-let pendingCode    = '';
+let currentUser = null;
+let firebaseRT  = null;
+let pendingCode = '';
 
 // ── DOM ───────────────────────────────────────────────────────────────────
-const btnGoogle    = document.getElementById('btn-google');
-const googleLabel  = document.getElementById('google-label');
-const googleSpin   = document.getElementById('google-spin');
-const userPill     = document.getElementById('user-pill');
-const userName     = document.getElementById('user-name');
-const btnChange    = document.getElementById('btn-change');
-const codeInput    = document.getElementById('code-input');
-const codeCount    = document.getElementById('code-count');
-const errorMsg     = document.getElementById('error-msg');
-const submitBtn    = document.getElementById('submit-btn');
-const submitLabel  = document.getElementById('submit-label');
-const submitSpin   = document.getElementById('submit-spin');
-const formSection  = document.getElementById('form-section');
+const btnGoogle   = document.getElementById('btn-google');
+const googleLabel = document.getElementById('google-label');
+const googleSpin  = document.getElementById('google-spin');
+const userPill    = document.getElementById('user-pill');
+const userName    = document.getElementById('user-name');
+const btnChange   = document.getElementById('btn-change');
+const codeInput   = document.getElementById('code-input');
+const errorMsg    = document.getElementById('error-msg');
+const submitBtn   = document.getElementById('submit-btn');
+const submitLabel = document.getElementById('submit-label');
+const submitSpin  = document.getElementById('submit-spin');
+const formSection = document.getElementById('form-section');
 const successSection = document.getElementById('success-section');
+const debugLog    = document.getElementById('debug-log');
+
+// ── Debug ─────────────────────────────────────────────────────────────────
+function log(msg, type='inf') {
+  const line = document.createElement('div');
+  line.className = type;
+  line.textContent = `[${new Date().toISOString().slice(11,19)}] ${msg}`;
+  debugLog.appendChild(line);
+  debugLog.scrollTop = debugLog.scrollHeight;
+  console.log(`[link:${type}]`, msg);
+}
 
 // ── Auth state ────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (user) {
-    btnGoogle.style.display  = 'none';
-    userPill.style.display   = 'flex';
-    userName.textContent     = user.displayName || user.email || user.uid.slice(0,12)+'...';
-    codeInput.disabled       = false;
-    codeInput.focus();
-    // Vincular automáticamente si había código esperando
+    log(`Auth OK: ${user.email} (${user.uid.slice(0,8)}...)`, 'ok');
+    btnGoogle.style.display = 'none';
+    userPill.style.display  = 'flex';
+    userName.textContent    = user.displayName || user.email || user.uid;
+    codeInput.disabled      = false;
     if (pendingCode.length === 6 && firebaseRT) {
       codeInput.value = pendingCode;
       pendingCode = '';
       updateCodeUI();
-      setTimeout(doLink, 200);
+      setTimeout(doLink, 300);
     }
   } else {
+    log('No hay sesión activa');
+    btnGoogle.style.display = 'flex';
+    userPill.style.display  = 'none';
+    codeInput.disabled      = true;
     firebaseRT = null;
-    btnGoogle.style.display  = 'flex';
-    userPill.style.display   = 'none';
-    codeInput.disabled       = true;
   }
   updateSubmit();
 });
@@ -238,55 +236,73 @@ onAuthStateChanged(auth, (user) => {
 // ── Google sign in ────────────────────────────────────────────────────────
 btnGoogle.addEventListener('click', async () => {
   pendingCode = codeInput.value.trim().toUpperCase();
-  setLoading(true);
+  setGoogleBusy(true);
   setError('');
   try {
-    // signInWithPopup devuelve el credential con los tokens de Google
-    const result = await signInWithPopup(auth, provider);
+    log('Abriendo popup de Google...');
+    const result     = await signInWithPopup(auth, provider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    const googleAccessToken = credential.accessToken;
+    log(`Popup OK. accessToken: ${credential?.accessToken ? 'SÍ' : 'NO'}`, credential?.accessToken ? 'ok' : 'err');
 
-    // Intercambiar el Google access token por los tokens de Firebase via REST
-    // Esto nos da el refreshToken de Firebase directamente
-    const res = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          postBody: `access_token=${googleAccessToken}&providerId=google.com`,
-          requestUri: window.location.origin,
-          returnSecureToken: true,
-          returnIdpCredential: true,
-        })
+    if (credential?.accessToken) {
+      log('Intercambiando accessToken por refreshToken via REST...');
+      const res = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            postBody: `access_token=${credential.accessToken}&providerId=google.com`,
+            requestUri: window.location.origin,
+            returnSecureToken: true,
+          })
+        }
+      );
+      const data = await res.json();
+      log(`signInWithIdp status: ${res.status}`, res.ok ? 'ok' : 'err');
+      log(`Campos respuesta: ${Object.keys(data).join(', ')}`);
+      if (data.refreshToken) {
+        firebaseRT = data.refreshToken;
+        log(`refreshToken obtenido: ${firebaseRT.slice(0,20)}...`, 'ok');
+      } else if (data.error) {
+        log(`Error REST: ${JSON.stringify(data.error)}`, 'err');
+        // Fallback: intentar desde el objeto interno
+        tryFallbackRT();
       }
-    );
-    const data = await res.json();
-    if (data.refreshToken) {
-      firebaseRT = data.refreshToken;
-      console.log('[link] refreshToken obtained ✓');
     } else {
-      console.warn('[link] refreshToken not in response:', Object.keys(data));
-      // Fallback: intentar obtenerlo del objeto user interno
-      firebaseRT = auth.currentUser?._delegate?.stsTokenManager?.refreshToken
-        || auth.currentUser?.stsTokenManager?.refreshToken
-        || null;
+      log('No hay accessToken de Google, intentando fallback...', 'err');
+      tryFallbackRT();
     }
   } catch(e) {
-    console.error('[link] login error:', e);
-    setError(
-      e.code === 'auth/popup-blocked'
-        ? 'Ventana bloqueada. Permite popups para mebistium.github.io.'
-        : 'Error al iniciar sesión. Inténtalo de nuevo.'
-    );
+    log(`Error login: ${e.code || e.message}`, 'err');
+    setError(e.code === 'auth/popup-blocked'
+      ? 'Ventana bloqueada. Permite popups para esta página.'
+      : `Error: ${e.message}`);
   }
-  setLoading(false);
+  setGoogleBusy(false);
 });
+
+function tryFallbackRT() {
+  // Intentar acceder al refreshToken por vías internas del SDK
+  const u = auth.currentUser;
+  const rt = u?._delegate?.stsTokenManager?.refreshToken
+    || u?.stsTokenManager?.refreshToken
+    || u?._refreshToken
+    || null;
+  if (rt) {
+    firebaseRT = rt;
+    log(`refreshToken obtenido (fallback): ${rt.slice(0,20)}...`, 'ok');
+  } else {
+    log('No se pudo obtener refreshToken por ninguna vía', 'err');
+    log(`Propiedades del user: ${JSON.stringify(Object.keys(u || {}))}`);
+  }
+}
 
 // ── Change account ────────────────────────────────────────────────────────
 btnChange.addEventListener('click', async () => {
   await signOut(auth);
   firebaseRT = null;
+  log('Sesión cerrada');
 });
 
 // ── Code input ────────────────────────────────────────────────────────────
@@ -299,15 +315,17 @@ codeInput.addEventListener('input', (e) => {
 codeInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !submitBtn.disabled) doLink();
 });
-
 function updateCodeUI() {
-  const len = codeInput.value.length;
-  codeCount.textContent = `${len}/6`;
   codeInput.classList.remove('valid','has-error');
-  if (len === 6) codeInput.classList.add('valid');
+  if (codeInput.value.length === 6) codeInput.classList.add('valid');
 }
 function updateSubmit() {
   submitBtn.disabled = !currentUser || codeInput.value.length !== 6;
+}
+function setError(msg) {
+  errorMsg.textContent = msg;
+  codeInput.classList.toggle('has-error', !!msg);
+  if (msg) codeInput.classList.remove('valid');
 }
 
 // ── Link ──────────────────────────────────────────────────────────────────
@@ -315,97 +333,118 @@ submitBtn.addEventListener('click', doLink);
 
 async function doLink() {
   const trimCode = codeInput.value.trim().toUpperCase();
-  if (trimCode.length !== 6)  { setError('El código tiene 6 caracteres'); return; }
-  if (!currentUser)           { setError('Primero inicia sesión'); return; }
-  if (!firebaseRT)            { setError('Sesión incompleta. Cierra sesión y vuelve a entrar.'); return; }
+  if (!currentUser)        { setError('Primero inicia sesión'); return; }
+  if (trimCode.length < 6) { setError('El código tiene 6 caracteres'); return; }
+
+  // Si no tenemos refreshToken intentar fallback antes de rendirse
+  if (!firebaseRT) {
+    log('No hay refreshToken, intentando fallback...', 'err');
+    tryFallbackRT();
+  }
+  if (!firebaseRT) {
+    setError('Sesión incompleta. Cierra sesión y vuelve a entrar.');
+    log('Abortando: no hay refreshToken', 'err');
+    return;
+  }
 
   setBusy(true);
   setError('');
 
   try {
-    // 1. Verificar que el código existe en Firestore
-    setStatus('Verificando código...');
+    // 1. Buscar el código en Firestore
+    log(`Buscando código ${trimCode} en Firestore...`);
     const res = await fetch(`${FSBASE}/device_links/${trimCode}?key=${API_KEY}`);
+    log(`Firestore GET: ${res.status}`, res.ok ? 'ok' : 'err');
+
     if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      log(`Error Firestore: ${JSON.stringify(errData)}`, 'err');
       setError('Código no encontrado. Comprueba que está bien escrito.');
       setBusy(false); return;
     }
+
     const data   = await res.json();
     const fields = data.fields || {};
-    const exp    = parseInt(fields.expiresAt?.integerValue || '0');
+    log(`Código encontrado. Status: ${fields.status?.stringValue}`);
+    const exp = parseInt(fields.expiresAt?.integerValue || '0');
+    log(`Expira: ${new Date(exp).toLocaleTimeString()}, ahora: ${new Date().toLocaleTimeString()}`);
 
     if (Date.now() > exp) {
       setError('El código ha expirado. Genera uno nuevo en el reloj.');
       setBusy(false); return;
     }
     if (fields.status?.stringValue === 'linked') {
-      setError('Código ya usado. Genera uno nuevo en el reloj.');
+      setError('Este código ya fue usado. Genera uno nuevo en el reloj.');
       setBusy(false); return;
     }
 
-    // 2. Verificar que el refreshToken sigue siendo válido
-    setStatus('Verificando sesión...');
-    const tokenRes = await fetch(TOKEN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: firebaseRT })
-    });
+    // 2. Validar refreshToken haciendo un exchange
+    log(`Validando refreshToken...`);
+    const tokenRes = await fetch(
+      `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: firebaseRT })
+      }
+    );
     const tokenData = await tokenRes.json();
-    if (!tokenData.refresh_token && !tokenData.id_token) {
-      setError('Error de sesión. Cierra sesión y vuelve a entrar.');
+    log(`Token exchange: ${tokenRes.status}, campos: ${Object.keys(tokenData).join(', ')}`, tokenRes.ok ? 'ok' : 'err');
+    if (tokenData.error) {
+      log(`Token error: ${JSON.stringify(tokenData.error)}`, 'err');
+      setError('Token inválido. Cierra sesión y vuelve a entrar.');
       setBusy(false); return;
     }
-    // Actualizar el refreshToken por si ha rotado
-    if (tokenData.refresh_token) firebaseRT = tokenData.refresh_token;
-
-    // 3. Escribir en Firestore: uid + refreshToken → el reloj podrá usarlos
-    setStatus('Vinculando...');
-    const patch = await fetch(`${FSBASE}/device_links/${trimCode}?key=${API_KEY}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fields: {
-        status:       { stringValue: 'linked' },
-        uid:          { stringValue: currentUser.uid },
-        refreshToken: { stringValue: firebaseRT },
-        linkedAt:     { integerValue: String(Date.now()) },
-      }})
-    });
-
-    if (patch.ok) {
-      formSection.style.display    = 'none';
-      successSection.style.display = 'block';
-    } else {
-      const err = await patch.json().catch(() => ({}));
-      console.error('[link] patch error:', err);
-      setError('Error al vincular. Inténtalo de nuevo.');
-      setBusy(false);
+    if (tokenData.refresh_token) {
+      firebaseRT = tokenData.refresh_token;
+      log(`refreshToken renovado: ${firebaseRT.slice(0,20)}...`, 'ok');
     }
+
+    // 3. Escribir en Firestore
+    log(`Escribiendo en Firestore: uid=${currentUser.uid}`);
+    const patch = await fetch(
+      `${FSBASE}/device_links/${trimCode}?key=${API_KEY}&updateMask.fieldPaths=status&updateMask.fieldPaths=uid&updateMask.fieldPaths=refreshToken&updateMask.fieldPaths=linkedAt`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: {
+          status:       { stringValue: 'linked' },
+          uid:          { stringValue: currentUser.uid },
+          refreshToken: { stringValue: firebaseRT },
+          linkedAt:     { integerValue: String(Date.now()) },
+        }})
+      }
+    );
+    log(`PATCH Firestore: ${patch.status}`, patch.ok ? 'ok' : 'err');
+    if (!patch.ok) {
+      const pErr = await patch.json().catch(() => ({}));
+      log(`PATCH error: ${JSON.stringify(pErr)}`, 'err');
+      setError('Error al vincular. Inténtalo de nuevo.');
+      setBusy(false); return;
+    }
+
+    log('¡Vinculado con éxito!', 'ok');
+    formSection.style.display    = 'none';
+    successSection.style.display = 'block';
+
   } catch(e) {
-    console.error('[link] exception:', e);
+    log(`Excepción: ${e.message}`, 'err');
     setError('Error: ' + (e.message || 'desconocido'));
     setBusy(false);
   }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
-function setLoading(on) {
-  btnGoogle.disabled      = on;
-  googleLabel.textContent = on ? 'Iniciando sesión...' : 'Iniciar sesión con Google';
-  googleSpin.style.display= on ? 'block' : 'none';
+function setGoogleBusy(on) {
+  btnGoogle.disabled       = on;
+  googleSpin.style.display = on ? 'block' : 'none';
+  googleLabel.textContent  = on ? 'Iniciando sesión...' : 'Iniciar sesión con Google';
 }
 function setBusy(on) {
-  submitBtn.disabled      = on;
-  submitLabel.textContent = on ? '' : 'Vincular dispositivo';
-  submitSpin.style.display= on ? 'block' : 'none';
+  submitBtn.disabled       = on;
+  submitSpin.style.display = on ? 'block' : 'none';
+  submitLabel.textContent  = on ? 'Vinculando...' : 'Vincular dispositivo';
   if (!on) updateSubmit();
-}
-function setStatus(msg) {
-  submitLabel.textContent = msg;
-}
-function setError(msg) {
-  errorMsg.textContent = msg;
-  codeInput.classList.toggle('has-error', !!msg);
-  if (msg) codeInput.classList.remove('valid');
 }
 </script>
 </body>
