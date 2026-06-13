@@ -400,17 +400,13 @@ async function doLink() {
       log(`refreshToken renovado: ${firebaseRT.slice(0,20)}...`, 'ok');
     }
 
-    // 3. Escribir en Firestore — con idToken en el header Authorization
-    log(`Escribiendo en Firestore: uid=${currentUser.uid}`);
-    const idToken = tokenData.id_token;
-    const patchHeaders = { 'Content-Type': 'application/json' };
-    if (idToken) patchHeaders['Authorization'] = `Bearer ${idToken}`;
-    log(`Authorization header: ${idToken ? 'SÍ' : 'NO'}`, idToken ? 'ok' : 'err');
+    // 3. Escribir en Firestore — SIN auth header (rules: allow write: if true)
+    log(`Escribiendo en Firestore: uid=${currentUser.uid}, code=${trimCode}`);
     const patch = await fetch(
       `${FSBASE}/device_links/${trimCode}?key=${API_KEY}`,
       {
         method: 'PATCH',
-        headers: patchHeaders,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fields: {
           status:       { stringValue: 'linked' },
           uid:          { stringValue: currentUser.uid },
@@ -428,9 +424,9 @@ async function doLink() {
     }
 
     log('¡Vinculado con éxito!', 'ok');
-    formSection.style.display    = 'none';
-    successSection.style.display = 'block';
-
+    log('PATCH OK. Revisando Firestore...', 'ok');
+    // formSection.style.display    = 'none';
+    // successSection.style.display = 'block';
   } catch(e) {
     log(`Excepción: ${e.message}`, 'err');
     setError('Error: ' + (e.message || 'desconocido'));
