@@ -3450,7 +3450,22 @@ This typically indicates that your device does not have a healthy Internet conne
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */function q8(t){t=Gr(t,rt);const e=Gr(t.firestore,Ma),n=S0(e);return T8(n,t._key).then(r=>wP(e,t,r))}function K8(t,e,n){t=Gr(t,rt);const r=Gr(t.firestore,Ma),s=H8(t.converter,e,n),i=hP(r);return xP(r,[M8(i,"setDoc",t._key,s,t.converter!==null,n).toMutation(t._key,Er.none())])}function Q8(t){return xP(Gr(t.firestore,Ma),[new a0(t._key,Er.none())])}function Y8(t,...e){var c,h,f;t=qt(t);let n={includeMetadataChanges:!1,source:"default"},r=0;typeof e[r]!="object"||fb(e[r])||(n=e[r++]);const s={includeMetadataChanges:n.includeMetadataChanges,source:n.source};if(fb(e[r])){const p=e[r];e[r]=(c=p.next)==null?void 0:c.bind(p),e[r+1]=(h=p.error)==null?void 0:h.bind(p),e[r+2]=(f=p.complete)==null?void 0:f.bind(p)}let i,o,a;if(t instanceof rt)o=Gr(t.firestore,Ma),a=Df(t._key.path),i={next:p=>{e[r]&&e[r](wP(o,t,p))},error:e[r+1],complete:e[r+2]};else{const p=Gr(t,Xa);o=Gr(p.firestore,Ma),a=p._query;const m=new gP(o);i={next:E=>{e[r]&&e[r](new ua(o,m,p,E))},error:e[r+1],complete:e[r+2]},z8(t._query)}const l=S0(o);return E8(l,a,s,i)}function xP(t,e){const n=S0(t);return S8(n,e)}function wP(t,e,n){const r=n.docs.get(e._key),s=new gP(t);return new Yi(t,s,e._key,r,new zl(n.hasPendingWrites,n.fromCache),e.converter)}(function(e,n=!0){I6(Ha),Aa(new io("firestore",(r,{instanceIdentifier:s,options:i})=>{const o=r.getProvider("app").getImmediate(),a=new Ma(new k6(r.getProvider("auth-internal")),new j6(o,r.getProvider("app-check-internal")),Y6(o,s),o);return i={useFetchStreams:n,...i},a._setSettings(i),a},"PUBLIC").setMultipleInstances(!0)),Ys(db,hb,e),Ys(db,hb,"esm2020")})();const X8={apiKey:"AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI",authDomain:"proyectorayan.firebaseapp.com",projectId:"proyectorayan",storageBucket:"proyectorayan.firebasestorage.app",messagingSenderId:"357810647560",appId:"1:357810647560:web:c3276bbc871e9cf5ead7bd"},_P=iI(X8),om=S6(_P),Wf=k8(_P),J8=new Ur;async function Cl(t,e,n){const r=T0(Wf,"users",t,e,n.id);return K8(r,n,{merge:!0})}async function Il(t,e,n){const r=T0(Wf,"users",t,e,n);return Q8(r)}function Al(t,e,n){const r=W8(P8(Wf,"users",t,e));return Y8(r,s=>{const i=s.docs.map(o=>({...o.data(),id:o.id}));n(i)})}const bP=b.createContext(null);function Z8({children:t}){const[e,n]=b.useState(null),[r,s]=b.useState(!0);b.useEffect(()=>fF(om,l=>{n(l),s(!1)}),[]);const i=async()=>{await DF(om,J8)},o=async()=>{await pF(om)};return d.jsx(bP.Provider,{value:{user:e,loading:r,signInWithGoogle:i,signOutUser:o},children:t})}function ls(){const t=b.useContext(bP);if(!t)throw new Error("useAuth must be used within AuthProvider");return t}const EP=b.createContext(null);function e$({children:t}){const{user:e}=ls(),[n,r]=b.useState([]),[s,i]=b.useState([]),[o,a]=b.useState([]),[l,c]=b.useState([]),[h,f]=b.useState([]);b.useEffect(()=>{if(!e){r([]),i([]),a([]),c([]),f([]);return}const N=e.uid,I=Al(N,"tasks",M=>r(M)),T=Al(N,"schedule",M=>i(M)),C=Al(N,"courses",M=>a(M)),A=Al(N,"events",M=>c(M)),R=Al(N,"materials",M=>f(M));return()=>{I(),T(),C(),A(),R()}},[e]);const p=b.useCallback(async N=>{e&&await Cl(e.uid,"tasks",N)},[e]),m=b.useCallback(async N=>{e&&await Il(e.uid,"tasks",N)},[e]),E=b.useCallback(async N=>{e&&await Cl(e.uid,"schedule",N)},[e]),w=b.useCallback(async N=>{e&&await Il(e.uid,"schedule",N)},[e]),v=b.useCallback(async N=>{e&&await Cl(e.uid,"courses",N)},[e]),y=b.useCallback(async N=>{e&&await Il(e.uid,"courses",N)},[e]),x=b.useCallback(async N=>{e&&await Cl(e.uid,"events",N)},[e]),S=b.useCallback(async N=>{e&&await Il(e.uid,"events",N)},[e]),D=b.useCallback(async N=>{e&&await Cl(e.uid,"materials",N)},[e]),j=b.useCallback(async N=>{e&&await Il(e.uid,"materials",N)},[e]);return d.jsx(EP.Provider,{value:{tasks:n,schedule:s,courses:o,events:l,materials:h,saveTask:p,deleteTask:m,saveClass:E,deleteClass:w,saveCourse:v,deleteCourse:y,saveEvent:x,deleteEvent:S,saveMaterial:D,deleteMaterial:j},children:t})}function xo(){const t=b.useContext(EP);if(!t)throw new Error("useData must be used within DataProvider");return t}const R0=b.createContext({});function j0(t){const e=b.useRef(null);return e.current===null&&(e.current=t()),e.current}const Hf=b.createContext(null),D0=b.createContext({transformPagePoint:t=>t,isStatic:!1,reducedMotion:"never"});class t$ extends b.Component{getSnapshotBeforeUpdate(e){const n=this.props.childRef.current;if(n&&e.isPresent&&!this.props.isPresent){const r=this.props.sizeRef.current;r.height=n.offsetHeight||0,r.width=n.offsetWidth||0,r.top=n.offsetTop,r.left=n.offsetLeft}return null}componentDidUpdate(){}render(){return this.props.children}}function n$({children:t,isPresent:e}){const n=b.useId(),r=b.useRef(null),s=b.useRef({width:0,height:0,top:0,left:0}),{nonce:i}=b.useContext(D0);return b.useInsertionEffect(()=>{const{width:o,height:a,top:l,left:c}=s.current;if(e||!r.current||!o||!a)return;r.current.dataset.motionPopId=n;const h=document.createElement("style");return i&&(h.nonce=i),document.head.appendChild(h),h.sheet&&h.sheet.insertRule(`
+ */function q8(t){t=Gr(t,rt);const e=Gr(t.firestore,Ma),n=S0(e);return T8(n,t._key).then(r=>wP(e,t,r))}function K8(t,e,n){t=Gr(t,rt);const r=Gr(t.firestore,Ma),s=H8(t.converter,e,n),i=hP(r);return xP(r,[M8(i,"setDoc",t._key,s,t.converter!==null,n).toMutation(t._key,Er.none())])}function Q8(t){return xP(Gr(t.firestore,Ma),[new a0(t._key,Er.none())])}function Y8(t,...e){var c,h,f;t=qt(t);let n={includeMetadataChanges:!1,source:"default"},r=0;typeof e[r]!="object"||fb(e[r])||(n=e[r++]);const s={includeMetadataChanges:n.includeMetadataChanges,source:n.source};if(fb(e[r])){const p=e[r];e[r]=(c=p.next)==null?void 0:c.bind(p),e[r+1]=(h=p.error)==null?void 0:h.bind(p),e[r+2]=(f=p.complete)==null?void 0:f.bind(p)}let i,o,a;if(t instanceof rt)o=Gr(t.firestore,Ma),a=Df(t._key.path),i={next:p=>{e[r]&&e[r](wP(o,t,p))},error:e[r+1],complete:e[r+2]};else{const p=Gr(t,Xa);o=Gr(p.firestore,Ma),a=p._query;const m=new gP(o);i={next:E=>{e[r]&&e[r](new ua(o,m,p,E))},error:e[r+1],complete:e[r+2]},z8(t._query)}const l=S0(o);return E8(l,a,s,i)}function xP(t,e){const n=S0(t);return S8(n,e)}function wP(t,e,n){const r=n.docs.get(e._key),s=new gP(t);return new Yi(t,s,e._key,r,new zl(n.hasPendingWrites,n.fromCache),e.converter)}(function(e,n=!0){I6(Ha),Aa(new io("firestore",(r,{instanceIdentifier:s,options:i})=>{const o=r.getProvider("app").getImmediate(),a=new Ma(new k6(r.getProvider("auth-internal")),new j6(o,r.getProvider("app-check-internal")),Y6(o,s),o);return i={useFetchStreams:n,...i},a._setSettings(i),a},"PUBLIC").setMultipleInstances(!0)),Ys(db,hb,e),Ys(db,hb,"esm2020")})();const X8={apiKey:"AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI",authDomain:"proyectorayan.firebaseapp.com",projectId:"proyectorayan",storageBucket:"proyectorayan.firebasestorage.app",messagingSenderId:"357810647560",appId:"1:357810647560:web:c3276bbc871e9cf5ead7bd"},_P=iI(X8),om=S6(_P),Wf=k8(_P),J8=new Ur;async function Cl(t,e,n){const r=T0(Wf,"users",t,e,n.id);return K8(r,n,{merge:!0})}async function Il(t,e,n){const r=T0(Wf,"users",t,e,n);return Q8(r)}function Al(t,e,n){const r=W8(P8(Wf,"users",t,e));return Y8(r,s=>{const i=s.docs.map(o=>({...o.data(),id:o.id}));n(i)})}const bP=b.createContext(null);// Fix: limpiar estado de redirect corrupto al cargar
+(function(){
+  try{
+    // Limpiar claves de Firebase redirect que pueden causar el error
+    var keys=[];
+    for(var i=0;i<sessionStorage.length;i++){
+      var k=sessionStorage.key(i);
+      if(k&&(k.indexOf('firebase')>=0||k.indexOf('firebaseLocalStorage')>=0||k.indexOf('pendingRedirect')>=0)){
+        keys.push(k);
+      }
+    }
+    keys.forEach(function(k){ try{sessionStorage.removeItem(k);}catch(e){} });
+  }catch(e){}
+})();
+
+function Z8({children:t}){const[e,n]=b.useState(null),[r,s]=b.useState(!0);b.useEffect(()=>fF(om,l=>{n(l),s(!1)}),[]);const i=async()=>{await DF(om,J8)},o=async()=>{await pF(om)};return d.jsx(bP.Provider,{value:{user:e,loading:r,signInWithGoogle:i,signOutUser:o},children:t})}function ls(){const t=b.useContext(bP);if(!t)throw new Error("useAuth must be used within AuthProvider");return t}const EP=b.createContext(null);function e$({children:t}){const{user:e}=ls(),[n,r]=b.useState([]),[s,i]=b.useState([]),[o,a]=b.useState([]),[l,c]=b.useState([]),[h,f]=b.useState([]);b.useEffect(()=>{if(!e){r([]),i([]),a([]),c([]),f([]);return}const N=e.uid,I=Al(N,"tasks",M=>r(M)),T=Al(N,"schedule",M=>i(M)),C=Al(N,"courses",M=>a(M)),A=Al(N,"events",M=>c(M)),R=Al(N,"materials",M=>f(M));return()=>{I(),T(),C(),A(),R()}},[e]);const p=b.useCallback(async N=>{e&&await Cl(e.uid,"tasks",N)},[e]),m=b.useCallback(async N=>{e&&await Il(e.uid,"tasks",N)},[e]),E=b.useCallback(async N=>{e&&await Cl(e.uid,"schedule",N)},[e]),w=b.useCallback(async N=>{e&&await Il(e.uid,"schedule",N)},[e]),v=b.useCallback(async N=>{e&&await Cl(e.uid,"courses",N)},[e]),y=b.useCallback(async N=>{e&&await Il(e.uid,"courses",N)},[e]),x=b.useCallback(async N=>{e&&await Cl(e.uid,"events",N)},[e]),S=b.useCallback(async N=>{e&&await Il(e.uid,"events",N)},[e]),D=b.useCallback(async N=>{e&&await Cl(e.uid,"materials",N)},[e]),j=b.useCallback(async N=>{e&&await Il(e.uid,"materials",N)},[e]);return d.jsx(EP.Provider,{value:{tasks:n,schedule:s,courses:o,events:l,materials:h,saveTask:p,deleteTask:m,saveClass:E,deleteClass:w,saveCourse:v,deleteCourse:y,saveEvent:x,deleteEvent:S,saveMaterial:D,deleteMaterial:j},children:t})}function xo(){const t=b.useContext(EP);if(!t)throw new Error("useData must be used within DataProvider");return t}const R0=b.createContext({});function j0(t){const e=b.useRef(null);return e.current===null&&(e.current=t()),e.current}const Hf=b.createContext(null),D0=b.createContext({transformPagePoint:t=>t,isStatic:!1,reducedMotion:"never"});class t$ extends b.Component{getSnapshotBeforeUpdate(e){const n=this.props.childRef.current;if(n&&e.isPresent&&!this.props.isPresent){const r=this.props.sizeRef.current;r.height=n.offsetHeight||0,r.width=n.offsetWidth||0,r.top=n.offsetTop,r.left=n.offsetLeft}return null}componentDidUpdate(){}render(){return this.props.children}}function n$({children:t,isPresent:e}){const n=b.useId(),r=b.useRef(null),s=b.useRef({width:0,height:0,top:0,left:0}),{nonce:i}=b.useContext(D0);return b.useInsertionEffect(()=>{const{width:o,height:a,top:l,left:c}=s.current;if(e||!r.current||!o||!a)return;r.current.dataset.motionPopId=n;const h=document.createElement("style");return i&&(h.nonce=i),document.head.appendChild(h),h.sheet&&h.sheet.insertRule(`
           [data-motion-pop-id="${n}"] {
             position: absolute !important;
             width: ${o}px !important;
@@ -4965,42 +4980,7 @@ function GymAjustes({ logs, uid, weightLog }) {
 
 
 
-    d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
-      d.jsxs('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'},children:[
-        d.jsx('p',{className:'section-label',children:'Fondo de Gimnasio'}),
-        localStorage.getItem('rayan-theme-gimnasio') ? d.jsx('button',{
-          onClick:function(){ localStorage.removeItem('rayan-theme-gimnasio'); applyModuleTheme(location.pathname); },
-          style:{fontSize:11,color:'hsl(var(--muted-foreground))',background:'none',border:'none',cursor:'pointer',textDecoration:'underline'},
-          children:'Usar global',
-        }) : d.jsx('span',{style:{fontSize:11,color:'hsl(var(--muted-foreground))'},children:'Global activo'}),
-      ]}),
-      d.jsx('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6},children:
-        Zk.map(function(theme){
-          var current=localStorage.getItem('rayan-theme-gimnasio')||(localStorage.getItem('rayan-theme')||'Por Defecto');
-          var isActive=current===theme.name;
-          return d.jsxs('button',{
-            key:theme.name,
-            onClick:function(){
-              localStorage.setItem('rayan-theme-gimnasio',theme.name);
-              applyModuleTheme(location.pathname);
-            },
-            style:{
-              padding:'8px 6px',borderRadius:10,cursor:'pointer',
-              background:'linear-gradient(135deg,'+theme.bgGrad1+','+theme.bgGrad2+')',
-              border:isActive?'2px solid var(--primary)':'1px solid rgba(0,0,0,0.08)',
-              outline:'none',
-            },
-            children:[
-              d.jsxs('div',{style:{display:'flex',alignItems:'center',gap:4,marginBottom:3},children:[
-                d.jsx('div',{style:{width:8,height:8,borderRadius:'50%',background:theme.primary,flexShrink:0}}),
-                d.jsx('span',{style:{fontSize:10,fontWeight:600,color:'rgba(0,0,0,0.65)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},children:theme.name}),
-              ]}),
-              isActive?d.jsx('div',{style:{width:'100%',height:2,borderRadius:1,background:theme.primary}}):null,
-            ],
-          },theme.name);
-        })
-      }),
-    ]}),
+    d.jsx(ModuleThemePicker,{moduleKey:'rayan-theme-gimnasio',moduleLabel:'Gimnasio'}),
 
     // Unidades
     d.jsxs('div',{className:'glass-card p-4 space-y-3',children:[
@@ -15769,45 +15749,7 @@ last: true,
 }),
 ],
 }),
-d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
-  d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10},children:[
-    d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"#9ca3af",margin:0},children:"Fondo de Finanzas"}),
-    localStorage.getItem('rayan-theme-finanzas') ? d.jsx("button",{
-      onClick:function(){ localStorage.removeItem('rayan-theme-finanzas'); applyModuleTheme(location.pathname); },
-      style:{fontSize:11,color:"#9ca3af",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"},
-      children:"Usar global",
-    }) : d.jsx("span",{style:{fontSize:11,color:"#9ca3af"},children:"Global activo"}),
-  ]}),
-  d.jsx("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6},children:
-    Zk.map(function(theme){
-      var current=localStorage.getItem('rayan-theme-finanzas')||(localStorage.getItem("rayan-theme")||"Por Defecto");
-      var isActive=current===theme.name;
-      return d.jsxs("button",{
-        key:theme.name,
-        onClick:function(){
-          localStorage.setItem('rayan-theme-finanzas',theme.name);
-          applyModuleTheme(location.pathname);
-        },
-        style:{
-          padding:"8px 6px",borderRadius:10,cursor:"pointer",
-          background:"linear-gradient(135deg,"+theme.bgGrad1+","+theme.bgGrad2+")",
-          border:isActive?"2px solid "+theme.primary:"1px solid rgba(0,0,0,0.08)",
-          outline:"none",transition:"border 0.15s",
-        },
-        children:[
-          d.jsxs("div",{style:{display:"flex",alignItems:"center",gap:4,marginBottom:2},children:[
-            d.jsx("div",{style:{width:7,height:7,borderRadius:"50%",background:theme.primary,flexShrink:0}}),
-            d.jsx("span",{style:{fontSize:9,fontWeight:600,color:"rgba(0,0,0,0.65)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},children:theme.name}),
-          ]}),
-          d.jsxs("div",{style:{display:"flex",gap:2},children:[
-            d.jsx("div",{style:{height:3,flex:1,borderRadius:1,background:theme.primary}}),
-            d.jsx("div",{style:{height:3,flex:1,borderRadius:1,background:theme.secondary}}),
-          ]}),
-        ],
-      },theme.name);
-    })
-  }),
-]}),
+d.jsx(ModuleThemePicker,{moduleKey:"rayan-theme-finanzas",moduleLabel:"Finanzas"}),
 ],
 });
 }
@@ -18699,45 +18641,7 @@ children: pg.strokes.length,
     d.jsx("h1",{className:"page-header",children:"Más opciones"}),
     d.jsx("p",{className:"page-subtitle",children:"Personalización y ajustes"}),
   ]}),
-  d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
-    d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10},children:[
-      d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"hsl(var(--muted-foreground))",margin:0},children:"Fondo de Clases"}),
-      localStorage.getItem("rayan-theme-clases")?d.jsx("button",{
-        onClick:function(){localStorage.removeItem("rayan-theme-clases");applyModuleTheme(location.pathname);},
-        style:{fontSize:11,color:"hsl(var(--muted-foreground))",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"},
-        children:"Usar global",
-      }):d.jsx("span",{style:{fontSize:11,color:"hsl(var(--muted-foreground))"},children:"Global activo"}),
-    ]}),
-    d.jsx("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6},children:
-      Zk.map(function(theme){
-        var current=localStorage.getItem("rayan-theme-clases")||(localStorage.getItem("rayan-theme")||"Por Defecto");
-        var isActive=current===theme.name;
-        return d.jsxs("button",{
-          key:theme.name,
-          onClick:function(){
-            localStorage.setItem("rayan-theme-clases",theme.name);
-            applyModuleTheme(location.pathname);
-          },
-          style:{
-            padding:"8px 6px",borderRadius:10,cursor:"pointer",
-            background:"linear-gradient(135deg,"+theme.bgGrad1+","+theme.bgGrad2+")",
-            border:isActive?"2px solid "+theme.primary:"1px solid rgba(0,0,0,0.08)",
-            outline:"none",
-          },
-          children:[
-            d.jsxs("div",{style:{display:"flex",alignItems:"center",gap:4,marginBottom:2},children:[
-              d.jsx("div",{style:{width:7,height:7,borderRadius:"50%",background:theme.primary,flexShrink:0}}),
-              d.jsx("span",{style:{fontSize:9,fontWeight:600,color:"rgba(0,0,0,0.65)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},children:theme.name}),
-            ]}),
-            d.jsxs("div",{style:{display:"flex",gap:2},children:[
-              d.jsx("div",{style:{height:3,flex:1,borderRadius:1,background:theme.primary}}),
-              d.jsx("div",{style:{height:3,flex:1,borderRadius:1,background:theme.secondary}}),
-            ]}),
-          ],
-        },theme.name);
-      })
-    }),
-  ]}),
+  d.jsx(ModuleThemePicker,{moduleKey:"rayan-theme-clases",moduleLabel:"Clases"}),
 ]}),]})]}):d.jsxs(Y.div,{variants:oH,initial:"hidden",animate:"show",className:"space-y-6",children:[d.jsxs(Y.div,{variants:pd,children:[d.jsx("h1",{className:"page-header",children:"Google Classroom"}),d.jsx("p",{className:"page-subtitle",children:"Sincroniza tus clases y tareas"})]}),r&&d.jsx(Y.div,{variants:pd,children:d.jsxs("div",{className:"glass-card p-4",style:{background:"linear-gradient(135deg, rgba(37,99,235,0.1), rgba(56,189,248,0.08))"},children:[d.jsxs("div",{className:"flex items-center gap-2 mb-2",children:[d.jsx("div",{className:"w-2 h-2 rounded-full bg-success animate-pulse"}),d.jsx("p",{className:"text-xs font-semibold text-foreground",children:"Bot sincronizado ✓"}),d.jsx("p",{className:"text-xs text-muted-foreground ml-auto",children:new Date(r.syncedAt).toLocaleDateString("es-ES")})]}),d.jsxs("p",{className:"text-sm text-muted-foreground mb-3",children:[(ue=r.courses)==null?void 0:ue.length," cursos encontrados en Classroom del colegio"]}),d.jsxs("button",{onClick:()=>{c(r.courses||[]),f(r.courseWork||[]),m(r.announcements||[]),n("bot-sync"),sessionStorage.setItem("classroom-token","bot-sync")},className:"btn-primary w-full text-sm flex items-center justify-center gap-2",children:[d.jsx(ta,{className:"w-4 h-4"}),"Ver cursos del colegio"]})]})}),d.jsx(Y.div,{variants:pd,children:d.jsxs("div",{className:"glass-card p-8 text-center space-y-5",children:[d.jsx("div",{className:"w-16 h-16 rounded-2xl mx-auto flex items-center justify-center btn-primary !p-0",children:d.jsx(ta,{className:"w-8 h-8 text-white"})}),d.jsxs("div",{children:[d.jsx("p",{className:"text-base font-semibold text-foreground mb-1",children:"Conecta Google Classroom"}),d.jsx("p",{className:"text-sm text-muted-foreground",children:"Accede a tus clases, tareas y anuncios directamente desde Mebistium"})]}),d.jsxs("button",{onClick:ie,className:"btn-primary w-full flex items-center justify-center gap-3 h-12",children:[d.jsxs("svg",{width:"18",height:"18",viewBox:"0 0 24 24",children:[d.jsx("path",{fill:"#4285F4",d:"M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"}),d.jsx("path",{fill:"#34A853",d:"M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"}),d.jsx("path",{fill:"#FBBC05",d:"M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"}),d.jsx("path",{fill:"#EA4335",d:"M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"})]}),"Iniciar sesión con Google (Gmail)"]}),d.jsx("p",{className:"text-xs text-muted-foreground",children:"Solo lectura — no modificamos nada en Classroom"})]})}),d.jsx(Y.div,{variants:pd,children:d.jsx("div",{className:"space-y-2.5",children:[{icon:Sv,text:"Ve todas tus clases activas"},{icon:wf,text:"Importa tareas directamente a Mebistium"},{icon:i2,text:"Lee los anuncios de tus profesores"},{icon:na,text:"Resumen diario con IA de las novedades"}].map((L,$)=>d.jsxs("div",{className:"glass-card p-3.5 flex items-center gap-3",children:[d.jsx(L.icon,{className:"w-4 h-4 text-primary flex-shrink-0"}),d.jsx("p",{className:"text-sm text-foreground",children:L.text})]},$))})})]})}const cH={hidden:{opacity:0},show:{opacity:1,transition:{staggerChildren:.06}}},Dl={hidden:{opacity:0,y:16},show:{opacity:1,y:0,transition:{duration:.5,ease:[.22,1,.36,1]}}},uH="2026-06-02",Em=["📋 DNI/NIE original","✍️ Bolígrafos negros o azules (varios)","🧮 Calculadora científica (sin wifi)","💧 Botella de agua","⌚ Reloj (sin conexión)","🍫 Snack ligero","📱 Móvil apagado","🗺️ Ubicación del centro revisada"],dH=[{icon:"⏰",title:"Gestión del Tiempo",desc:"Lee todas las preguntas antes de empezar. Distribuye el tiempo según el valor de cada pregunta."},{icon:"📖",title:"Lee Bien las Preguntas",desc:"Asegúrate de entender exactamente qué se pide. Subraya palabras clave."},{icon:"✍️",title:"Estructura tus Respuestas",desc:"Introduce, desarrolla y concluye. La presentación cuenta."},{icon:"🧘",title:"Mantén la Calma",desc:"Si te bloqueas, pasa a otra pregunta. Respira hondo y vuelve después."}];function hH(t){const[e,n]=b.useState(new Date);b.useEffect(()=>{const i=setInterval(()=>n(new Date),1e3);return()=>clearInterval(i)},[]);const s=new Date(t+"T00:00:00").getTime()-e.getTime();return s<=0?{days:0,hours:0,minutes:0}:{days:Math.floor(s/(1e3*60*60*24)),hours:Math.floor(s%(1e3*60*60*24)/(1e3*60*60)),minutes:Math.floor(s%(1e3*60*60)/(1e3*60))}}function fH(){const[t,e]=b.useState(()=>localStorage.getItem("pau-date")||uH),[n,r]=b.useState(!1),[s,i]=b.useState(t),o=hH(t),[a,l]=b.useState(""),[c,h]=b.useState(["","","",""]),[f,p]=b.useState([{name:"Asig. Específica 1",grade:"",coef:"0.1"},{name:"Asig. Específica 2",grade:"",coef:"0.1"}]),[m,E]=b.useState(()=>{const C=localStorage.getItem("pau-checklist");return C?JSON.parse(C):new Array(Em.length).fill(!1)}),w=()=>{e(s),localStorage.setItem("pau-date",s),r(!1)},v=C=>{const A=[...m];A[C]=!A[C],E(A),localStorage.setItem("pau-checklist",JSON.stringify(A))},y=parseFloat(a)||0,x=c.map(C=>parseFloat(C)||0).filter(C=>C>0),S=x.length>0?x.reduce((C,A)=>C+A,0)/x.length:0,D=(y*.6+S*.4).toFixed(3),j=f.map(C=>(parseFloat(C.grade)||0)*(parseFloat(C.coef)||0)).reduce((C,A)=>C+A,0),N=(parseFloat(D)+j).toFixed(3),I=()=>p(C=>[...C,{name:`Asig. Específica ${C.length+1}`,grade:"",coef:"0.1"}]),T=C=>p(A=>A.filter((R,M)=>M!==C));return d.jsxs(Y.div,{variants:cH,initial:"hidden",animate:"show",className:"space-y-6",children:[d.jsxs(Y.div,{variants:Dl,children:[d.jsx("h1",{className:"page-header",children:"Centro de Selectividad"}),d.jsx("p",{className:"page-subtitle",children:"Todo lo que necesitas para preparar la PAU"})]}),d.jsx(Y.div,{variants:Dl,children:d.jsxs("div",{className:"glass-card p-5 text-center",style:{background:"linear-gradient(135deg, rgba(37,99,235,0.1), rgba(56,189,248,0.08))"},children:[d.jsxs("div",{className:"flex items-center justify-center gap-2 mb-3",children:[d.jsx("p",{className:"text-xs font-semibold text-muted-foreground uppercase tracking-wider",children:"⏰ Cuenta Regresiva PAU"}),d.jsx("button",{onClick:()=>{i(t),r(!0)},className:"p-1 rounded-lg hover:bg-white/30 text-muted-foreground transition-colors",children:d.jsx(Av,{className:"w-3 h-3"})})]}),n?d.jsxs("div",{className:"flex items-center justify-center gap-2 mb-3",children:[d.jsx("input",{type:"date",value:s,onChange:C=>i(C.target.value),className:"input-premium text-sm"}),d.jsx("button",{onClick:w,className:"btn-primary !py-2 !px-3 text-xs",children:"Guardar"}),d.jsx("button",{onClick:()=>r(!1),className:"p-2 rounded-xl glass-card",children:d.jsx(er,{className:"w-3.5 h-3.5 text-muted-foreground"})})]}):d.jsx("p",{className:"text-xs text-muted-foreground mb-3",children:new Date(t+"T00:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"})}),d.jsx("div",{className:"flex justify-center gap-6",children:[{val:o.days,label:"días"},{val:o.hours,label:"horas"},{val:o.minutes,label:"min"}].map(C=>d.jsxs("div",{children:[d.jsx("p",{className:"text-3xl font-bold text-primary",children:C.val}),d.jsx("p",{className:"text-xs text-muted-foreground",children:C.label})]},C.label))})]})}),d.jsxs(Y.div,{variants:Dl,children:[d.jsx("p",{className:"section-label mb-3",children:"Calculadora de Nota PAU"}),d.jsxs("div",{className:"glass-card p-4 space-y-4",children:[d.jsxs("div",{children:[d.jsxs("label",{className:"text-xs font-medium text-foreground",children:["Nota media Bachillerato ",d.jsx("span",{className:"text-muted-foreground font-normal",children:"(60% nota acceso)"})]}),d.jsx("input",{type:"number",step:"0.01",min:"0",max:"10",value:a,onChange:C=>l(C.target.value),className:"input-premium w-full mt-1",placeholder:"Ej: 8.50"})]}),d.jsxs("div",{children:[d.jsxs("label",{className:"text-xs font-medium text-foreground",children:["Fase General PAU ",d.jsx("span",{className:"text-muted-foreground font-normal",children:"(40% nota acceso, hasta 4 asignaturas)"})]}),d.jsx("div",{className:"grid grid-cols-2 gap-2 mt-1",children:c.map((C,A)=>d.jsx("input",{type:"number",step:"0.01",min:"0",max:"10",value:C,onChange:R=>{const M=[...c];M[A]=R.target.value,h(M)},className:"input-premium w-full",placeholder:`Asig. ${A+1}`},A))})]}),d.jsxs("div",{className:"rounded-xl p-3 text-center",style:{background:"rgba(37,99,235,0.08)"},children:[d.jsx("p",{className:"text-xs text-muted-foreground",children:"Nota de Acceso = Bach×0.6 + MediaGeneral×0.4"}),d.jsx("p",{className:"text-3xl font-bold text-primary mt-1",children:D}),d.jsx("p",{className:"text-[10px] text-muted-foreground mt-0.5",children:"Mínimo 5.0 para acceso a universidad"})]}),d.jsxs("div",{children:[d.jsxs("div",{className:"flex items-center justify-between mb-2",children:[d.jsxs("label",{className:"text-xs font-medium text-foreground",children:["Fase Específica ",d.jsx("span",{className:"text-muted-foreground font-normal",children:"(sube nota admisión)"})]}),d.jsxs("button",{onClick:I,className:"flex items-center gap-1 text-xs text-primary hover:opacity-70 transition-opacity",children:[d.jsx(pt,{className:"w-3 h-3"}),"Añadir"]})]}),d.jsx("div",{className:"space-y-2",children:f.map((C,A)=>d.jsxs("div",{className:"flex items-center gap-2",children:[d.jsx("input",{type:"text",value:C.name,onChange:R=>{const M=[...f];M[A].name=R.target.value,p(M)},className:"input-premium flex-1 text-xs",placeholder:"Asignatura"}),d.jsx("input",{type:"number",step:"0.01",min:"0",max:"10",value:C.grade,onChange:R=>{const M=[...f];M[A].grade=R.target.value,p(M)},className:"input-premium w-16 text-xs",placeholder:"Nota"}),d.jsxs("select",{value:C.coef,onChange:R=>{const M=[...f];M[A].coef=R.target.value,p(M)},className:"input-premium w-16 text-xs",children:[d.jsx("option",{value:"0.1",children:"×0.1"}),d.jsx("option",{value:"0.2",children:"×0.2"})]}),d.jsx("button",{onClick:()=>T(A),className:"p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors",children:d.jsx(Zn,{className:"w-3 h-3"})})]},A))})]}),d.jsxs("div",{className:"rounded-xl p-3 text-center",style:{background:"rgba(37,99,235,0.12)"},children:[d.jsx("p",{className:"text-xs text-muted-foreground",children:"Nota de Admisión (con específicas)"}),d.jsx("p",{className:"text-3xl font-bold text-primary mt-1",children:N}),d.jsx("p",{className:"text-[10px] text-muted-foreground mt-0.5",children:"Máximo posible: 14.0"})]})]})]}),d.jsxs(Y.div,{variants:Dl,children:[d.jsx("p",{className:"section-label mb-3",children:"Checklist Día del Examen"}),d.jsx("div",{className:"glass-card divide-y divide-white/30",children:Em.map((C,A)=>d.jsxs("button",{onClick:()=>v(A),className:"flex items-center gap-3 w-full p-3 text-left hover:bg-primary/5 transition-colors",children:[d.jsx("div",{className:`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${m[A]?"bg-primary border-primary":"border-muted-foreground/30"}`,children:m[A]&&d.jsx(Cv,{className:"w-3 h-3 text-white"})}),d.jsx("span",{className:`text-sm ${m[A]?"line-through text-muted-foreground":"text-foreground"}`,children:C})]},A))}),d.jsxs("p",{className:"text-xs text-muted-foreground mt-2 text-center",children:[m.filter(Boolean).length,"/",Em.length," completados"]})]}),d.jsxs(Y.div,{variants:Dl,children:[d.jsx("p",{className:"section-label mb-3",children:"Tips para la Selectividad"}),d.jsx("div",{className:"space-y-2.5",children:dH.map(C=>d.jsxs("div",{className:"glass-card p-4",children:[d.jsxs("p",{className:"text-sm font-semibold text-foreground mb-1",children:[C.icon," ",C.title]}),d.jsx("p",{className:"text-xs text-muted-foreground leading-relaxed",children:C.desc})]},C.title))})]})]})}function pH(){
 const canvasRef=b.useRef(null);
 const [isDrawing,setIsDrawing]=b.useState(false);
@@ -18970,7 +18874,61 @@ onTouchStart:startDraw,onTouchMove:draw,onTouchEnd:stopDraw,
         <div style="font-size:24px;font-weight:300;margin-bottom:16px">días para la PAU</div>
         <div style="opacity:0.6;font-size:12px">${(r==null?void 0:r.displayName)||"Rayan"} · ${new Date(y).toLocaleDateString("es-ES")}</div>
         <div style="margin-top:24px;font-size:18px;font-weight:600">¡Tú puedes! 💪</div>
-      </div>`}},E=async(y,x)=>{i(y),await new Promise(S=>setTimeout(S,300)),a(m[y]()),c(x),i(null)},w=async()=>{if(!o)return;const y=`${l} - Generado con Rayan App`;if(navigator.share)try{await navigator.share({title:"Rayan App",text:y})}catch{}else await navigator.clipboard.writeText(y),alert("Copiado al portapapeles")},v=[{id:"tasks",icon:wf,title:"Mis Tareas",desc:`${t.length} tareas · ${t.filter(y=>y.status!=="completada").length} pendientes`},{id:"schedule",icon:yh,title:"Mi Horario",desc:`${e.length} clases registradas`},{id:"pau",icon:ta,title:"Cuenta PAU",desc:"Cuenta regresiva motivacional"}];return d.jsxs(Y.div,{variants:mH,initial:"hidden",animate:"show",className:"space-y-6",children:[d.jsxs(Y.div,{variants:Tm,children:[d.jsx("h1",{className:"page-header",children:"Compartir"}),d.jsx("p",{className:"page-subtitle",children:"Genera imágenes de tu progreso"})]}),d.jsx("div",{className:"space-y-3",children:v.map(y=>d.jsx(Y.div,{variants:Tm,children:d.jsxs("div",{className:"glass-card p-4 flex items-center gap-4",children:[d.jsx("div",{className:"p-3 rounded-xl bg-primary/10 flex-shrink-0",children:d.jsx(y.icon,{className:"w-5 h-5 text-primary"})}),d.jsxs("div",{className:"flex-1 min-w-0",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground",children:y.title}),d.jsx("p",{className:"text-xs text-muted-foreground",children:y.desc})]}),d.jsx("button",{onClick:()=>E(y.id,y.title),disabled:s===y.id,className:"btn-primary !py-2 !px-3 text-xs flex items-center gap-1.5 flex-shrink-0",children:s===y.id?d.jsx("div",{className:"w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin"}):d.jsxs(d.Fragment,{children:[d.jsx(o2,{className:"w-3.5 h-3.5"}),"Generar"]})})]})},y.id))}),o&&d.jsxs(Y.div,{initial:{opacity:0,y:12},animate:{opacity:1,y:0},className:"glass-card p-4",children:[d.jsxs("div",{className:"flex items-center justify-between mb-3",children:[d.jsxs("p",{className:"text-sm font-semibold text-foreground",children:["Vista previa · ",l]}),d.jsx("button",{onClick:()=>a(null),className:"p-1 rounded-lg hover:bg-muted/20",children:d.jsx(er,{className:"w-4 h-4 text-muted-foreground"})})]}),d.jsx("div",{className:"overflow-auto rounded-xl",dangerouslySetInnerHTML:{__html:o}}),d.jsx("div",{className:"flex gap-2 mt-3",children:d.jsxs("button",{onClick:w,className:"btn-primary flex-1 flex items-center justify-center gap-2 text-sm",children:[d.jsx(hV,{className:"w-4 h-4"}),"Compartir"]})})]}),d.jsx(Y.div,{variants:Tm,children:d.jsx("div",{className:"glass-card p-4 text-center",children:d.jsx("p",{className:"text-xs text-muted-foreground",children:'💡 Genera la imagen y pulsa "Compartir" para enviarla por WhatsApp, Instagram o donde quieras'})})})]})}const Zk=[{name:"Bosque Suave",primary:"#16a34a",secondary:"#4ade80",bg:"145 67% 96%",bgGrad1:"#d1fae5",bgGrad2:"#a7f3d0",bgGrad3:"#ecfdf5"},{name:"Por Defecto",primary:"#2563eb",secondary:"#38bdf8",bg:"214 95% 93%",bgGrad1:"#7dd3fc",bgGrad2:"#38bdf8",bgGrad3:"#bae6fd"},{name:"Atardecer",primary:"#f97316",secondary:"#f59e0b",bg:"35 95% 90%",bgGrad1:"#fcd34d",bgGrad2:"#fb923c",bgGrad3:"#fde68a"},{name:"Océano",primary:"#0891b2",secondary:"#06b6d4",bg:"195 80% 88%",bgGrad1:"#67e8f9",bgGrad2:"#22d3ee",bgGrad3:"#a5f3fc"},{name:"Bosque",primary:"#16a34a",secondary:"#22c55e",bg:"140 60% 88%",bgGrad1:"#86efac",bgGrad2:"#4ade80",bgGrad3:"#bbf7d0"},{name:"Fuego",primary:"#dc2626",secondary:"#f97316",bg:"0 80% 90%",bgGrad1:"#fca5a5",bgGrad2:"#f87171",bgGrad3:"#fecaca"},{name:"Morado",primary:"#7c3aed",secondary:"#a78bfa",bg:"260 70% 90%",bgGrad1:"#c4b5fd",bgGrad2:"#a78bfa",bgGrad3:"#ddd6fe"},{name:"Rosa",primary:"#be185d",secondary:"#f472b6",bg:"330 80% 90%",bgGrad1:"#f9a8d4",bgGrad2:"#f472b6",bgGrad3:"#fbcfe8"},{name:"Oscuro",primary:"#60a5fa",secondary:"#818cf8",bg:"222 47% 15%",bgGrad1:"#1e3a5f",bgGrad2:"#1e1b4b",bgGrad3:"#1e293b"},{name:"Pastel",primary:"#f472b6",secondary:"#c084fc",bg:"300 60% 93%",bgGrad1:"#f5d0fe",bgGrad2:"#e879f9",bgGrad3:"#fae8ff"},{name:"Sepia",primary:"#92400e",secondary:"#b45309",bg:"35 60% 88%",bgGrad1:"#fde68a",bgGrad2:"#fcd34d",bgGrad3:"#fef3c7"}];function yH(t){const e=parseInt(t.slice(1,3),16)/255,n=parseInt(t.slice(3,5),16)/255,r=parseInt(t.slice(5,7),16)/255,s=Math.max(e,n,r),i=Math.min(e,n,r);let o=0,a=0;const l=(s+i)/2;if(s!==i){const c=s-i;switch(a=l>.5?c/(2-s-i):c/(s+i),s){case e:o=((n-r)/c+(n<r?6:0))/6;break;case n:o=((r-e)/c+2)/6;break;case r:o=((e-n)/c+4)/6;break}}return`${Math.round(o*360)} ${Math.round(a*100)}% ${Math.round(l*100)}%`}function getModuleThemeKey(path){
+      </div>`}},E=async(y,x)=>{i(y),await new Promise(S=>setTimeout(S,300)),a(m[y]()),c(x),i(null)},w=async()=>{if(!o)return;const y=`${l} - Generado con Rayan App`;if(navigator.share)try{await navigator.share({title:"Rayan App",text:y})}catch{}else await navigator.clipboard.writeText(y),alert("Copiado al portapapeles")},v=[{id:"tasks",icon:wf,title:"Mis Tareas",desc:`${t.length} tareas · ${t.filter(y=>y.status!=="completada").length} pendientes`},{id:"schedule",icon:yh,title:"Mi Horario",desc:`${e.length} clases registradas`},{id:"pau",icon:ta,title:"Cuenta PAU",desc:"Cuenta regresiva motivacional"}];return d.jsxs(Y.div,{variants:mH,initial:"hidden",animate:"show",className:"space-y-6",children:[d.jsxs(Y.div,{variants:Tm,children:[d.jsx("h1",{className:"page-header",children:"Compartir"}),d.jsx("p",{className:"page-subtitle",children:"Genera imágenes de tu progreso"})]}),d.jsx("div",{className:"space-y-3",children:v.map(y=>d.jsx(Y.div,{variants:Tm,children:d.jsxs("div",{className:"glass-card p-4 flex items-center gap-4",children:[d.jsx("div",{className:"p-3 rounded-xl bg-primary/10 flex-shrink-0",children:d.jsx(y.icon,{className:"w-5 h-5 text-primary"})}),d.jsxs("div",{className:"flex-1 min-w-0",children:[d.jsx("p",{className:"text-sm font-semibold text-foreground",children:y.title}),d.jsx("p",{className:"text-xs text-muted-foreground",children:y.desc})]}),d.jsx("button",{onClick:()=>E(y.id,y.title),disabled:s===y.id,className:"btn-primary !py-2 !px-3 text-xs flex items-center gap-1.5 flex-shrink-0",children:s===y.id?d.jsx("div",{className:"w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin"}):d.jsxs(d.Fragment,{children:[d.jsx(o2,{className:"w-3.5 h-3.5"}),"Generar"]})})]})},y.id))}),o&&d.jsxs(Y.div,{initial:{opacity:0,y:12},animate:{opacity:1,y:0},className:"glass-card p-4",children:[d.jsxs("div",{className:"flex items-center justify-between mb-3",children:[d.jsxs("p",{className:"text-sm font-semibold text-foreground",children:["Vista previa · ",l]}),d.jsx("button",{onClick:()=>a(null),className:"p-1 rounded-lg hover:bg-muted/20",children:d.jsx(er,{className:"w-4 h-4 text-muted-foreground"})})]}),d.jsx("div",{className:"overflow-auto rounded-xl",dangerouslySetInnerHTML:{__html:o}}),d.jsx("div",{className:"flex gap-2 mt-3",children:d.jsxs("button",{onClick:w,className:"btn-primary flex-1 flex items-center justify-center gap-2 text-sm",children:[d.jsx(hV,{className:"w-4 h-4"}),"Compartir"]})})]}),d.jsx(Y.div,{variants:Tm,children:d.jsx("div",{className:"glass-card p-4 text-center",children:d.jsx("p",{className:"text-xs text-muted-foreground",children:'💡 Genera la imagen y pulsa "Compartir" para enviarla por WhatsApp, Instagram o donde quieras'})})})]})}const Zk=[{name:"Bosque Suave",primary:"#16a34a",secondary:"#4ade80",bg:"145 67% 96%",bgGrad1:"#d1fae5",bgGrad2:"#a7f3d0",bgGrad3:"#ecfdf5"},{name:"Por Defecto",primary:"#2563eb",secondary:"#38bdf8",bg:"214 95% 93%",bgGrad1:"#7dd3fc",bgGrad2:"#38bdf8",bgGrad3:"#bae6fd"},{name:"Atardecer",primary:"#f97316",secondary:"#f59e0b",bg:"35 95% 90%",bgGrad1:"#fcd34d",bgGrad2:"#fb923c",bgGrad3:"#fde68a"},{name:"Océano",primary:"#0891b2",secondary:"#06b6d4",bg:"195 80% 88%",bgGrad1:"#67e8f9",bgGrad2:"#22d3ee",bgGrad3:"#a5f3fc"},{name:"Bosque",primary:"#16a34a",secondary:"#22c55e",bg:"140 60% 88%",bgGrad1:"#86efac",bgGrad2:"#4ade80",bgGrad3:"#bbf7d0"},{name:"Fuego",primary:"#dc2626",secondary:"#f97316",bg:"0 80% 90%",bgGrad1:"#fca5a5",bgGrad2:"#f87171",bgGrad3:"#fecaca"},{name:"Morado",primary:"#7c3aed",secondary:"#a78bfa",bg:"260 70% 90%",bgGrad1:"#c4b5fd",bgGrad2:"#a78bfa",bgGrad3:"#ddd6fe"},{name:"Rosa",primary:"#be185d",secondary:"#f472b6",bg:"330 80% 90%",bgGrad1:"#f9a8d4",bgGrad2:"#f472b6",bgGrad3:"#fbcfe8"},{name:"Oscuro",primary:"#60a5fa",secondary:"#818cf8",bg:"222 47% 15%",bgGrad1:"#1e3a5f",bgGrad2:"#1e1b4b",bgGrad3:"#1e293b"},{name:"Pastel",primary:"#f472b6",secondary:"#c084fc",bg:"300 60% 93%",bgGrad1:"#f5d0fe",bgGrad2:"#e879f9",bgGrad3:"#fae8ff"},{name:"Sepia",primary:"#92400e",secondary:"#b45309",bg:"35 60% 88%",bgGrad1:"#fde68a",bgGrad2:"#fcd34d",bgGrad3:"#fef3c7"}];function yH(t){const e=parseInt(t.slice(1,3),16)/255,n=parseInt(t.slice(3,5),16)/255,r=parseInt(t.slice(5,7),16)/255,s=Math.max(e,n,r),i=Math.min(e,n,r);let o=0,a=0;const l=(s+i)/2;if(s!==i){const c=s-i;switch(a=l>.5?c/(2-s-i):c/(s+i),s){case e:o=((n-r)/c+(n<r?6:0))/6;break;case n:o=((r-e)/c+2)/6;break;case r:o=((e-n)/c+4)/6;break}}return`${Math.round(o*360)} ${Math.round(a*100)}% ${Math.round(l*100)}%`}function ModuleThemePicker({moduleKey, moduleLabel}){
+  const [selected, setSelected] = b.useState(function(){
+    try{return localStorage.getItem(moduleKey);}catch(e){return null;}
+  });
+  const globalName = (function(){try{return localStorage.getItem("rayan-theme")||"Por Defecto";}catch(e){return "Por Defecto";}})();
+  const currentName = selected || globalName;
+
+  const pick = function(theme){
+    try{localStorage.setItem(moduleKey, theme.name);}catch(e){}
+    setSelected(theme.name);
+    eN(theme);
+  };
+  const reset = function(){
+    try{localStorage.removeItem(moduleKey);}catch(e){}
+    setSelected(null);
+    var g = Zk.find(function(t){return t.name===globalName;})||Zk[0];
+    eN(g);
+  };
+
+  return d.jsxs("div",{className:"glass-card",style:{padding:14},children:[
+    d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10},children:[
+      d.jsx("p",{style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"hsl(var(--muted-foreground))",margin:0},children:"Fondo de "+moduleLabel}),
+      selected
+        ? d.jsx("button",{onClick:reset,style:{fontSize:11,color:"hsl(var(--muted-foreground))",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"},children:"Usar global"})
+        : d.jsx("span",{style:{fontSize:11,color:"hsl(var(--muted-foreground))"},children:"Global activo"}),
+    ]}),
+    d.jsx("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6},children:
+      Zk.map(function(theme){
+        var isActive = currentName === theme.name;
+        return d.jsxs("button",{
+          key:theme.name,
+          onClick:function(){pick(theme);},
+          style:{
+            padding:"8px 6px",borderRadius:10,cursor:"pointer",
+            background:"linear-gradient(135deg,"+theme.bgGrad1+","+theme.bgGrad2+")",
+            border:isActive?"2px solid "+theme.primary:"1px solid rgba(0,0,0,0.08)",
+            outline:"none",transition:"border 0.15s, transform 0.1s",
+            transform:isActive?"scale(1.02)":"scale(1)",
+          },
+          children:[
+            d.jsxs("div",{style:{display:"flex",alignItems:"center",gap:4,marginBottom:2},children:[
+              d.jsx("div",{style:{width:7,height:7,borderRadius:"50%",background:theme.primary,flexShrink:0}}),
+              d.jsx("span",{style:{fontSize:9,fontWeight:600,color:"rgba(0,0,0,0.65)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},children:theme.name}),
+            ]}),
+            d.jsxs("div",{style:{display:"flex",gap:2},children:[
+              d.jsx("div",{style:{height:3,flex:1,borderRadius:1,background:theme.primary}}),
+              d.jsx("div",{style:{height:3,flex:1,borderRadius:1,background:theme.secondary}}),
+            ]}),
+          ],
+        },theme.name);
+      })
+    }),
+  ]});
+}
+function getModuleThemeKey(path){
   if(path.startsWith("/finanzas")) return "rayan-theme-finanzas";
   if(path.startsWith("/gimnasio")) return "rayan-theme-gimnasio";
   if(path.startsWith("/classroom")) return "rayan-theme-clases";
