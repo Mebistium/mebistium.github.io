@@ -16544,103 +16544,108 @@ function DeviceLinkScreen({onLinked}){
 // DeviceLinkPage — Página /link para vincular desde el móvil
 // ════════════════════════════════════════════════════════════════════════════
 function DeviceLinkPage(){
-  var FIREBASE_API_KEY = 'AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI';
-  var FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/proyectorayan/databases/(default)/documents';
+  var FBKEY = 'AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI';
+  var FSBASE = 'https://firestore.googleapis.com/v1/projects/proyectorayan/databases/(default)/documents';
+  var ctx = ls();
+  var user = ctx.user;
+  var signInWithGoogle = ctx.signInWithGoogle;
+  var code_state = b.useState('');
+  var code = code_state[0]; var setCode = code_state[1];
+  var step_state = b.useState('enter');
+  var step = step_state[0]; var setStep = step_state[1];
+  var err_state = b.useState('');
+  var err = err_state[0]; var setErr = err_state[1];
+  var si_state = b.useState(false);
+  var signingIn = si_state[0]; var setSigningIn = si_state[1];
 
-  var {user, signInWithGoogle} = ls();
-  var [code, setCode] = b.useState('');
-  var [step, setStep] = b.useState('enter'); // enter | confirm | linking | done | error
-  var [err, setErr] = b.useState('');
+  var doSignIn = async function(){
+    setSigningIn(true); setErr('');
+    try{ await signInWithGoogle(); }
+    catch(e){ setErr('Error al iniciar sesión. Inténtalo de nuevo.'); }
+    setSigningIn(false);
+  };
 
   var handleLink = async function(){
-    if(code.trim().length!==6){ setErr('El código tiene 6 caracteres'); return; }
+    var trimCode = code.trim().toUpperCase();
+    if(trimCode.length !== 6){ setErr('El código tiene 6 caracteres'); return; }
+    if(!user){ setErr('Primero inicia sesión con Google'); return; }
     setStep('linking'); setErr('');
     try{
-      // Verificar que el código existe y no ha expirado
-      var res = await fetch(FIRESTORE_BASE+'/device_links/'+code.trim().toUpperCase()+'?key='+FIREBASE_API_KEY);
-      if(!res.ok){ setErr('Código no encontrado'); setStep('enter'); return; }
+      var res = await fetch(FSBASE+'/device_links/'+trimCode+'?key='+FBKEY);
+      if(!res.ok){ setErr('Código no encontrado. Comprueba que está bien escrito.'); setStep('enter'); return; }
       var data = await res.json();
       var fields = data.fields||{};
       var exp = parseInt((fields.expiresAt&&fields.expiresAt.integerValue)||'0');
-      if(Date.now() > exp){ setErr('El código ha expirado'); setStep('enter'); return; }
-
-      // Iniciar sesión si no está logueado
-      var currentUser = user;
-      if(!currentUser){
-        try{ await signInWithGoogle(); currentUser = user; }
-        catch(e){ setErr('Error al iniciar sesión con Google'); setStep('enter'); return; }
-      }
-
-      // Esperar a que user esté disponible (puede tardar un tick)
-      await new Promise(function(resolve){ setTimeout(resolve, 500); });
+      if(Date.now() > exp){ setErr('Código expirado. Genera uno nuevo en el reloj.'); setStep('enter'); return; }
       var fbUser = window.__meb_current_user__;
-      if(!fbUser){ setErr('No se pudo obtener la sesión. Inténtalo de nuevo.'); setStep('enter'); return; }
-
-      var rt = fbUser.stsTokenManager&&fbUser.stsTokenManager.refreshToken;
-      var uid = fbUser.uid;
-      if(!rt||!uid){ setErr('Error al obtener credenciales. Inténtalo de nuevo.'); setStep('enter'); return; }
-
-      // Escribir refreshToken + uid en el doc del código
-      var patchRes = await fetch(FIRESTORE_BASE+'/device_links/'+code.trim().toUpperCase()+'?key='+FIREBASE_API_KEY, {
+      var rt = fbUser&&fbUser.stsTokenManager&&fbUser.stsTokenManager.refreshToken;
+      if(!rt){ setErr('Error al obtener credenciales. Vuelve a iniciar sesión.'); setStep('enter'); return; }
+      var patchRes = await fetch(FSBASE+'/device_links/'+trimCode+'?key='+FBKEY, {
         method:'PATCH',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          fields:{
-            code:{stringValue:code.trim().toUpperCase()},
-            status:{stringValue:'linked'},
-            uid:{stringValue:uid},
-            refreshToken:{stringValue:rt},
-            linkedAt:{integerValue:String(Date.now())},
-          }
-        })
+        body:JSON.stringify({fields:{
+          status:{stringValue:'linked'},
+          uid:{stringValue:user.uid},
+          refreshToken:{stringValue:rt},
+          linkedAt:{integerValue:String(Date.now())},
+        }})
       });
       if(patchRes.ok){ setStep('done'); }
       else{ setErr('Error al vincular. Inténtalo de nuevo.'); setStep('enter'); }
-    }catch(e){ setErr('Error: '+e.message); setStep('enter'); }
+    }catch(e){ setErr('Error: '+(e.message||'desconocido')); setStep('enter'); }
   };
 
-  return d.jsxs(Y.div,{initial:{opacity:0,y:16},animate:{opacity:1,y:0},style:{
-    minHeight:'100vh', display:'flex', flexDirection:'column',
-    alignItems:'center', justifyContent:'center',
-    background:'hsl(var(--background))', padding:24,
-  },children:[
-    d.jsx('h1',{style:{fontFamily:'var(--font-serif)',fontSize:24,marginBottom:4},children:'Vincular dispositivo'}),
-    d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',marginBottom:24,textAlign:'center'},
-      children:'Introduce el código que aparece en tu reloj o dispositivo'}),
+  if(step === 'done'){
+    return d.jsxs(Y.div,{
+      initial:{opacity:0,y:16},animate:{opacity:1,y:0},
+      style:{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'hsl(var(--background))',padding:24},
+      children:[
+        d.jsx('div',{style:{width:56,height:56,borderRadius:'50%',background:'hsl(var(--primary))',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'},children:
+          d.jsx('svg',{width:28,height:28,viewBox:'0 0 24 24',fill:'none',stroke:'white',strokeWidth:3,strokeLinecap:'round',strokeLinejoin:'round',children:
+            d.jsx('polyline',{points:'20 6 9 17 4 12'})
+          })
+        }),
+        d.jsx('p',{style:{fontSize:18,fontWeight:700,color:'hsl(var(--foreground))'},children:'Dispositivo vinculado'}),
+        d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',marginTop:6,textAlign:'center'},children:'Tu reloj se actualizará en unos segundos'}),
+      ]
+    });
+  }
 
-    step==='done' ? d.jsxs('div',{style:{textAlign:'center'},children:[
-      d.jsx('div',{style:{fontSize:48,marginBottom:12},children:'✓'}),
-      d.jsx('p',{style:{fontSize:16,fontWeight:600},children:'Dispositivo vinculado'}),
-      d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',marginTop:4},children:'Ya puedes usar Mebistium en tu reloj'}),
-    ]}) : d.jsxs('div',{style:{width:'100%',maxWidth:320},children:[
-      d.jsx('input',{
-        value:code,
-        onChange:function(e){ setCode(e.target.value.toUpperCase().slice(0,6)); },
-        placeholder:'ABC123',
-        maxLength:6,
-        style:{
-          width:'100%', padding:'14px 16px', borderRadius:12,
-          border:'2px solid hsl(var(--border))', background:'hsl(var(--muted))',
-          fontSize:24, fontWeight:800, letterSpacing:6, textAlign:'center',
-          color:'hsl(var(--foreground))', outline:'none', marginBottom:12,
-          fontVariantNumeric:'tabular-nums',
-        }
-      }),
-      err?d.jsx('p',{style:{fontSize:12,color:'hsl(var(--destructive))',marginBottom:8,textAlign:'center'},children:err}):null,
-      d.jsx('button',{
-        onClick:handleLink,
-        disabled:step==='linking',
-        style:{
-          width:'100%',padding:'14px',borderRadius:12,border:'none',
-          background:'hsl(var(--primary))',color:'white',fontSize:14,
-          fontWeight:700,cursor:step==='linking'?'wait':'pointer',opacity:step==='linking'?0.7:1,
-        },
-        children:step==='linking'?'Vinculando...':'Vincular dispositivo',
-      }),
-      !user&&d.jsx('p',{style:{fontSize:11,color:'hsl(var(--muted-foreground))',marginTop:8,textAlign:'center'},
-        children:'Se te pedirá iniciar sesión con Google si no lo has hecho'}),
-    ]}),
-  ]});
+  return d.jsxs(Y.div,{
+    initial:{opacity:0,y:16},animate:{opacity:1,y:0},
+    style:{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'hsl(var(--background))',padding:24},
+    children:[
+      d.jsx('h1',{style:{fontFamily:'var(--font-serif)',fontSize:24,marginBottom:4,textAlign:'center'},children:'Vincular dispositivo'}),
+      d.jsx('p',{style:{fontSize:13,color:'hsl(var(--muted-foreground))',marginBottom:24,textAlign:'center',maxWidth:320},children:'Introduce el código que aparece en tu reloj'}),
+      d.jsxs('div',{style:{width:'100%',maxWidth:320},children:[
+        !user
+          ? d.jsxs('div',{style:{marginBottom:16},children:[
+              d.jsx('p',{style:{fontSize:12,color:'hsl(var(--muted-foreground))',marginBottom:10,textAlign:'center'},children:'Inicia sesión con tu cuenta de Google para continuar'}),
+              d.jsx('button',{
+                onClick:doSignIn,disabled:signingIn,
+                style:{width:'100%',padding:'12px',borderRadius:12,border:'1px solid hsl(var(--border))',background:'hsl(var(--card))',color:'hsl(var(--foreground))',fontSize:14,fontWeight:600,cursor:signingIn?'wait':'pointer'},
+                children:signingIn?'Iniciando sesión...':'Continuar con Google',
+              }),
+            ]})
+          : d.jsx('div',{style:{background:'hsl(var(--muted))',borderRadius:10,padding:'8px 12px',marginBottom:12,fontSize:12,color:'hsl(var(--muted-foreground))'},
+              children:'Conectado como '+(user.email||user.uid.slice(0,8)+'...')}),
+        d.jsx('input',{
+          value:code,
+          onChange:function(e){ setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)); },
+          placeholder:'ABC123',maxLength:6,
+          disabled:!user||step==='linking',
+          style:{width:'100%',padding:'14px 16px',borderRadius:12,border:'2px solid '+(err?'hsl(var(--destructive))':'hsl(var(--border))'),background:'hsl(var(--muted))',fontSize:24,fontWeight:800,letterSpacing:8,textAlign:'center',color:'hsl(var(--foreground))',outline:'none',marginBottom:8,fontVariantNumeric:'tabular-nums',opacity:(!user||step==='linking')?0.5:1},
+        }),
+        err ? d.jsx('p',{style:{fontSize:12,color:'hsl(var(--destructive))',marginBottom:8,textAlign:'center'},children:err}) : null,
+        d.jsx('button',{
+          onClick:handleLink,
+          disabled:!user||step==='linking'||code.length!==6,
+          style:{width:'100%',padding:'14px',borderRadius:12,border:'none',background:'hsl(var(--primary))',color:'white',fontSize:14,fontWeight:700,cursor:(!user||step==='linking'||code.length!==6)?'not-allowed':'pointer',opacity:(!user||step==='linking'||code.length!==6)?0.5:1},
+          children:step==='linking'?'Vinculando...':'Vincular dispositivo',
+        }),
+      ]}),
+    ]
+  });
 }
 function AW(){const{signInWithGoogle:t}=ls(),[e,n]=b.useState(!1),[r,s]=b.useState(""),i=async()=>{
     // Detectar Samsung Browser o navegadores sin soporte de popup
@@ -16669,7 +16674,7 @@ function AW(){const{signInWithGoogle:t}=ls(),[e,n]=b.useState(!1),[r,s]=b.useSta
       }
     }
   };// Pantalla pequeña (reloj/dispositivo limitado) → Device Link
-  var isSmallScreen = window.screen&&window.screen.width<400;
+  var isSmallScreen = window.screen&&window.screen.width<250;
   if(isSmallScreen){
     // Si ya hay sesión vinculada en localStorage, usarla
     var savedSession = null;
@@ -19439,6 +19444,6 @@ function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body
     }),
 
   ]});
-}const _H=()=>{const t=ru();return b.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),d.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:d.jsxs("div",{className:"text-center",children:[d.jsx("h1",{className:"mb-4 text-4xl font-bold",children:"404"}),d.jsx("p",{className:"mb-4 text-xl text-muted-foreground",children:"Oops! Page not found"}),d.jsx("a",{href:"/",className:"text-primary underline hover:text-primary/90",children:"Return to Home"})]})})},bH=new fD;function EH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):t?d.jsx(IW,{}):d.jsx(PC,{to:"/",replace:!0})}function TH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):d.jsxs(oM,{children:[d.jsx(xt,{path:"/",element:t?d.jsx(MebistiumRadialMenu,{}):d.jsx(AW,{})}),d.jsxs(xt,{element:d.jsx(EH,{}),children:[d.jsx(xt,{path:"/dashboard",element:d.jsx(NW,{})}),d.jsx(xt,{path:"/tasks",element:d.jsx(DW,{})}),d.jsx(xt,{path:"/schedule",element:d.jsx(OW,{})}),d.jsx(xt,{path:"/calendar",element:d.jsx(UW,{})}),d.jsx(xt,{path:"/grades",element:d.jsx($W,{})}),d.jsx(xt,{path:"/courses",element:d.jsx(BW,{})}),d.jsx(xt,{path:"/organizer",element:d.jsx(WW,{})}),d.jsx(xt,{path:"/settings",element:d.jsx(GW,{})}),d.jsx(xt,{path:"/classroom",element:d.jsx(lH,{})}),
+}const _H=()=>{const t=ru();return b.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),d.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:d.jsxs("div",{className:"text-center",children:[d.jsx("h1",{className:"mb-4 text-4xl font-bold",children:"404"}),d.jsx("p",{className:"mb-4 text-xl text-muted-foreground",children:"Oops! Page not found"}),d.jsx("a",{href:"/",className:"text-primary underline hover:text-primary/90",children:"Return to Home"})]})})},bH=new fD;function EH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):t?d.jsx(IW,{}):d.jsx(PC,{to:"/",replace:!0})}function TH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):d.jsxs(oM,{children:[d.jsx(xt,{path:"/",element:t?d.jsx(MebistiumRadialMenu,{}):d.jsx(AW,{})}),d.jsx(xt,{path:"/link",element:d.jsx(DeviceLinkPage,{})}),d.jsxs(xt,{element:d.jsx(EH,{}),children:[d.jsx(xt,{path:"/dashboard",element:d.jsx(NW,{})}),d.jsx(xt,{path:"/tasks",element:d.jsx(DW,{})}),d.jsx(xt,{path:"/schedule",element:d.jsx(OW,{})}),d.jsx(xt,{path:"/calendar",element:d.jsx(UW,{})}),d.jsx(xt,{path:"/grades",element:d.jsx($W,{})}),d.jsx(xt,{path:"/courses",element:d.jsx(BW,{})}),d.jsx(xt,{path:"/organizer",element:d.jsx(WW,{})}),d.jsx(xt,{path:"/settings",element:d.jsx(GW,{})}),d.jsx(xt,{path:"/classroom",element:d.jsx(lH,{})}),
 
-d.jsx(xt,{path:"/gimnasio",element:d.jsx(GimnasioModule,{})}),d.jsx(xt,{path:"/notes",element:d.jsx(XW,{})}),d.jsx(xt,{path:"/flashcards",element:d.jsx(FlashcardsApp,{})}),d.jsx(xt,{path:"/selectividad",element:d.jsx(fH,{})}),d.jsx(xt,{path:"/pizarra",element:d.jsx(pH,{})}),d.jsx(xt,{path:"/compartir",element:d.jsx(gH,{})}),d.jsx(xt,{path:"/link",element:d.jsx(DeviceLinkPage,{})}),d.jsx(xt,{path:"/temas",element:d.jsx(wH,{})}),d.jsx(xt,{path:"/finanzas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/movimientos",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/sobres",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/stats",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/asistente",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/cuentas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/metas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/suscripciones",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/mas",element:d.jsx(FinanceModule,{})})]}),d.jsx(xt,{path:"*",element:d.jsx(_H,{})})]})}const SH=()=>d.jsx(mD,{client:bH,children:d.jsx(Z8,{children:d.jsx(e$,{children:d.jsxs($4,{children:[d.jsx(nO,{}),d.jsx($M,{}),d.jsx(cM,{children:d.jsx(TH,{})})]})})})}),UE=localStorage.getItem("rayan-theme");UE&&vH(UE);uC(document.getElementById("root")).render(d.jsx(SH,{}));
+d.jsx(xt,{path:"/gimnasio",element:d.jsx(GimnasioModule,{})}),d.jsx(xt,{path:"/notes",element:d.jsx(XW,{})}),d.jsx(xt,{path:"/flashcards",element:d.jsx(FlashcardsApp,{})}),d.jsx(xt,{path:"/selectividad",element:d.jsx(fH,{})}),d.jsx(xt,{path:"/pizarra",element:d.jsx(pH,{})}),d.jsx(xt,{path:"/compartir",element:d.jsx(gH,{})}),d.jsx(xt,{path:"/temas",element:d.jsx(wH,{})}),d.jsx(xt,{path:"/finanzas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/movimientos",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/sobres",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/stats",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/asistente",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/cuentas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/metas",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/suscripciones",element:d.jsx(FinanceModule,{})}),d.jsx(xt,{path:"/finanzas/mas",element:d.jsx(FinanceModule,{})})]}),d.jsx(xt,{path:"*",element:d.jsx(_H,{})})]})}const SH=()=>d.jsx(mD,{client:bH,children:d.jsx(Z8,{children:d.jsx(e$,{children:d.jsxs($4,{children:[d.jsx(nO,{}),d.jsx($M,{}),d.jsx(cM,{children:d.jsx(TH,{})})]})})})}),UE=localStorage.getItem("rayan-theme");UE&&vH(UE);uC(document.getElementById("root")).render(d.jsx(SH,{}));
