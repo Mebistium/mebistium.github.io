@@ -6,378 +6,407 @@
 <title>Vincular dispositivo — Mebistium</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --green: #16a34a;
-    --red: #dc2626;
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --border: #e2e8f0;
-    --muted: #f1f5f9;
-    --muted-fg: #64748b;
-    --fg: #0f172a;
+    --primary: #2563eb; --primary-dark: #1d4ed8;
+    --green: #16a34a; --red: #dc2626;
+    --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
+    --muted: #f1f5f9; --muted-fg: #64748b; --fg: #0f172a;
     --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
   }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--fg);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
+    background: var(--bg); color: var(--fg);
+    min-height: 100vh; display: flex;
+    align-items: center; justify-content: center; padding: 24px;
   }
-
   .card {
-    background: var(--card);
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    padding: 32px 28px;
-    width: 100%;
-    max-width: 380px;
-    border: 1px solid var(--border);
+    background: var(--card); border-radius: 20px;
+    box-shadow: var(--shadow); padding: 32px 28px;
+    width: 100%; max-width: 380px; border: 1px solid var(--border);
   }
-
   .logo {
     width: 48px; height: 48px; border-radius: 13px;
-    background: var(--primary);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 16px;
+    background: var(--primary); display: flex;
+    align-items: center; justify-content: center; margin: 0 auto 16px;
   }
-  .logo svg { display: block; }
+  h1 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: var(--muted-fg); text-align: center; margin-bottom: 24px; line-height: 1.5; }
+  .section { margin-bottom: 14px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 6px; }
 
-  h1 {
-    font-size: 20px; font-weight: 700; text-align: center;
-    margin-bottom: 6px; color: var(--fg);
-  }
-  .subtitle {
-    font-size: 13px; color: var(--muted-fg); text-align: center;
-    margin-bottom: 24px; line-height: 1.5;
-  }
-
-  /* ── Auth state ── */
-  .auth-box {
-    background: var(--muted); border-radius: 11px;
-    padding: 14px; margin-bottom: 16px;
-  }
-  .auth-box p { font-size: 12px; color: var(--muted-fg); text-align: center; margin-bottom: 10px; }
-
-  /* ── Google button ── */
+  /* Google button */
   .btn-google {
-    width: 100%; padding: 11px 16px; border-radius: 10px;
+    width: 100%; padding: 12px 16px; border-radius: 10px;
     border: 1px solid var(--border); background: white;
     font-size: 14px; font-weight: 600; color: var(--fg);
     cursor: pointer; display: flex; align-items: center;
-    justify-content: center; gap: 10px;
-    transition: background 0.15s, box-shadow 0.15s;
+    justify-content: center; gap: 10px; transition: background 0.15s;
   }
-  .btn-google:hover { background: var(--muted); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  .btn-google:hover:not(:disabled) { background: var(--muted); }
   .btn-google:disabled { opacity: 0.5; cursor: wait; }
-  .btn-google img { width: 18px; height: 18px; }
+  .btn-google img { width: 18px; height: 18px; flex-shrink: 0; }
 
-  /* ── User pill ── */
+  /* User pill */
   .user-pill {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--muted); border-radius: 10px;
-    padding: 9px 12px; margin-bottom: 14px;
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;
+    padding: 10px 14px; display: flex; align-items: center; gap: 10px;
   }
-  .user-pill span { font-size: 12px; color: var(--muted-fg); }
-  .user-pill .check { color: var(--green); font-size: 14px; }
+  .user-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .user-pill .info { flex: 1; min-width: 0; }
+  .user-pill .name { font-size: 13px; font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-pill .label { font-size: 11px; color: var(--green); }
+  .btn-change { font-size: 11px; color: var(--muted-fg); background: none; border: none; cursor: pointer; text-decoration: underline; flex-shrink: 0; }
 
-  /* ── Code input ── */
+  /* Code input */
+  .code-wrap { position: relative; }
   .code-input {
-    width: 100%; padding: 16px;
-    border: 2px solid var(--border); border-radius: 12px;
-    background: var(--muted); font-size: 28px; font-weight: 800;
-    letter-spacing: 10px; text-align: center; color: var(--fg);
-    outline: none; margin-bottom: 8px;
-    font-variant-numeric: tabular-nums;
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-    text-transform: uppercase;
+    width: 100%; padding: 18px 16px; border: 2px solid var(--border);
+    border-radius: 12px; background: var(--muted);
+    font-size: 30px; font-weight: 800; letter-spacing: 12px;
+    text-align: center; color: var(--fg); outline: none;
+    font-variant-numeric: tabular-nums; transition: border-color 0.15s;
+    text-transform: uppercase; -webkit-appearance: none;
   }
   .code-input:focus { border-color: var(--primary); background: white; }
-  .code-input.valid { border-color: var(--green); }
-  .code-input.error { border-color: var(--red); }
-  .code-input:disabled { opacity: 0.5; }
+  .code-input.valid { border-color: var(--green); background: #f0fdf4; }
+  .code-input.has-error { border-color: var(--red); }
+  .code-input:disabled { opacity: 0.35; cursor: not-allowed; }
+  .code-count { position: absolute; right: 12px; bottom: 10px; font-size: 10px; color: var(--muted-fg); }
 
-  .error-msg {
-    font-size: 12px; color: var(--red);
-    text-align: center; margin-bottom: 8px; min-height: 18px;
-  }
+  /* Error */
+  .error-msg { font-size: 12px; color: var(--red); text-align: center; margin-top: 6px; min-height: 16px; }
 
-  /* ── Submit button ── */
+  /* Submit */
   .btn-primary {
     width: 100%; padding: 14px; border-radius: 12px; border: none;
-    background: var(--primary); color: white;
-    font-size: 14px; font-weight: 700; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 0.15s, opacity 0.15s;
+    background: var(--primary); color: white; font-size: 14px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 8px; transition: background 0.15s, opacity 0.15s; margin-top: 12px;
   }
   .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  .hint {
-    font-size: 11px; color: var(--muted-fg);
-    text-align: center; margin-top: 12px; line-height: 1.5;
-  }
+  .hint { font-size: 11px; color: var(--muted-fg); text-align: center; margin-top: 10px; line-height: 1.5; }
 
-  /* ── Success screen ── */
-  .success {
-    display: none; text-align: center;
-  }
+  /* Success */
+  #success-section { display: none; text-align: center; }
   .success-icon {
-    width: 64px; height: 64px; border-radius: 50%;
-    background: var(--green);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 16px;
+    width: 68px; height: 68px; border-radius: 50%; background: var(--green);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
   }
-  .success h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  .success p { font-size: 13px; color: var(--muted-fg); line-height: 1.5; }
+  #success-section h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  #success-section p { font-size: 13px; color: var(--muted-fg); line-height: 1.5; }
 
-  /* ── Spinner ── */
-  .spinner {
-    width: 18px; height: 18px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: white;
-    animation: spin 0.7s linear infinite;
-    display: none;
+  /* Spinner */
+  .spin {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35); border-top-color: white;
+    animation: rot 0.7s linear infinite; display: none; flex-shrink: 0;
   }
-  .spinner.google-spinner {
-    border: 2px solid rgba(0,0,0,0.15);
-    border-top-color: var(--fg);
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes rot { to { transform: rotate(360deg); } }
 </style>
+</head>
+<body>
+<div class="card">
 
-<!-- Firebase SDK (solo Auth y Firestore, vía CDN) -->
+  <!-- ── Formulario ── -->
+  <div id="form-section">
+    <div class="logo">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
+      </svg>
+    </div>
+    <h1>Vincular dispositivo</h1>
+    <p class="subtitle">Inicia sesión e introduce el código que aparece en tu reloj para sincronizar tu cuenta</p>
+
+    <!-- Paso 1: Cuenta -->
+    <div class="section">
+      <div class="section-label">1 · Tu cuenta</div>
+
+      <button class="btn-google" id="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+        <span id="google-label">Iniciar sesión con Google</span>
+        <div class="spin" id="google-spin" style="border-color:rgba(0,0,0,0.15);border-top-color:#333;"></div>
+      </button>
+
+      <div class="user-pill" id="user-pill" style="display:none">
+        <div class="dot"></div>
+        <div class="info">
+          <div class="name" id="user-name"></div>
+          <div class="label">Sesión iniciada</div>
+        </div>
+        <button class="btn-change" id="btn-change">Cambiar</button>
+      </div>
+    </div>
+
+    <!-- Paso 2: Código -->
+    <div class="section">
+      <div class="section-label">2 · Código del reloj</div>
+      <div class="code-wrap">
+        <input type="text" class="code-input" id="code-input"
+          placeholder="·  ·  ·  ·  ·  ·"
+          maxlength="6" autocomplete="off" autocorrect="off"
+          spellcheck="false" inputmode="text" disabled>
+        <span class="code-count" id="code-count">0/6</span>
+      </div>
+      <div class="error-msg" id="error-msg"></div>
+    </div>
+
+    <button class="btn-primary" id="submit-btn" disabled>
+      <div class="spin" id="submit-spin"></div>
+      <span id="submit-label">Vincular dispositivo</span>
+    </button>
+    <p class="hint">El código expira en 10 minutos. Si ha expirado, vuelve al reloj para generar uno nuevo.</p>
+  </div>
+
+  <!-- ── Éxito ── -->
+  <div id="success-section">
+    <div class="success-icon">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h2>¡Vinculado!</h2>
+    <p>Tu reloj detectará la vinculación automáticamente en unos segundos y accederá a tu cuenta.</p>
+  </div>
+
+</div>
+
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { initializeApp }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {
+  getAuth, signInWithPopup, signOut,
+  GoogleAuthProvider, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-const FB_CONFIG = {
-  apiKey: "AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI",
-  authDomain: "proyectorayan.firebaseapp.com",
-  projectId: "proyectorayan",
-};
-const FSBASE = `https://firestore.googleapis.com/v1/projects/${FB_CONFIG.projectId}/databases/(default)/documents`;
+// ── Config ────────────────────────────────────────────────────────────────
+const API_KEY  = 'AIzaSyBOqVtB-yzG05eBFV26Hhtc8d9Nqb3FFQI';
+const PROJECT  = 'proyectorayan';
+const FSBASE   = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
+const TOKEN_URL= `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`;
 
-const app  = initializeApp(FB_CONFIG);
-const auth = getAuth(app);
+const app      = initializeApp({ apiKey: API_KEY, authDomain: `${PROJECT}.firebaseapp.com`, projectId: PROJECT });
+const auth     = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ── DOM refs ──────────────────────────────────────────────────────────────
-const authBox    = document.getElementById('auth-box');
-const userPill   = document.getElementById('user-pill');
-const userEmail  = document.getElementById('user-email');
-const codeInput  = document.getElementById('code-input');
-const errorMsg   = document.getElementById('error-msg');
-const submitBtn  = document.getElementById('submit-btn');
-const submitText = document.getElementById('submit-text');
-const spinner    = document.getElementById('spinner');
-const formSection = document.getElementById('form-section');
+// ── State ─────────────────────────────────────────────────────────────────
+let currentUser    = null;
+let firebaseRT     = null;   // refreshToken de Firebase (obtenido al hacer signIn)
+let pendingCode    = '';
+
+// ── DOM ───────────────────────────────────────────────────────────────────
+const btnGoogle    = document.getElementById('btn-google');
+const googleLabel  = document.getElementById('google-label');
+const googleSpin   = document.getElementById('google-spin');
+const userPill     = document.getElementById('user-pill');
+const userName     = document.getElementById('user-name');
+const btnChange    = document.getElementById('btn-change');
+const codeInput    = document.getElementById('code-input');
+const codeCount    = document.getElementById('code-count');
+const errorMsg     = document.getElementById('error-msg');
+const submitBtn    = document.getElementById('submit-btn');
+const submitLabel  = document.getElementById('submit-label');
+const submitSpin   = document.getElementById('submit-spin');
+const formSection  = document.getElementById('form-section');
 const successSection = document.getElementById('success-section');
 
-let currentUser = null;
-let pendingCode = '';
-
-// ── Auth state ─────────────────────────────────────────────────────────────
-onAuthStateChanged(auth, async (user) => {
+// ── Auth state ────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (user) {
-    authBox.style.display = 'none';
-    userPill.style.display = 'flex';
-    userEmail.textContent = user.email || user.uid.slice(0, 12) + '...';
-    codeInput.disabled = false;
-    // Si había código pendiente del antes del login, vincular automáticamente
-    if (pendingCode.length === 6) {
+    btnGoogle.style.display  = 'none';
+    userPill.style.display   = 'flex';
+    userName.textContent     = user.displayName || user.email || user.uid.slice(0,12)+'...';
+    codeInput.disabled       = false;
+    codeInput.focus();
+    // Vincular automáticamente si había código esperando
+    if (pendingCode.length === 6 && firebaseRT) {
       codeInput.value = pendingCode;
-      updateCodeStyle();
-      await handleLink();
+      pendingCode = '';
+      updateCodeUI();
+      setTimeout(doLink, 200);
     }
   } else {
-    authBox.style.display = 'block';
-    userPill.style.display = 'none';
-    codeInput.disabled = true;
+    firebaseRT = null;
+    btnGoogle.style.display  = 'flex';
+    userPill.style.display   = 'none';
+    codeInput.disabled       = true;
   }
-  updateSubmitBtn();
+  updateSubmit();
 });
 
-// ── Google sign in ─────────────────────────────────────────────────────────
-document.getElementById('btn-google').addEventListener('click', async () => {
-  const btn = document.getElementById('btn-google');
-  const gs  = document.getElementById('google-spinner');
+// ── Google sign in ────────────────────────────────────────────────────────
+btnGoogle.addEventListener('click', async () => {
   pendingCode = codeInput.value.trim().toUpperCase();
-  btn.disabled = true;
-  gs.style.display = 'block';
-  try {
-    await signInWithPopup(auth, provider);
-  } catch(e) {
-    setError('Error al iniciar sesión. Inténtalo de nuevo.');
-    btn.disabled = false;
-    gs.style.display = 'none';
-  }
-});
-
-// ── Code input ─────────────────────────────────────────────────────────────
-codeInput.addEventListener('input', (e) => {
-  codeInput.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+  setLoading(true);
   setError('');
-  updateCodeStyle();
-  updateSubmitBtn();
+  try {
+    // signInWithPopup devuelve el credential con los tokens de Google
+    const result = await signInWithPopup(auth, provider);
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const googleAccessToken = credential.accessToken;
+
+    // Intercambiar el Google access token por los tokens de Firebase via REST
+    // Esto nos da el refreshToken de Firebase directamente
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postBody: `access_token=${googleAccessToken}&providerId=google.com`,
+          requestUri: window.location.origin,
+          returnSecureToken: true,
+          returnIdpCredential: true,
+        })
+      }
+    );
+    const data = await res.json();
+    if (data.refreshToken) {
+      firebaseRT = data.refreshToken;
+      console.log('[link] refreshToken obtained ✓');
+    } else {
+      console.warn('[link] refreshToken not in response:', Object.keys(data));
+      // Fallback: intentar obtenerlo del objeto user interno
+      firebaseRT = auth.currentUser?._delegate?.stsTokenManager?.refreshToken
+        || auth.currentUser?.stsTokenManager?.refreshToken
+        || null;
+    }
+  } catch(e) {
+    console.error('[link] login error:', e);
+    setError(
+      e.code === 'auth/popup-blocked'
+        ? 'Ventana bloqueada. Permite popups para mebistium.github.io.'
+        : 'Error al iniciar sesión. Inténtalo de nuevo.'
+    );
+  }
+  setLoading(false);
 });
 
-function updateCodeStyle() {
-  codeInput.classList.remove('valid', 'error');
-  if (codeInput.value.length === 6) codeInput.classList.add('valid');
-}
+// ── Change account ────────────────────────────────────────────────────────
+btnChange.addEventListener('click', async () => {
+  await signOut(auth);
+  firebaseRT = null;
+});
 
-function updateSubmitBtn() {
+// ── Code input ────────────────────────────────────────────────────────────
+codeInput.addEventListener('input', (e) => {
+  codeInput.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+  setError('');
+  updateCodeUI();
+  updateSubmit();
+});
+codeInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !submitBtn.disabled) doLink();
+});
+
+function updateCodeUI() {
+  const len = codeInput.value.length;
+  codeCount.textContent = `${len}/6`;
+  codeInput.classList.remove('valid','has-error');
+  if (len === 6) codeInput.classList.add('valid');
+}
+function updateSubmit() {
   submitBtn.disabled = !currentUser || codeInput.value.length !== 6;
 }
 
-function setError(msg) {
-  errorMsg.textContent = msg;
-  if (msg) codeInput.classList.add('error');
-  else codeInput.classList.remove('error');
-}
+// ── Link ──────────────────────────────────────────────────────────────────
+submitBtn.addEventListener('click', doLink);
 
-// ── Link device ────────────────────────────────────────────────────────────
-submitBtn.addEventListener('click', handleLink);
-
-async function handleLink() {
+async function doLink() {
   const trimCode = codeInput.value.trim().toUpperCase();
-  if (trimCode.length !== 6) { setError('El código tiene 6 caracteres'); return; }
-  if (!currentUser) { setError('Primero inicia sesión con Google'); return; }
+  if (trimCode.length !== 6)  { setError('El código tiene 6 caracteres'); return; }
+  if (!currentUser)           { setError('Primero inicia sesión'); return; }
+  if (!firebaseRT)            { setError('Sesión incompleta. Cierra sesión y vuelve a entrar.'); return; }
 
-  submitBtn.disabled = true;
-  submitText.textContent = 'Vinculando...';
-  spinner.style.display = 'block';
+  setBusy(true);
   setError('');
 
   try {
-    // 1. Verificar el código en Firestore
-    const res = await fetch(`${FSBASE}/device_links/${trimCode}?key=${FB_CONFIG.apiKey}`);
+    // 1. Verificar que el código existe en Firestore
+    setStatus('Verificando código...');
+    const res = await fetch(`${FSBASE}/device_links/${trimCode}?key=${API_KEY}`);
     if (!res.ok) {
       setError('Código no encontrado. Comprueba que está bien escrito.');
-      resetBtn(); return;
+      setBusy(false); return;
     }
-    const data = await res.json();
+    const data   = await res.json();
     const fields = data.fields || {};
-    const exp = parseInt(fields.expiresAt?.integerValue || '0');
+    const exp    = parseInt(fields.expiresAt?.integerValue || '0');
+
     if (Date.now() > exp) {
       setError('El código ha expirado. Genera uno nuevo en el reloj.');
-      resetBtn(); return;
+      setBusy(false); return;
+    }
+    if (fields.status?.stringValue === 'linked') {
+      setError('Código ya usado. Genera uno nuevo en el reloj.');
+      setBusy(false); return;
     }
 
-    // 2. Obtener el refreshToken del usuario
-    // Forzar refresco del token para asegurar que tenemos el refreshToken
-    await currentUser.getIdToken(true);
-    const rt = currentUser.stsTokenManager?.refreshToken || auth.currentUser?.stsTokenManager?.refreshToken;
-    if (!rt) {
-      setError('No se pudieron obtener las credenciales. Cierra sesión y vuelve a entrar.');
-      resetBtn(); return;
+    // 2. Verificar que el refreshToken sigue siendo válido
+    setStatus('Verificando sesión...');
+    const tokenRes = await fetch(TOKEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: firebaseRT })
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.refresh_token && !tokenData.id_token) {
+      setError('Error de sesión. Cierra sesión y vuelve a entrar.');
+      setBusy(false); return;
     }
+    // Actualizar el refreshToken por si ha rotado
+    if (tokenData.refresh_token) firebaseRT = tokenData.refresh_token;
 
-    // 3. Escribir en Firestore
-    const patch = await fetch(`${FSBASE}/device_links/${trimCode}?key=${FB_CONFIG.apiKey}`, {
+    // 3. Escribir en Firestore: uid + refreshToken → el reloj podrá usarlos
+    setStatus('Vinculando...');
+    const patch = await fetch(`${FSBASE}/device_links/${trimCode}?key=${API_KEY}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fields: {
         status:       { stringValue: 'linked' },
         uid:          { stringValue: currentUser.uid },
-        refreshToken: { stringValue: rt },
+        refreshToken: { stringValue: firebaseRT },
         linkedAt:     { integerValue: String(Date.now()) },
       }})
     });
 
     if (patch.ok) {
-      formSection.style.display = 'none';
+      formSection.style.display    = 'none';
       successSection.style.display = 'block';
     } else {
+      const err = await patch.json().catch(() => ({}));
+      console.error('[link] patch error:', err);
       setError('Error al vincular. Inténtalo de nuevo.');
-      resetBtn();
+      setBusy(false);
     }
   } catch(e) {
+    console.error('[link] exception:', e);
     setError('Error: ' + (e.message || 'desconocido'));
-    resetBtn();
+    setBusy(false);
   }
 }
 
-function resetBtn() {
-  submitBtn.disabled = false;
-  submitText.textContent = 'Vincular dispositivo';
-  spinner.style.display = 'none';
+// ── Helpers ───────────────────────────────────────────────────────────────
+function setLoading(on) {
+  btnGoogle.disabled      = on;
+  googleLabel.textContent = on ? 'Iniciando sesión...' : 'Iniciar sesión con Google';
+  googleSpin.style.display= on ? 'block' : 'none';
+}
+function setBusy(on) {
+  submitBtn.disabled      = on;
+  submitLabel.textContent = on ? '' : 'Vincular dispositivo';
+  submitSpin.style.display= on ? 'block' : 'none';
+  if (!on) updateSubmit();
+}
+function setStatus(msg) {
+  submitLabel.textContent = msg;
+}
+function setError(msg) {
+  errorMsg.textContent = msg;
+  codeInput.classList.toggle('has-error', !!msg);
+  if (msg) codeInput.classList.remove('valid');
 }
 </script>
-</head>
-<body>
-<div class="card">
-
-  <!-- Form section -->
-  <div id="form-section">
-    <div class="logo">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="5" y="2" width="14" height="20" rx="2"/>
-        <path d="M12 18h.01"/>
-      </svg>
-    </div>
-    <h1>Vincular dispositivo</h1>
-    <p class="subtitle">Introduce el código de 6 caracteres que aparece en la pantalla de tu reloj</p>
-
-    <!-- Auth box (si no está logueado) -->
-    <div class="auth-box" id="auth-box" style="display:none">
-      <p>Necesitas iniciar sesión con tu cuenta de Mebistium</p>
-      <button class="btn-google" id="btn-google">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-        <span id="google-spinner" class="spinner google-spinner"></span>
-        Continuar con Google
-      </button>
-    </div>
-
-    <!-- User pill (si está logueado) -->
-    <div class="user-pill" id="user-pill" style="display:none">
-      <span id="user-email">usuario@gmail.com</span>
-      <span class="check">✓</span>
-    </div>
-
-    <!-- Código -->
-    <input
-      type="text"
-      class="code-input"
-      id="code-input"
-      placeholder="ABC123"
-      maxlength="6"
-      autocomplete="off"
-      autocorrect="off"
-      spellcheck="false"
-      disabled
-    >
-    <div class="error-msg" id="error-msg"></div>
-
-    <button class="btn-primary" id="submit-btn" disabled>
-      <div class="spinner" id="spinner"></div>
-      <span id="submit-text">Vincular dispositivo</span>
-    </button>
-
-    <p class="hint">El código expira a los 10 minutos.<br>Si ha expirado, genera uno nuevo en el reloj.</p>
-  </div>
-
-  <!-- Success section -->
-  <div class="success" id="success-section">
-    <div class="success-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-    </div>
-    <h2>¡Dispositivo vinculado!</h2>
-    <p>Tu reloj detectará la vinculación en unos segundos y entrará automáticamente a Mebistium.</p>
-  </div>
-
-</div>
 </body>
 </html>
