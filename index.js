@@ -16292,7 +16292,10 @@ d.jsx("button", {
 onClick: function() { o.onClose(); o.navigate("/settings"); },
 style: itemStyle, children: "Ajustes",
 }),
-
+d.jsx("button", {
+onClick: function() { o.onClose(); o.navigate("/temas"); },
+style: itemStyle, children: "Temas",
+}),
 d.jsx("button", {
 onClick: function() { setShowFontPicker(true); },
 style: itemStyle, children: "Fuente",
@@ -16307,7 +16310,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v43.0",
+children: "v46",
 }),
 ],
 }),
@@ -16334,7 +16337,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v43.0",
+children: "v46",
 });
 }
 
@@ -19022,125 +19025,14 @@ function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body
     .progress-fill { background: linear-gradient(135deg, ${t.primary}, ${t.secondary}) !important; }
     .gradient-text { background-image: linear-gradient(135deg, ${t.primary}, ${t.secondary}) !important; }
   `,document.head.appendChild(e),localStorage.setItem("rayan-theme",t.name)}function vH(t){const e=Zk.find(n=>n.name===t);e&&eN(e)}const xH={hidden:{opacity:0},show:{opacity:1,transition:{staggerChildren:.06}}},FE={hidden:{opacity:0,y:16},show:{opacity:1,y:0,transition:{duration:.5,ease:[.22,1,.36,1]}}};function wH(){
-  const [globalTheme, setGlobalTheme] = b.useState(localStorage.getItem("rayan-theme") || "Por Defecto");
-  const [activeTab, setActiveTab] = b.useState("global");
-
-  const MODULES_CONFIG = [
-    { key:"rayan-theme-dashboard",  label:"Dashboard",    icon:"◻" },
-    { key:"rayan-theme-finanzas",   label:"Finanzas",     icon:"◻" },
-    { key:"rayan-theme-gimnasio",   label:"Gimnasio",     icon:"◻" },
-    { key:"rayan-theme-clases",     label:"Clases",       icon:"◻" },
-    { key:"rayan-theme-apuntes",    label:"Apuntes",      icon:"◻" },
-    { key:"rayan-theme-organizer",  label:"Organizador",  icon:"◻" },
-  ];
-
-  const getModuleTheme = function(key){
-    return localStorage.getItem(key) || globalTheme;
-  };
-
-  const applyGlobal = function(theme){
-    setGlobalTheme(theme.name);
-    eN(theme);
-    // Aplicar a módulos que no tienen tema propio
-    MODULES_CONFIG.forEach(function(m){
-      if(!localStorage.getItem(m.key)){
-        // no tienen override, el global ya aplica
-      }
-    });
-  };
-
-  const applyModule = function(key, theme){
-    localStorage.setItem(key, theme.name);
-    eN(theme);
-  };
-
-  const resetModule = function(key){
-    localStorage.removeItem(key);
-    const global = Zk.find(function(t){ return t.name === globalTheme; }) || Zk[0];
-    eN(global);
-  };
-
-  const tabs = [{id:"global",label:"Global"}].concat(MODULES_CONFIG.map(function(m){ return {id:m.key, label:m.label, icon:m.icon}; }));
-
   return d.jsxs(Y.div,{variants:xH,initial:"hidden",animate:"show",className:"space-y-6",children:[
-
     d.jsxs(Y.div,{variants:FE,children:[
       d.jsx("h1",{className:"page-header",children:"Temas"}),
-      d.jsx("p",{className:"page-subtitle",children:"Personaliza los colores de cada módulo"}),
+      d.jsx("p",{className:"page-subtitle",children:"Elige un tema para cada módulo"}),
     ]}),
-
-    // Tabs de módulos
-    d.jsx(Y.div,{variants:FE,children:
-      d.jsx("div",{style:{display:"flex",gap:6,flexWrap:"wrap"},children:
-        tabs.map(function(tab){
-          var active = activeTab === tab.id;
-          return d.jsx("button",{
-            key:tab.id,
-            onClick:function(){setActiveTab(tab.id);},
-            style:{
-              padding:"6px 12px", borderRadius:20, fontSize:12, fontWeight:600, cursor:"pointer",
-              background: active?"var(--primary)":"transparent",
-              color: active?"white":"var(--muted-foreground)",
-              border: active?"none":"1px solid var(--border)",
-              transition:"all 0.15s",
-            },
-            children: tab.label,
-          }, tab.id);
-        })
-      }),
-    }),
-
-    // Selector de temas para el tab activo
-    d.jsx(Y.div,{variants:FE,children:
-      d.jsxs("div",{className:"glass-card p-4 space-y-3",children:[
-
-        activeTab !== "global" && d.jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4},children:[
-          d.jsxs("p",{className:"section-label",children:["Tema de ",tabs.find(function(t){return t.id===activeTab;})?.label]}),
-          localStorage.getItem(activeTab) ? d.jsx("button",{
-            onClick:function(){resetModule(activeTab); setGlobalTheme(globalTheme);},
-            style:{fontSize:11,color:"var(--muted-foreground)",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"},
-            children:"Usar global",
-          }) : d.jsx("span",{style:{fontSize:11,color:"var(--muted-foreground)"},children:"Usando tema global"}),
-        ]}),
-
-        activeTab === "global" && d.jsx("p",{className:"section-label mb-1",children:"Tema global de la app"}),
-
-        d.jsx("div",{className:"grid grid-cols-2 gap-2.5",children:
-          Zk.map(function(theme){
-            var currentName = activeTab === "global" ? globalTheme : getModuleTheme(activeTab);
-            var isActive = currentName === theme.name;
-            return d.jsxs("button",{
-              key:theme.name,
-              onClick:function(){
-                if(activeTab === "global"){
-                  applyGlobal(theme);
-                } else {
-                  applyModule(activeTab, theme);
-                }
-              },
-              className:"glass-card p-3 text-left transition-all "+( isActive?"ring-2 ring-primary":""),
-              style:{
-                background:"linear-gradient(135deg,"+theme.bgGrad1+","+theme.bgGrad2+")",
-                border: isActive?"2px solid var(--primary)":"1px solid rgba(0,0,0,0.06)",
-              },
-              children:[
-                d.jsx("div",{style:{display:"flex",alignItems:"center",gap:6,marginBottom:4},children:[
-                  d.jsx("div",{style:{width:14,height:14,borderRadius:"50%",background:theme.primary,flexShrink:0}}),
-                  d.jsx("span",{style:{fontSize:12,fontWeight:600,color:"rgba(0,0,0,0.7)"},children:theme.name}),
-                  isActive && d.jsx("span",{style:{marginLeft:"auto",fontSize:10,background:"var(--primary)",color:"white",borderRadius:4,padding:"1px 5px"},children:"✓"}),
-                ]}),
-                d.jsxs("div",{style:{display:"flex",gap:3},children:[
-                  d.jsx("div",{style:{height:4,flex:1,borderRadius:2,background:theme.primary}}),
-                  d.jsx("div",{style:{height:4,flex:1,borderRadius:2,background:theme.secondary}}),
-                  d.jsx("div",{style:{height:4,flex:1,borderRadius:2,background:theme.bgGrad3}}),
-                ]}),
-              ],
-            }, theme.name);
-          })
-        }),
-      ]}),
-    }),
-
+    d.jsx(ModuleThemePicker,{moduleKey:"rayan-theme-clases",   moduleLabel:"Clases"}),
+    d.jsx(ModuleThemePicker,{moduleKey:"rayan-theme-finanzas", moduleLabel:"Finanzas"}),
+    d.jsx(ModuleThemePicker,{moduleKey:"rayan-theme-gimnasio", moduleLabel:"Gimnasio"}),
   ]});
 }const _H=()=>{const t=ru();return b.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),d.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:d.jsxs("div",{className:"text-center",children:[d.jsx("h1",{className:"mb-4 text-4xl font-bold",children:"404"}),d.jsx("p",{className:"mb-4 text-xl text-muted-foreground",children:"Oops! Page not found"}),d.jsx("a",{href:"/",className:"text-primary underline hover:text-primary/90",children:"Return to Home"})]})})},bH=new fD;function EH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):t?d.jsx(IW,{}):d.jsx(PC,{to:"/",replace:!0})}function TH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):d.jsxs(oM,{children:[d.jsx(xt,{path:"/",element:t?d.jsx(MebistiumRadialMenu,{}):d.jsx(AW,{})}),d.jsxs(xt,{element:d.jsx(EH,{}),children:[d.jsx(xt,{path:"/dashboard",element:d.jsx(NW,{})}),d.jsx(xt,{path:"/tasks",element:d.jsx(DW,{})}),d.jsx(xt,{path:"/schedule",element:d.jsx(OW,{})}),d.jsx(xt,{path:"/calendar",element:d.jsx(UW,{})}),d.jsx(xt,{path:"/grades",element:d.jsx($W,{})}),d.jsx(xt,{path:"/courses",element:d.jsx(BW,{})}),d.jsx(xt,{path:"/organizer",element:d.jsx(WW,{})}),d.jsx(xt,{path:"/settings",element:d.jsx(GW,{})}),d.jsx(xt,{path:"/classroom",element:d.jsx(lH,{})}),
 
