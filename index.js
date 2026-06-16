@@ -19030,9 +19030,9 @@ function eN(t){var n;document.body.style.background=`hsl(${t.bg})`,document.body
       d.jsx("h1",{className:"page-header",children:"Temas"}),
       d.jsx("p",{className:"page-subtitle",children:"Elige un tema para cada módulo"}),
     ]}),
-    d.jsx(ModuleThemePicker,{moduleKey:"rayan-theme-clases",   moduleLabel:"Clases"}),
-    d.jsx(ModuleThemePicker,{moduleKey:"rayan-theme-finanzas", moduleLabel:"Finanzas"}),
-    d.jsx(ModuleThemePicker,{moduleKey:"rayan-theme-gimnasio", moduleLabel:"Gimnasio"}),
+    d.jsx(ModuleThemePicker,{key:"clases",   moduleKey:"rayan-theme-clases",   moduleLabel:"Clases"}),
+    d.jsx(ModuleThemePicker,{key:"finanzas", moduleKey:"rayan-theme-finanzas", moduleLabel:"Finanzas"}),
+    d.jsx(ModuleThemePicker,{key:"gimnasio", moduleKey:"rayan-theme-gimnasio", moduleLabel:"Gimnasio"}),
   ]});
 }const _H=()=>{const t=ru();return b.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),d.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:d.jsxs("div",{className:"text-center",children:[d.jsx("h1",{className:"mb-4 text-4xl font-bold",children:"404"}),d.jsx("p",{className:"mb-4 text-xl text-muted-foreground",children:"Oops! Page not found"}),d.jsx("a",{href:"/",className:"text-primary underline hover:text-primary/90",children:"Return to Home"})]})})},bH=new fD;function EH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):t?d.jsx(IW,{}):d.jsx(PC,{to:"/",replace:!0})}function TH(){const{user:t,loading:e}=ls();return e?d.jsx("div",{className:"min-h-screen flex items-center justify-center",children:d.jsx("div",{className:"w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"})}):d.jsxs(oM,{children:[d.jsx(xt,{path:"/",element:t?d.jsx(MebistiumRadialMenu,{}):d.jsx(AW,{})}),d.jsxs(xt,{element:d.jsx(EH,{}),children:[d.jsx(xt,{path:"/dashboard",element:d.jsx(NW,{})}),d.jsx(xt,{path:"/tasks",element:d.jsx(DW,{})}),d.jsx(xt,{path:"/schedule",element:d.jsx(OW,{})}),d.jsx(xt,{path:"/calendar",element:d.jsx(UW,{})}),d.jsx(xt,{path:"/grades",element:d.jsx($W,{})}),d.jsx(xt,{path:"/courses",element:d.jsx(BW,{})}),d.jsx(xt,{path:"/organizer",element:d.jsx(WW,{})}),d.jsx(xt,{path:"/settings",element:d.jsx(GW,{})}),d.jsx(xt,{path:"/classroom",element:d.jsx(lH,{})}),
 
