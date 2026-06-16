@@ -4774,12 +4774,15 @@ function GimnasioModule(){
   var auth = ls(); var user = auth.user;
   var uid = user && user.uid;
 
+  // TODOS los hooks declarados incondicionalmente, antes de cualquier return ──
   var tabState = b.useState('inicio'); var tab = tabState[0], setTab = tabState[1];
   var routinesState = b.useState([]); var routines = routinesState[0], setRoutines = routinesState[1];
   var logsState = b.useState([]); var logs = logsState[0], setLogs = logsState[1];
   var weightLogState = b.useState([]); var weightLog = weightLogState[0], setWeightLog = weightLogState[1];
   var activeState = b.useState(null); var activeWorkout = activeState[0], setActiveWorkout = activeState[1];
   var loadingState = b.useState(true); var loading = loadingState[0], setLoading = loadingState[1];
+  var mainWideState = b.useState(function(){ return window.innerWidth>=1024; });
+  var mainWide = mainWideState[0], setMainWide = mainWideState[1];
 
   b.useEffect(function(){
     if(!uid) return;
@@ -4789,6 +4792,13 @@ function GimnasioModule(){
     return function(){ u1(); u2(); u3(); };
   },[uid]);
 
+  b.useEffect(function(){
+    var cb = function(){ setMainWide(window.innerWidth>=1024); };
+    window.addEventListener('resize', cb);
+    return function(){ window.removeEventListener('resize', cb); };
+  },[]);
+
+  // A partir de aquí ya pueden existir returns condicionales ─────────────────
   if(loading){
     return d.jsxs('div',{style:{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'},children:[
       d.jsx(FPBackdrop,{}),
@@ -4814,14 +4824,6 @@ function GimnasioModule(){
     if(effectiveTab==='perfil')       return d.jsx(GymPerfil,{uid:uid, setTab:setTab});
     return null;
   };
-
-  var mainWideState = b.useState(function(){ return window.innerWidth>=1024; });
-  var mainWide = mainWideState[0], setMainWide = mainWideState[1];
-  b.useEffect(function(){
-    var cb = function(){ setMainWide(window.innerWidth>=1024); };
-    window.addEventListener('resize', cb);
-    return function(){ window.removeEventListener('resize', cb); };
-  },[]);
 
   return d.jsxs('div',{style:{minHeight:'100vh',position:'relative'},children:[
     d.jsx('main',{style:{paddingLeft:mainWide?256:0}, children:renderTab()}),
