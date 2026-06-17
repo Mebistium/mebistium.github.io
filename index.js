@@ -3830,7 +3830,7 @@ function GymInicio({routines, logs, uid, onStart, setTab}){
 
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1600,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2200,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
 
       // Header
       d.jsxs('header',{style:{display:'block'},children:[
@@ -4076,7 +4076,7 @@ function GymActiveWorkout({routine, logs, uid, onFinish, onCancel}){
 
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1600,margin:'0 auto',boxSizing:'border-box',display:'flex',flexDirection:'column',minHeight:'100vh',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2200,margin:'0 auto',boxSizing:'border-box',display:'flex',flexDirection:'column',minHeight:'100vh',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
 
       // Header
       d.jsxs('header',{style:{display:'grid',gridTemplateColumns:'auto minmax(0,1fr) auto',alignItems:'center',gap:12},children:[
@@ -4196,7 +4196,7 @@ function GymRutinas({routines, uid, setTab, onStart}){
 
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1600,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2200,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
       d.jsxs('header',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12},children:[
         d.jsx('p',{style:{fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',color:FPK.primary},children:'Rutinas'}),
         d.jsxs('button',{onClick:newRoutine,style:Object.assign(fpGradientPrimary({display:'flex',alignItems:'center',gap:8,borderRadius:16,padding:'8px 12px',fontSize:14,fontWeight:600,color:FPK.primaryFg,border:'none',cursor:'pointer',boxShadow:'0 6px 16px -4px rgba(255,255,255,0.3)'})),children:[FPSvg('plus',{size:16,color:FPK.primaryFg}),'Nueva']}),
@@ -4246,7 +4246,7 @@ function GymRoutineEditor({routine, onSave, onCancel}){
 
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1600,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2200,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
       d.jsxs('header',{style:{display:'grid',gridTemplateColumns:'auto minmax(0,1fr) auto',alignItems:'center',gap:8},children:[
         d.jsx('button',{onClick:onCancel,style:Object.assign(fpGlass({width:40,height:40,flexShrink:0,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid '+FPK.glassBorder,cursor:'pointer'})),children:FPSvg('x',{size:16})}),
         d.jsx('p',{style:{fontSize:13,fontWeight:700,textAlign:'center',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',margin:0},children:routine.name?'Editar rutina':'Nueva rutina'}),
@@ -4372,7 +4372,7 @@ function GymProgreso({logs, routines, weightLog}){
 
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1800,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2400,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
       d.jsxs('header',{children:[
         d.jsx('p',{style:{fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',color:FPK.primary},children:'Tu evolución'}),
         d.jsx('h1',{style:{marginTop:4,fontFamily:FPK.fontDisplay,fontSize:30,fontWeight:800},children:'Progreso semanal'}),
@@ -4476,7 +4476,7 @@ function GymDieta({uid}){
 
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1800,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2400,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
       d.jsxs('header',{style:{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12},children:[
         d.jsxs('div',{children:[
           d.jsx('p',{style:{fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',color:FPK.primary},children:'Tu plan'}),
@@ -4583,7 +4583,7 @@ function GymTools(){
 
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1600,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2200,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
       d.jsxs('header',{children:[
         d.jsx('p',{style:{fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',color:FPK.primary},children:'Herramientas'}),
         d.jsx('h1',{style:{marginTop:4,fontFamily:FPK.fontDisplay,fontSize:28,fontWeight:800},children:'Calculadoras'}),
@@ -4662,7 +4662,7 @@ function GymCoach({logs, routines, weightLog}){
 
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1600,margin:'0 auto',boxSizing:'border-box',display:'flex',height:'100vh',flexDirection:'column',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2200,margin:'0 auto',boxSizing:'border-box',display:'flex',height:'100vh',flexDirection:'column',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
       d.jsxs('header',{style:{display:'grid',gridTemplateColumns:'auto minmax(0,1fr)',alignItems:'center',gap:12},children:[
         d.jsx('div',{style:Object.assign(fpGradientPrimary({display:'grid',height:48,width:48,flexShrink:0,placeItems:'center',borderRadius:16,color:FPK.primaryFg,boxShadow:'0 6px 20px -4px rgba(255,255,255,0.3)'})),children:FPSvg('sparkles',{size:20,color:FPK.primaryFg})}),
         d.jsxs('div',{style:{minWidth:0},children:[
@@ -4759,7 +4759,7 @@ async function callGeminiGym(message, context){
 function GymPerfil({uid, setTab}){
   return d.jsxs('div',{style:{minHeight:'100vh'},children:[
     d.jsx(FPBackdrop,{}),
-    d.jsxs('div',{style:{width:'100%',maxWidth:1600,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
+    d.jsxs('div',{style:{width:'100%',maxWidth:2200,margin:'0 auto',boxSizing:'border-box',padding:(window.innerWidth>=1024?'32px 40px 48px':'24px 16px 112px')},children:[
       d.jsx('h1',{style:{fontFamily:FPK.fontDisplay,fontSize:28,fontWeight:800},children:'Perfil'}),
       d.jsx('div',{style:{marginTop:20,display:'flex',flexDirection:'column',gap:10},children:[
         d.jsxs('button',{onClick:function(){ setTab('rutinas-full'); },style:Object.assign(fpGlass({display:'flex',alignItems:'center',gap:12,borderRadius:16,padding:'14px 16px',width:'100%',border:'1px solid '+FPK.glassBorder,cursor:'pointer',color:FPK.foreground})),children:[FPSvg('dumbbell',{size:18}),d.jsx('span',{style:{fontSize:14,fontWeight:600},children:'Gestionar rutinas'})]}),
@@ -13045,7 +13045,7 @@ children: "Cerrar sesión",
 }),
 d.jsx("p", {
 style: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-children: "v51",
+children: "v52",
 }),
 ],
 }),
@@ -13072,7 +13072,7 @@ fontFamily: "ui-monospace, SFMono-Regular, monospace",
 pointerEvents: "none",
 userSelect: "none",
 },
-children: "v51",
+children: "v52",
 });
 }
 
